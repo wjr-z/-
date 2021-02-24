@@ -38,7 +38,7 @@ And it won't search files with the suffix ".jpg" ".png" ".gif" ".mp4" ".exe" ".z
 
 I spend one day writing this ugly code with few functions.
 
-I spend much times on optimizing efficiency so that can serach about 200M to 250M at 1 second.
+I spend much times on optimizing efficiency so that it can serach about 200M to 250M at 1 second now.
 
 If I have time , I will use cache mechanism , hash , trie tree and Multithreading .
 
