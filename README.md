@@ -34,6 +34,8 @@ If you want to search bigger files,you coulde change MAX_SIZE in my code and the
 
 And it won't search files with the suffix ".jpg" ".png" ".gif" ".mp4" ".exe" ".zip" ".dll" ".db"
 
+And it won't search the name of files beacuse I'm so tired that I forget to write this function.
+
 ### About the futrue
 
 I spend one day writing this ugly code with few functions.
