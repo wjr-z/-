@@ -1,3 +1,4 @@
+﻿#pragma GCC optimize(3,"Ofast","inline")
 #include <cstdio>
 #include <cstdlib>
 #include <istream>
@@ -114,11 +115,12 @@ inline void read_File_all(string&s, string& g) {
 }
 ofstream myout("out.txt");
 inline void end_work() {
-	fclose(stdin);
-	fclose(stdout);
 	free(str);
 	free(a.nxt);
 	myout.close();
+	system("pause");
+	fclose(stdin);
+	fclose(stdout);
 	exit(0);
 }
 inline string path_extension(char*s) {
@@ -134,7 +136,7 @@ inline string path_extension(char*s) {
 }
 string ss;
 inline bool remove(string _extension) {
-	if(_extension==".jpg"||_extension==".png"||_extension==".gif"||_extension==".dll"||_extension==".exe"||_extension==".zip")
+	if(_extension==".jpg"||_extension==".png"||_extension==".gif"||_extension==".mp4"||_extension==".exe"||_extension==".zip"||_extension==".dll"||_extension==".db")
 		return true;
 	return false;
 }
