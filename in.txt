@@ -1,2 +1,6 @@
-D:\wjrblog2
-button,hr,input
+path:
+D:
+thread:
+1
+content:
+error_reporting(0);

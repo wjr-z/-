@@ -1,64 +1,137 @@
-﻿#pragma GCC optimize(3,"Ofast","inline")
+﻿#include <io.h>
+#include <mutex>
 #include <cstdio>
+#include <string>
+#include <time.h>
+#include <vector>
+#include <thread>
 #include <cstdlib>
 #include <istream>
-#include <iostream>
-#include <string>
-#include <io.h>
-#include <windows.h>
 #include <conio.h>
 #include <fstream>
-#include <time.h>
+#include <iostream>
+#include <windows.h>
+
 #pragma execution_character_set("utf-8")
 using namespace std;
+
+mutex mutex_number;
+
 inline void end_work();
-char* str;
-int len = 1, pos, siz;
-int open_count;
-string FILE_path;
-const int MAX_SIZE=50000000;
-inline bool init(string&s) {
-	FILE* fp;
-	errno_t err;
-	err=fopen_s(&fp,s.c_str(),"rb");
-	if (err) {
-		siz = 0, pos = 0;
-		return false;
+
+struct my_file {//读入的文件
+	int pos, siz, len;
+	char* str;
+	int find_file=0,sleep_count=2000,sleep_time=50;//优化CPU占用率，用于多线程防止CPU占用过大
+	const int MAXN = 1 << 22;//优化磁盘读写，防止一次性读入过大文件
+	my_file() {
+		len = 1;
+		str = (char*)malloc(sizeof(char*));
 	}
-	fseek(fp, 0, SEEK_END);
-	siz = ftell(fp);
-	if (siz >= MAX_SIZE) {//限制查找文件的大小
-		fclose(fp);
-		return false;
-	}
-	rewind(fp);
-	if (len < siz) {
-		while (len < siz) {
-			len <<= 1;
+	void _sleep() {
+		if (++find_file >= sleep_count) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
+			find_file=0;
 		}
-		free(str);
-		str = (char*)malloc(sizeof(char*) * len);
 	}
-	fread(str, 1, siz, fp);
-	pos = 0;
-	fclose(fp);
-	return true;
-}
-inline void getline(string& s) {
-	while (str[pos] != '\r' && str[pos] != '\n' && pos < siz)
-		s += str[pos++];
-	if (str[pos] == '\r')pos+=2;//对于\r\n换行吃掉\r\n
-}
-inline void get_all(string& s) {
-	while (pos < siz)s += str[pos++];
-}
-struct KMP {
+	bool read_FILE(string& s, int MAX_SIZE) {//读入一个文件
+		FILE* fp;
+		errno_t err;
+		err = fopen_s(&fp, s.c_str(), "rb");
+		if (err) {
+			siz = 0, pos = 0;
+			return false;
+		}
+		fseek(fp, 0, SEEK_END);
+		siz = ftell(fp);
+		if (siz >= MAX_SIZE) {//限制查找文件的大小
+			fclose(fp);
+			return false;
+		}
+		rewind(fp);
+		if (len < siz) {//自制简易vector
+			while (len < siz) {
+				len <<= 1;
+			}
+			free(str);
+			str = (char*)malloc(sizeof(char*) * len);
+		}
+		if(siz<MAXN)fread(str, 1, siz, fp);
+		else {//磁盘读写优化
+			int num,top=0;
+			while ((num = fread(str+top, 1, MAXN, fp)))top+=num;
+		}
+		pos = 0;
+		fclose(fp);
+		return true;
+	}void getline(string& s) {
+		while (str[pos] != '\r' && str[pos] != '\n' && pos < siz)
+			s .push_back( str[pos++] );
+		if (str[pos] == '\r')++pos;
+		if (str[pos] == '\n')++pos;
+	}void getall(string& s) {
+		while (pos < siz)s .push_back( str[pos++] );
+	}void get_index(int& x) {
+		x = 0;
+		while (str[pos] != '\r' && str[pos] != '\n' && pos < siz)
+			x = (x << 1) + (x << 3) + str[pos++] - '0';
+		if (str[pos] == '\r')++pos;
+		if (str[pos] == '\n')++pos;
+	}
+}a, b;
+
+
+struct wjr {//设置值
+	string FILE_PATH,root_path,FILE_name,FILE_content;
+	int MAX_SIZE;
+	int is_thread;
+	wjr() {//默认值
+		root_path="";
+		FILE_PATH="in.txt";
+		MAX_SIZE=30000000;//限制搜索文件大小
+		is_thread=0;
+	}
+	void read_setting(my_file&x) {//读入配置文件
+		if (!x.read_FILE(setting.FILE_PATH, setting.MAX_SIZE)) {
+			end_work();
+		}
+		string a;
+		int n;
+		while (x.pos < x.siz) {
+			a = "";
+			x.getline(a);
+			n = a.length();
+			while (n && (a[n - 1] == ' ' || a[n - 1] == ':'))--n,a.pop_back();
+			if (a == "path") {
+				x.getline(setting.root_path);
+			}
+			if (a == "max_size") {
+				x.get_index(setting.MAX_SIZE);
+			}
+			if (a == "thread") {
+				x.get_index(setting.is_thread);
+			}
+			if (a == "content") {
+				x.getall(setting.FILE_content);
+			}
+		}
+		int len=root_path.length();
+		if(!len)return;
+		int L=0,R=len-1;
+		while(L<len&&root_path[L]=='"')++L;
+		while(R>=0&&root_path[R]=='"')--R;
+		if(L<len)
+			root_path=root_path.substr(L,R-L+1);
+	}
+}setting;
+
+struct KMP {//KMP匹配
 	string s;
 	int* nxt, length;
 	KMP() {
 		length = 0;
 	}
-	inline void get_nxt() {
+	void get_nxt() {
 		nxt = (int*)malloc(sizeof(int*) * (length + 1));
 		int i = 0, j = -1;
 		nxt[0] = -1;
@@ -67,63 +140,48 @@ struct KMP {
 				nxt[++i] = ++j;
 			else j = nxt[j];
 		}
-	}inline bool find(string& g, int n) {
+	}bool find(string& g, int n) {
 		int i = 0, j = 0;
 		while (i < n && j < length) {
-			if (length +i > n + j)return false;//主串长度没有匹配串剩余长度长
-			if (j == -1 || g[i] == s[j])
+			if(length+i>n+j)return false;
+			if (g[i]==s[j]||j==-1)
 				++i, ++j;
 			else j = nxt[j];
 		}
 		if (j == length)return true;
 		else return false;
 	}
-}a;
-string root_path;
-inline void maintain() {
-	int n = root_path.length();
-	if (!n) {
-		cout << "请在.exe同目录下新建in.txt文件，第一行为查找根目录的路径(直接用复制路径即可)，第二行为查找的内容" << '\n';
-		end_work();
-	}
-	int L = 0, R = n - 1;
-	while (root_path[L] == '"')L++;
-	while (root_path[R] == '"')R--;
-	string t(root_path.substr(L, R - L + 1));
-	root_path = t;
-	n = root_path.length();
-	if (!n) {
-		cout << "请检查输入的路径格式" << endl;
-		end_work();
-	}
+}_search;
+
+inline void setting_work() {
+	_search.s=setting.FILE_content;
+	_search.length=_search.s.length();
+	_search.get_nxt();
 }
-inline void read() {
-	str = (char*)malloc(sizeof(char*));
+
+
+inline void init() {
 	SetConsoleOutputCP(65001);
-	//std::ios::sync_with_stdio(false);
-	if(!init((FILE_path="in.txt")))end_work();
-	getline(root_path);
-	get_all(a.s);
-	maintain();
-	a.length = a.s.length();
+	b.find_file=b.sleep_count>>1;
 }
-int cnt;
-inline void read_File_all(string&s, string& g) {
+int cnt,cnt_1,cnt_2;
+inline void read_File_all(string&s, string& g,my_file&x) {
 	g = "";
-	if(!init(s))return;
-	get_all(g);
+	if(!x.read_FILE(s,setting.MAX_SIZE))return;
+	x.getall(g);
 }
 ofstream myout("out.txt");
 inline void end_work() {
-	free(str);
-	free(a.nxt);
+	free(a.str);
+	free(b.str);
+	free(_search.nxt);
 	myout.close();
 	system("pause");
 	fclose(stdin);
 	fclose(stdout);
 	exit(0);
 }
-inline string path_extension(char*s) {
+string path_extension(char*s) {
 	static int len, i;
 	len = strlen(s);
 	i = 0;
@@ -131,53 +189,129 @@ inline string path_extension(char*s) {
 	if (i == len )return "";
 	string g = "";
 	while (i < len)
-		g += s[i++];
+		g .push_back( s[i++] );
 	return g;
 }
-string ss;
-inline bool remove(string _extension) {
+bool remove(string _extension) {
 	if(_extension==".jpg"||_extension==".png"||_extension==".gif"||_extension==".mp4"||_extension==".exe"||_extension==".zip"||_extension==".dll"||_extension==".db")
 		return true;
 	return false;
 }
-inline void getFiles(string path) {
-	string Files;
+void getFiles(string&path,my_file&x) {
+	x._sleep();
+	string Files,p=path+"\\*",ss;
 	long hFile;
 	struct _finddata_t fileinfo;
-	string p = path + "\\*";
 	if ((hFile = _findfirst(p.c_str(), &fileinfo)) != -1) {
 		do {
-			string h = path + "\\" + fileinfo.name;
+			p = path + "\\" + fileinfo.name;
 			if ((fileinfo.attrib & _A_SUBDIR)) {
 				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0&&strcmp(fileinfo.name,"$RECYCLE.BIN")) {
-					getFiles(h);
+					getFiles(p,x);
 				}
 			}
 			else {
 				if ((fileinfo.attrib& _A_SYSTEM)||remove(path_extension(fileinfo.name))) {
 					continue;
 				}
-				read_File_all(h, ss);
-				if (a.find(ss, ss.length())) {
-					cout<<h<<'\n';
-					myout << h << '\n';
+				read_File_all(p, ss,x);
+				if (_search.find(ss, ss.length())) {
+					mutex_number.lock();
+					cout << p << '\n';
+					myout << p << '\n';
 					cnt++;
+					mutex_number.unlock();
 				}
 			}
 		} while (_findnext(hFile, &fileinfo) == 0);
 		_findclose(hFile);
 	}
-}inline void work() {
+}
+void thread_get_Files_1() {
+	string Files, p = setting.root_path + "\\*",ss;
+	long hFile;
+	struct _finddata_t fileinfo;
+	int step=0;
+	if ((hFile = _findfirst(p.c_str(), &fileinfo)) != -1) {
+		do {
+			++step;
+			if (!(step & 1)) continue;
+			p = setting.root_path + "\\" + fileinfo.name;
+			if ((fileinfo.attrib & _A_SUBDIR)) {
+				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0 && strcmp(fileinfo.name, "$RECYCLE.BIN")) {
+					getFiles(p,a);
+				}
+			}
+			else {
+				if ((fileinfo.attrib & _A_SYSTEM) || remove(path_extension(fileinfo.name))) {
+					continue;
+				}
+				read_File_all(p, ss,a);
+				if (_search.find(ss, ss.length())) {
+					mutex_number.lock();
+					cout << p << '\n';
+					myout << p << '\n';
+					cnt_1++;
+					mutex_number.unlock();
+				}
+			}
+		} while (_findnext(hFile, &fileinfo) == 0);
+		_findclose(hFile);
+	}
+}
+
+void thread_get_Files_2() {
+	string Files, p = setting.root_path + "\\*",ss;
+	long hFile;
+	struct _finddata_t fileinfo;
+	int step = 0;
+	if ((hFile = _findfirst(p.c_str(), &fileinfo)) != -1) {
+		do {
+			++step;
+			if (step&1) continue;
+			p = setting.root_path + "\\" + fileinfo.name;
+			if ((fileinfo.attrib & _A_SUBDIR)) {
+				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0 && strcmp(fileinfo.name, "$RECYCLE.BIN")) {
+					getFiles(p,b);
+				}
+			}
+			else {
+				if ((fileinfo.attrib & _A_SYSTEM) || remove(path_extension(fileinfo.name))) {
+					continue;
+				}
+				read_File_all(p, ss,b);
+				if (_search.find(ss, ss.length())) {
+					mutex_number.lock();
+					cout << p << '\n';
+					myout << p << '\n';
+					cnt_2++;
+					mutex_number.unlock();
+				}
+			}
+		} while (_findnext(hFile, &fileinfo) == 0);
+		_findclose(hFile);
+	}
+}
+
+inline void thread_Files() {
+	thread t1(thread_get_Files_1);
+	thread t2(thread_get_Files_2);
+	t1.join();
+	t2.join();
+}
+
+inline void work() {
 	int start=clock();
-	read();
-	a.get_nxt();
-	getFiles(root_path);
+	init();
+	setting.read_setting(a);
+	setting_work();
+	if(!setting.is_thread)getFiles(setting.root_path,a);
+	else thread_Files();
 	int end=clock();
-	printf("在%dms内找到%d个文件\n",end-start,cnt);
+	printf("在%dms内找到%d个文件\n",end-start,cnt+cnt_1+cnt_2);
 	end_work();
 }
 int main() {
 	work();
 	return 0;
 }
-
