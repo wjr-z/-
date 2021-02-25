@@ -1,5 +1,6 @@
 # quick_search_file_content
-## 快速查找文件内容
+
+[中文版](https://wjr-z.com/%E5%BF%AB%E9%80%9F%E6%9F%A5%E6%89%BE%E6%96%87%E4%BB%B6%E4%BB%A3%E7%A0%81/)
 
 ## Introduce
 I spent two days on how to optimize the search
@@ -36,24 +37,6 @@ qwq
 
 ### Click ".exe" and you will get a file named "out.txt" that lists file paths that you want
 
-
-## 使用
-### 在".exe"同目录下新建一个"in.txt"
-
-### 然后你需要像下面这样配置"in.txt"
-```
-path:
-D:\BaiduNetdiskDownload
-max_size:
-3000000
-thread:
-1
-content:
-qwq
-```
-### 点击".exe"，你就会得到一个"out.txt"文件，其中列出了你想要的搜索的文件路径
-
-
 ## About(Something that you must know)
 
 ### It have four configuration option: 'path','thread','max_size' and 'content'.
@@ -80,15 +63,30 @@ content: The content that you want to search(It can be multiple lines)
 
 You must at least set 'path' and 'content'.
 
+Do not write keywords and option in one line 
+
+For example, this is wrong:
+```
+path: D:\css
+content:qwq
+```
+You must write it like this:
+```
+path:
+D:\CDN
+content:
+qwq
+```
+
 And the 'content' must be the bottom.
 
 You can see examples like "in.txt"(read) and "out.txt"(write)
 
-#### If it takes much CPU ,please set 'thread' to 0 and set 'max_size' smaller such as 10000000(about 10M)
+### If it takes much CPU ,please set 'thread' to 0 and set 'max_size' smaller such as 10000000(about 10M)
 
-#### Set 'thread' to non-zero can serach quicker(time->65% CPU->170% disk->150% Test when searching 60G files)
+### Set 'thread' to non-zero can serach quicker(time->65% CPU->170% disk->150% Test when searching 60G files)
 
-#### You can read my ugly ".cpp" to find more details or make changes 
+### You can read my ugly ".cpp" to find more details or make changes 
 
-#### My English is not good (hope that you can understand)
+### My English is not good (hope that you can understand)
 
