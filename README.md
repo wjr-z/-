@@ -1,4 +1,4 @@
-﻿# quick_search_file_content
+# quick_search_file_content
 ## 快速查找文件内容
 
 ## Introduce
