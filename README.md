@@ -1,14 +1,21 @@
-﻿# quick_search_file_content
+# quick_search_file_content
 ## 快速查找文件内容
 
 ## Introduce
 I spent two days on how to optimize the search
+
 First,I used fopen_s , freopen and KMP ,then this can search about 60G at 4 minutes.
+
 Then I think I can use multithreading to optimize it
+
 After I use multithreading ,it can search about 60G at 2 minutes
+
 But this will take up a lot of CPU and disk
+
 So I set some limits to it to protect CPU and disk
+
 **Now it can search 60G at about 2minutes30seconds.**
+
 (There are many files that won't be searched such as ".dll")
 
 ## Usage
@@ -29,7 +36,6 @@ qwq
 
 ### Click ".exe" and you will get a file named "out.txt" that lists file paths that you want
 
-```
 
 ## 使用
 ### 在".exe"同目录下新建一个"in.txt"
@@ -48,7 +54,7 @@ qwq
 ### 点击".exe"，你就会得到一个"out.txt"文件，其中列出了你想要的搜索的文件路径
 
 
-### About(Something that you must know)
+## About(Something that you must know)
 
 ### It have four configuration option: 'path','thread','max_size' and 'content'.
 
