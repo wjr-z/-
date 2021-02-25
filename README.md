@@ -39,7 +39,7 @@ qwq
 
 ## About(Something that you must know)
 
-### It have four configuration option: 'path','thread','max_size' and 'content'.
+#### It have four configuration option: 'path','thread','max_size' and 'content'.
 
 Default configuration:
 ```
@@ -82,11 +82,11 @@ And the 'content' must be the bottom.
 
 You can see examples like "in.txt"(read) and "out.txt"(write)
 
-### If it takes much CPU ,please set 'thread' to 0 and set 'max_size' smaller such as 10000000(about 10M)
+#### If it takes much CPU ,please set 'thread' to 0 and set 'max_size' smaller such as 10000000(about 10M)
 
-### Set 'thread' to non-zero can serach quicker(time->65% CPU->170% disk->150% Test when searching 60G files)
+#### Set 'thread' to non-zero can serach quicker(time->65% CPU->170% disk->150% Test when searching 60G files)
 
-### You can read my ugly ".cpp" to find more details or make changes 
+#### You can read my ugly ".cpp" to find more details or make changes 
 
-### My English is not good (hope that you can understand)
+#### My English is not good (hope that you can understand)
 
