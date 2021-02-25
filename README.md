@@ -1,5 +1,5 @@
 # quick_search_file_content
-## ¿ìËÙ²éÕÒÎÄ¼şÄÚÈİ
+## å¿«é€ŸæŸ¥æ‰¾æ–‡ä»¶å†…å®¹
 
 ```
 Create a new file "in.txt" in the same directory of the ".exe"
@@ -12,13 +12,21 @@ Then click ".exe" and you will get a file named "out.txt" that lists file paths 
 ```
 
 ```
+<<<<<<< HEAD
 ÔÚ.exeÍ¬Ä¿Â¼ÏÂĞÂ½¨Ò»¸öin.txt
+=======
+åœ¨.exeåŒç›®å½•ä¸‹æ–°å»ºä¸€ä¸ªin.txt
+>>>>>>> ae3f9c61b50eb368fd3792aa50de7851689d4dd4
 
-ÔÚ"in.txt"µÚÒ»ĞĞÊäÈëÂ·¾¶
+åœ¨"in.txt"ç¬¬ä¸€è¡Œè¾“å…¥è·¯å¾„
 
-ÔÚ"in.txt"µÚ¶şĞĞÊäÈëÄãÏë²éÕÒµÄÎÄ¼şÄÚÈİ(Ö§³Ö¶àĞĞ)
+åœ¨"in.txt"ç¬¬äºŒè¡Œè¾“å…¥ä½ æƒ³æŸ¥æ‰¾çš„æ–‡ä»¶å†…å®¹(æ”¯æŒå¤šè¡Œ)
 
+<<<<<<< HEAD
 È»ºóµã»÷".exe"£¬Äã»áµÃµ½Ò»¸öÁĞ¾ÙÁËÄãÏëÒªµÄÎÄ¼şÂ·¾¶µÄ"out.txt"ÎÄ¼ş
+=======
+ç„¶åç‚¹å‡»".exe"ï¼Œä½ ä¼šå¾—åˆ°ä¸€ä¸ªåˆ—ä¸¾äº†ä½ æƒ³è¦çš„æ–‡ä»¶è·¯å¾„çš„"out.txt"æ–‡ä»¶
+>>>>>>> ae3f9c61b50eb368fd3792aa50de7851689d4dd4
 ```
 
 
@@ -33,6 +41,8 @@ So I think 47M is big enough.
 If you want to search bigger files,you coulde change MAX_SIZE in my code and then generate a new ".exe".
 
 And it won't search files with the suffix ".jpg" ".png" ".gif" ".mp4" ".exe" ".zip" ".dll" ".db"
+
+And it won't search the name of files beacuse I'm so tired that I forget to write this function.
 
 ### About the futrue
 
