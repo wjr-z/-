@@ -1,59 +1,88 @@
-# quick_search_file_content
+﻿# quick_search_file_content
 ## 快速查找文件内容
 
+## Introduce
+I spent two days on how to optimize the search
+First,I used fopen_s , freopen and KMP ,then this can search about 60G at 4 minutes.
+Then I think I can use multithreading to optimize it
+After I use multithreading ,it can search about 60G at 2 minutes
+But this will take up a lot of CPU and disk
+So I set some limits to it to protect CPU and disk
+**Now it can search 60G at about 2minutes30seconds.**
+(There are many files that won't be searched such as ".dll")
+
+## Usage
+### Create a new file "in.txt" in the same directory of the ".exe"
+
+### Then you need to configure "in.txt" like this:
+
 ```
-Create a new file "in.txt" in the same directory of the ".exe"
-
-Enter the path at the first line of "in.txt"
-
-Enter the file content that you want to search at the second line of "in.txt"(Support multiple lines)
-
-Then click ".exe" and you will get a file named "out.txt" that lists file paths that you want
-```
-
-```
-<<<<<<< HEAD
-��.exeͬĿ¼���½�һ��in.txt
-=======
-在.exe同目录下新建一个in.txt
->>>>>>> ae3f9c61b50eb368fd3792aa50de7851689d4dd4
-
-在"in.txt"第一行输入路径
-
-在"in.txt"第二行输入你想查找的文件内容(支持多行)
-
-<<<<<<< HEAD
-Ȼ����".exe"�����õ�һ���о�������Ҫ���ļ�·����"out.txt"�ļ�
-=======
-然后点击".exe"，你会得到一个列举了你想要的文件路径的"out.txt"文件
->>>>>>> ae3f9c61b50eb368fd3792aa50de7851689d4dd4
+path:
+D:\BaiduNetdiskDownload
+max_size:
+3000000
+thread:
+1
+content:
+qwq
 ```
 
+### Click ".exe" and you will get a file named "out.txt" that lists file paths that you want
 
-### Something that you should know
+```
 
-You should note that it won't search for files larger than 47M 
+## 使用
+### 在".exe"同目录下新建一个"in.txt"
 
-Because I designed it just for searching files with the suffix ".txt",".html",".css",".js" and so on.
+### 然后你需要像下面这样配置"in.txt"
+```
+path:
+D:\BaiduNetdiskDownload
+max_size:
+3000000
+thread:
+1
+content:
+qwq
+```
+### 点击".exe"，你就会得到一个"out.txt"文件，其中列出了你想要的搜索的文件路径
 
-So I think 47M is big enough.
 
-If you want to search bigger files,you coulde change MAX_SIZE in my code and then generate a new ".exe".
+### About(Something that you must know)
 
-And it won't search files with the suffix ".jpg" ".png" ".gif" ".mp4" ".exe" ".zip" ".dll" ".db"
+### It have four configuration option: 'path','thread','max_size' and 'content'.
 
-And it won't search the name of files beacuse I'm so tired that I forget to write this function.
+Default configuration:
+```
+path:
 
-### About the futrue
+max_size:
+3000000
+thread:
+0
+content:
 
-I spend one day writing this ugly code with few functions.
+```
 
-I spend much times on optimizing efficiency so that it can serach about 200M to 250M at 1 second now.
+path: The root path of the search you want
 
-If I have time , I will use cache mechanism , hash , trie tree and Multithreading .
+max_size: The max size of files that you want to search
 
-And I might beautify the code.
+thread: Set to a non-zero value to turn on multithreading
 
-And maybe I will make it a software later.
+content: The content that you want to search(It can be multiple lines)
 
-If there is such a if or I won't have this if forever.
+You must at least set 'path' and 'content'.
+
+And the 'content' must be the bottom.
+
+You can see examples like "in.txt"(read) and "out.txt"(write)
+
+#### If it takes much CPU ,please set 'thread' to 0 and set 'max_size' smaller such as 10000000(about 10M)
+
+#### Set 'thread' to non-zero can serach quicker(time->65% CPU->170% disk->150% Test when searching 60G files)
+
+#### You can read my ugly ".cpp" to find more details or make changes 
+
+#### My English is not good (hope that you can understand)
+
