@@ -1,92 +1,54 @@
-# quick_search_file_content
+# QuickSearch
 
-[中文版](https://wjr-z.com/%E5%BF%AB%E9%80%9F%E6%9F%A5%E6%89%BE%E6%96%87%E4%BB%B6%E4%BB%A3%E7%A0%81/)
+可用于快速查找文件及文件内容
 
-## Introduce
-I spent two days on how to optimize the search
+在路径输入框内输入路径或者选择路径（ctrl+s）
 
-First,I used fopen_s , freopen and KMP ,then this can search about 60G at 4 minutes.
+然后输入想要查找的文件名或文件内容（暂不支持正则表达式）
 
-Then I think I can use multithreading to optimize it
+可选择多线程，大小写敏感（暂支持这两种）
 
-After I use multithreading ,it can search about 60G at 2 minutes
+然后点击搜索（ctrl+enter）即可
 
-But this will take up a lot of CPU and disk
 
-So I set some limits to it to protect CPU and disk
 
-**Now it can search 60G at about 2minutes30seconds.**
+若是 1GB 内文件搜索：
 
-(There are many files that won't be searched such as ".dll")
+文件名大概仅需若干秒
 
-## Usage
-### Create a new file "in.txt" in the same directory of the ".exe"
+文件内容大概不超过$10 s\sim20 s$
 
-### Then you need to configure "in.txt" like this:
 
-```
-path:
-D:\BaiduNetdiskDownload
-max_size:
-3000000
-thread:
-1
-content:
-qwq
-```
 
-### Click ".exe" and you will get a file named "out.txt" that lists file paths that you want
+不建议直接搜索整个磁盘，因为那样挺耗时的，并且将导致CPU和磁盘消耗过大（CPU $20\%\sim 45\%$，磁盘最高1GB/s)
 
-## About(Something that you must know)
+实测
 
-#### It have four configuration option: 'path','thread','max_size' and 'content'.
+我的 60GB C盘需要 $180s\sim 200s$
 
-Default configuration:
-```
-path:
+我的 60 GB D盘需要$80 s\sim 100 s$
 
-max_size:
-3000000
-thread:
-0
-content:
 
-```
 
-path: The root path of the search you want
+不同的机器测试可能差距会很大
 
-max_size: The max size of files that you want to search
 
-thread: Set to a non-zero value to turn on multithreading
 
-content: The content that you want to search(It can be multiple lines)
+最大的原因就是因为我并未均匀的把任务分配给各个线程，因此就导致了部分极端情况会退化成单线程。
 
-You must at least set 'path' and 'content'.
+我现在的分配方式仅仅只是将根目录下一级的奇数分配给一个线程，偶数分配给另一个线程
 
-Do not write keywords and option in one line 
 
-For example, this is wrong:
-```
-path: D:\css
-content:qwq
-```
-You must write it like this:
-```
-path:
-D:\CDN
-content:
-qwq
-```
 
-And the 'content' must be the bottom.
+这样的话，如果根目录下奇数文件夹大小总和远大于偶数文件夹大小总和，那么多线程就会退化成单线程。
 
-You can see examples like "in.txt"(read) and "out.txt"(write)
 
-#### If it takes much CPU ,please set 'thread' to 0 and set 'max_size' smaller such as 10000000(about 10M)
 
-#### Set 'thread' to non-zero can serach quicker(time->65% CPU->170% disk->150% Test when searching 60G files)
+暂未想到很好的解决方法，但目前这个速度搜索1GB以内的文件夹，已经十分够用了。
 
-#### You can read my ugly ".cpp" to find more details or make changes 
 
-#### My English is not good (hope that you can understand)
+
+源代码需要用Qt Creator 打开.pro文件
+
+运行程序直接点击.exe即可
 

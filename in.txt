@@ -1,6 +1,0 @@
-path:
-D:
-thread:
-1
-content:
-error_reporting(0);
