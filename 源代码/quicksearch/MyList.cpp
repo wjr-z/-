@@ -5,7 +5,7 @@ MyQStringListItem::MyQStringListItem(const QString&path){
     s=new QString(path);
 }
 MyQStringListItem::~MyQStringListItem(){
-    delete s;
+    s->~QString();
 }
 MyQStringList::MyQStringList(){
     head=nullptr;

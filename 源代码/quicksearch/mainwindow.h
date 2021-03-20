@@ -51,6 +51,7 @@ private:
     int start_time,end_time;
     mutex mutex_number;
 
+    const int PageSize=100;
     QListWidgetItem*List;//存找到的所有文件、文件夹
     int list_size,ListPage;//个数和当前页数
     int show_size,MaxPage;//展示出的个数

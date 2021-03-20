@@ -59,7 +59,7 @@ void QuickSearchThread::getFiles(string& path) {
 void QuickSearchThread::thread_get_Files_1() {
     ++*ResThread;
     if(*NowThread){--*ResThread;return;}
-    string p(setting->root_path->toStdString() + "\\*"), q;
+    string p(setting->root_path->toLocal8Bit() + "\\*"), q;
     struct _finddata_t fileinfo;
     long hFile;
     int step(0);
@@ -68,7 +68,7 @@ void QuickSearchThread::thread_get_Files_1() {
             ++step;
             if (!(step & 1)) continue;
             q = fileinfo.name;
-            p = setting->root_path->toStdString() + "\\" + q;
+            p = string(setting->root_path->toLocal8Bit().data()) + "\\" + q;
             if (setting->fun_1&&FileName->find(q, q.length())) {
                 wjr->push_back(string_to_QString(p));
                 ++cnt1;
@@ -95,7 +95,7 @@ void QuickSearchThread::thread_get_Files_1() {
 void QuickSearchThread::thread_get_Files_2() {
     ++*ResThread;
     if(*NowThread){--*ResThread;return;}
-    string p(setting->root_path->toStdString() + "\\*"), q;
+    string p(setting->root_path->toLocal8Bit() + "\\*"), q;
     struct _finddata_t fileinfo;
     long hFile;
     int step(0);
@@ -104,7 +104,7 @@ void QuickSearchThread::thread_get_Files_2() {
             ++step;
             if (step & 1) continue;
             q = fileinfo.name;
-            p = setting->root_path->toStdString() + "\\" + q;
+            p = string(setting->root_path->toLocal8Bit().data()) + "\\" + q;
             if (setting->fun_1&&FileName->find(q, q.length())) {
                 wjr->push_back(string_to_QString(p));
                 ++cnt1;

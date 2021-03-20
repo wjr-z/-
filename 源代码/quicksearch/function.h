@@ -6,8 +6,18 @@
 #include <QList>
 using namespace std;
 
-extern string path_extension(char* s);
-extern QString string_to_QString(string&str);
+inline string path_extension(char* s) {
+    int len(strlen(s)), i(0);
+    while (i < len && s[i] != '.')++i;
+    ++i;
+    if (i >= len)return "";
+    string g;
+    g.append(s+i,len-i);
+    return g;
+}
+inline QString string_to_QString(string&str){
+    return QString::fromLocal8Bit(str.data());
+}
 extern void MainTainPath(QString&s);
 
 

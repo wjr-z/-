@@ -2,7 +2,7 @@
 #include <QFileInfo>
 #include <mainwindow.h>
 #include <QDesktopServices>
-#include "io.h"
+#include <io.h>
 #include "ui_mainwindow.h"
 #include "SearchThread.h"
 void MainWindow::show_string(const QString&s){
@@ -62,8 +62,6 @@ void MainWindow::work(){
 
     start_time=clock();
     emit show_end("正在搜索!");
-
-    QListWidgetItem*p;
 
     FileName->init(setting->FileName);
     FileContent->init(setting->FileContent);
@@ -136,7 +134,7 @@ void MainWindow::Merge(MyQStringList*p,MyQStringList*q){
 
     List=new QListWidgetItem [n+m];
     list_size=n+m;
-    MaxPage=(list_size-1)/200+1;
+    MaxPage=(list_size-1)/PageSize+1;
 
     QListWidgetItem*head=List;
 
@@ -166,7 +164,7 @@ void MainWindow::Merge(MyQStringList*p,MyQStringList*q){
     }
 }
 void MainWindow::ListShow(){
-    QListWidgetItem*L=List+(ListPage-1)*200,*R=List+min(list_size,ListPage*200)-1;
+    QListWidgetItem*L=List+(ListPage-1)*PageSize,*R=List+min(list_size,ListPage*PageSize)-1;
     while(L<=R)
         emit slow_add_file_list(L++);
     PageShow();

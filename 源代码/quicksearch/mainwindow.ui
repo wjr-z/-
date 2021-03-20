@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>751</width>
-    <height>900</height>
+    <height>880</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,13 +19,13 @@
   <property name="minimumSize">
    <size>
     <width>751</width>
-    <height>900</height>
+    <height>880</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>751</width>
-    <height>900</height>
+    <height>880</height>
    </size>
   </property>
   <property name="font">
@@ -46,75 +46,55 @@
    <double>1.000000000000000</double>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">
+background:#484848; 
+color:white;
+selection-background-color:rgb(78,100,122);
+
+</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="path">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>40</y>
-      <width>81</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-      <pointsize>10</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>&amp;路径</string>
-    </property>
-    <property name="buddy">
-     <cstring>path_input</cstring>
-    </property>
-   </widget>
-   <widget class="QLabel" name="file_name">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>80</y>
-      <width>81</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-      <pointsize>10</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>文件名字</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="file_content">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>120</y>
-      <width>81</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-      <pointsize>10</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>文件内容</string>
-    </property>
-   </widget>
+   <property name="styleSheet">
+    <string notr="true">QLabel{
+	border:none;
+}
+.QLineEdit {
+     border: 1px solid gray;
+     border-radius: 4px;
+     padding: 0 0;
+     color : white;
+
+}
+QPushButton:focus{outline: none;}
+.QPushButton{
+border-style:none;
+border:1px solid #242424;
+color:#DCDCDC;
+padding:5px;
+min-height:15;
+min-width : 60;
+border-radius:5px;
+background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 #484848,stop:1 #383838);
+}
+
+.QPushButton:hover{
+background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 #646464,stop:1 #525252);
+}
+
+.QPushButton:disabled{
+    background:darkgray;
+}
+
+
+QCheckBox,QLabel{
+    color : white;
+}
+QCheckBox:disabled{
+    color : gray;
+}
+
+</string>
+   </property>
    <widget class="QPushButton" name="searchButton">
     <property name="enabled">
      <bool>false</bool>
@@ -134,7 +114,7 @@
      </font>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;快捷键 ctrl+enter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;快捷键 ctrl+enter&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
      <string>搜索</string>
@@ -143,133 +123,6 @@
      <string>Ctrl+Return</string>
     </property>
     <property name="default">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="path_input">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>40</y>
-      <width>131</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-     </font>
-    </property>
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;搜索根目录路径&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="file_name_input">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>80</y>
-      <width>221</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-     </font>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="file_content_input">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>120</y>
-      <width>221</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-     </font>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="max_size_input">
-    <property name="geometry">
-     <rect>
-      <x>590</x>
-      <y>40</y>
-      <width>121</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-     </font>
-    </property>
-    <property name="text">
-     <string>10485760</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="thread">
-    <property name="geometry">
-     <rect>
-      <x>460</x>
-      <y>120</y>
-      <width>81</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-      <pointsize>10</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>多线程</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="max_size">
-    <property name="geometry">
-     <rect>
-      <x>460</x>
-      <y>40</y>
-      <width>81</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-      <pointsize>10</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>最大大小</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="is_thread">
-    <property name="geometry">
-     <rect>
-      <x>590</x>
-      <y>120</y>
-      <width>91</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="checked">
      <bool>true</bool>
     </property>
    </widget>
@@ -283,7 +136,10 @@
      </rect>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;提示信息&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;提示信息&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
     </property>
     <property name="lineWidth">
      <number>0</number>
@@ -323,7 +179,14 @@
      </size>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 10pt &quot;微软雅黑&quot;;</string>
+     <string notr="true">font: 10pt &quot;微软雅黑&quot;;
+border: 1px solid gray;
+border-radius: 4px;
+padding: 0 0;
+     
+color : white;
+selection-background-color: rgb(255,255,255);
+</string>
     </property>
     <property name="frameShadow">
      <enum>QFrame::Sunken</enum>
@@ -350,69 +213,6 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QLabel" name="_case_sensetive">
-    <property name="geometry">
-     <rect>
-      <x>460</x>
-      <y>80</y>
-      <width>91</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>大小写敏感</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="is_case_sensetive">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>590</x>
-      <y>80</y>
-      <width>91</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="checked">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="fileview_button">
-    <property name="geometry">
-     <rect>
-      <x>300</x>
-      <y>40</y>
-      <width>71</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;快捷键 ctrl+s&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="text">
-     <string>浏览</string>
-    </property>
-    <property name="shortcut">
-     <string>Ctrl+S</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="PageUp">
     <property name="geometry">
      <rect>
@@ -421,6 +221,9 @@
       <width>81</width>
       <height>28</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;快捷键 ctrl+left&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="styleSheet">
      <string notr="true">快捷键 ctrl+left</string>
@@ -451,7 +254,7 @@
      </rect>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;快捷键 ctrl+right&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;快捷键 ctrl+right&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
      <string>下一页</string>
@@ -472,14 +275,14 @@
    <widget class="QLineEdit" name="TurnToPage">
     <property name="geometry">
      <rect>
-      <x>242</x>
+      <x>260</x>
       <y>810</y>
       <width>71</width>
       <height>28</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">border-with:0;border-style:outset;</string>
+     <string notr="true">border-with:0;</string>
     </property>
     <property name="readOnly">
      <bool>false</bool>
@@ -490,7 +293,7 @@
      <rect>
       <x>420</x>
       <y>810</y>
-      <width>51</width>
+      <width>72</width>
       <height>28</height>
      </rect>
     </property>
@@ -501,7 +304,7 @@
    <widget class="QLabel" name="MaxPage">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>340</x>
       <y>810</y>
       <width>71</width>
       <height>28</height>
@@ -511,29 +314,293 @@
      <string>/</string>
     </property>
    </widget>
+   <widget class="QWidget" name="gridLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>20</y>
+      <width>321</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="Left">
+     <property name="leftMargin">
+      <number>5</number>
+     </property>
+     <property name="topMargin">
+      <number>1</number>
+     </property>
+     <property name="rightMargin">
+      <number>10</number>
+     </property>
+     <property name="bottomMargin">
+      <number>1</number>
+     </property>
+     <item row="1" column="1">
+      <layout class="QHBoxLayout" name="fileinput">
+       <item>
+        <widget class="QLineEdit" name="file_name_input">
+         <property name="font">
+          <font>
+           <family>微软雅黑</family>
+          </font>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="2" column="1">
+      <layout class="QHBoxLayout" name="contentinput">
+       <item>
+        <widget class="QLineEdit" name="file_content_input">
+         <property name="font">
+          <font>
+           <family>微软雅黑</family>
+          </font>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="0" rowspan="3">
+      <layout class="QVBoxLayout" name="leftlabel">
+       <property name="topMargin">
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="path">
+         <property name="font">
+          <font>
+           <family>微软雅黑</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>路径</string>
+         </property>
+         <property name="buddy">
+          <cstring>path_input</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="file_name">
+         <property name="font">
+          <font>
+           <family>微软雅黑</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>文件名字</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="file_content">
+         <property name="font">
+          <font>
+           <family>微软雅黑</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border:none</string>
+         </property>
+         <property name="text">
+          <string>文件内容</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="1">
+      <layout class="QHBoxLayout" name="pathinput">
+       <item>
+        <widget class="QLineEdit" name="path_input">
+         <property name="font">
+          <font>
+           <family>微软雅黑</family>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;搜索根目录路径&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="fileview_button">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;快捷键 ctrl+s&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>浏览</string>
+         </property>
+         <property name="shortcut">
+          <string>Ctrl+S</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>20</y>
+      <width>321</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="Right">
+     <property name="leftMargin">
+      <number>5</number>
+     </property>
+     <property name="topMargin">
+      <number>1</number>
+     </property>
+     <property name="rightMargin">
+      <number>10</number>
+     </property>
+     <property name="bottomMargin">
+      <number>1</number>
+     </property>
+     <item row="3" column="1">
+      <layout class="QHBoxLayout" name="threadinput">
+       <item>
+        <widget class="QCheckBox" name="is_thread">
+         <property name="styleSheet">
+          <string notr="true">border:none</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="1">
+      <layout class="QHBoxLayout" name="maxsizeinput">
+       <item>
+        <widget class="QLineEdit" name="max_size_input">
+         <property name="font">
+          <font>
+           <family>微软雅黑</family>
+          </font>
+         </property>
+         <property name="text">
+          <string>10485760</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="2" column="1">
+      <layout class="QHBoxLayout" name="is_caseinput">
+       <item>
+        <widget class="QCheckBox" name="is_case_sensetive">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border:none;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="0" rowspan="3">
+      <layout class="QVBoxLayout" name="rightlabel">
+       <property name="topMargin">
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="max_size">
+         <property name="font">
+          <font>
+           <family>微软雅黑</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>最大大小</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="_case_sensetive">
+         <property name="font">
+          <font>
+           <family>微软雅黑</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>大小写敏感</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="thread">
+         <property name="font">
+          <font>
+           <family>微软雅黑</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>多线程</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>751</width>
-     <height>26</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <tabstops>
   <tabstop>path_input</tabstop>
   <tabstop>file_name_input</tabstop>
   <tabstop>file_content_input</tabstop>
-  <tabstop>max_size_input</tabstop>
-  <tabstop>is_case_sensetive</tabstop>
-  <tabstop>is_thread</tabstop>
   <tabstop>searchButton</tabstop>
+  <tabstop>fileview_button</tabstop>
   <tabstop>end_output</tabstop>
   <tabstop>file_list</tabstop>
+  <tabstop>PageUp</tabstop>
+  <tabstop>PageDown</tabstop>
+  <tabstop>TurnToPage</tabstop>
+  <tabstop>TurnTo</tabstop>
  </tabstops>
  <resources/>
  <connections/>

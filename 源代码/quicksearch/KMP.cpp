@@ -8,7 +8,7 @@ KMP::KMP(bool*is)
 }
 KMP::~KMP(){
     if(nxt!=nullptr)delete [] nxt;
-    delete(s);
+    s->~QString();
 }
 void KMP::get_nxt() {
     nxt = new int [length + 1];

@@ -12,9 +12,9 @@ _setting::_setting() {//默认值
     = true;
 }
 _setting::~_setting(){
-    delete(root_path);
-    delete(FileName);
-    delete(FileContent);
+    root_path->~QString();
+    FileName->~QString();
+    FileContent->~QString();
 }
 void _setting::clear(){
     root_path->clear();

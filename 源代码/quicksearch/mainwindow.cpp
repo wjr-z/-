@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+
+
     setting=new _setting;
     FileName=new KMP(&setting->is_case_sensitive);
     FileContent=new KMP(&setting->is_case_sensitive);
