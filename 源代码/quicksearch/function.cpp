@@ -11,3 +11,4 @@ void MainTainPath(QString&s){
     while(s.endsWith("\\"))s.chop(1);
     s=s.trimmed();
 }
+

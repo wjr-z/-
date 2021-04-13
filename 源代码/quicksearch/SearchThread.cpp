@@ -2,129 +2,157 @@
 #include "SearchThread.h"
 #include "function.h"
 #include "mainwindow.h"
+#include "QuickString.h"
 #include <iostream>
+#include <QDebug>
 
-QuickSearchThread::QuickSearchThread(_setting*SETTING,KMP*FILENAME,KMP*FILECONTENT,int*RESTHREAD,int*NOWTHREAD)
-    :setting(SETTING),FileName(FILENAME),FileContent(FILECONTENT),ResThread(RESTHREAD),NowThread(NOWTHREAD)
+QuickSearchThread::QuickSearchThread(_setting*SETTING,Sunday*FILENAME,Sunday*FILECONTENT,int*NOWTHREAD)
+    :setting(SETTING),FileName(FILENAME),FileContent(FILECONTENT),NowThread(NOWTHREAD)
 {
-    ReadFile=new my_file;
+    ReadFile=new QuickFile;
     wjr=new MyQStringList;
-    ReadFile->ResThread=ResThread;
 }
 QuickSearchThread::~QuickSearchThread(){
-    delete ReadFile;
-    delete wjr;
+    delete ReadFile,ReadFile=nullptr;
+    delete wjr,wjr=nullptr;
 }
 
 void QuickSearchThread::clear(){
-    ReadFile->clear();
     wjr->clear();
     cnt1=cnt2=0;
 }
 
-void QuickSearchThread::getFiles(string& path) {
+void QuickSearchThread::getFiles(const char* path) {
     if(*NowThread)return;
-    string p(path+"\\*") ,q;
-    struct _finddata_t fileinfo;
+    QuickString*p,*q;
+    p=new QuickString,q=new QuickString;
+    p->append(path)->append("\\*");
+    int len=strlen(path)+1;
+    _finddata_t fileinfo;
     long hFile;
-    if ((hFile=_findfirst(p.c_str(), &fileinfo))!=-1) {
+    if (~(hFile=_findfirst(p->c_str(), &fileinfo))) {
         do {
-             q = fileinfo.name;
-             p = path + "\\" + q;
-             if (setting->fun_1&&FileName->find(q, q.length())) {
-                 wjr->push_back(string_to_QString(p));
-                 ++cnt1;
-             }
-             if ((fileinfo.attrib & _A_SUBDIR)) {
-                 if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0) {
-                     getFiles(p);
-                 }
-             }
-             else {
-                 if (!setting->fun_2 || (fileinfo.attrib & _A_SYSTEM) || setting->__exclude.count(path_extension(fileinfo.name))) {
-                     continue;
-                 }
-                 ReadFile->ReadFilesIntoString(p,setting->MAX_SIZE);
-                 if (FileContent->find(ReadFile->__file, ReadFile->siz)) {
-                     wjr->push_back(string_to_QString(p));
-                     ++cnt2;
-                 }
-             }
+            if(fileinfo.attrib&6)continue;
+            ++SearchFile;
+            q->resize(0);
+            p->resize(len);
+            q->append(fileinfo.name);
+            p->append(q->c_str());
+            if (setting->fun_1&&FileName->search(q->c_str(), q->nowlength)) {
+                wjr->push_back(CharToQStr(q->c_str()),CharToQStr(p->c_str()));
+                ++cnt1;
+            }
+            if (fileinfo.attrib & _A_SUBDIR) {
+                if (strcmp(q->c_str(), ".") != 0 && strcmp(q->c_str(), "..") != 0)
+                    getFiles(p->c_str());
+            }
+            else {
+                if (!setting->fun_2 || setting->__exclude.count(path_extension(fileinfo.name)))
+                    continue;
+                ReadFile->QuickFileRead(p->c_str(),setting->MinSize,setting->MaxSize);
+                SearchSize+=ReadFile->len;
+                if (FileContent->search(ReadFile->ptr, ReadFile->len)) {
+                    wjr->push_back(CharToQStr(q->c_str()),CharToQStr(p->c_str()),ReadFile->len);
+                    ++cnt2;
+                }
+                ReadFile->close();
+            }
+
         } while (_findnext(hFile, &fileinfo) == 0);
         _findclose(hFile);
     }
+    delete p;
+    delete q;
 }
 
 
 void QuickSearchThread::thread_get_Files_1() {
-    ++*ResThread;
-    if(*NowThread){--*ResThread;return;}
-    string p(setting->root_path->toLocal8Bit() + "\\*"), q;
-    struct _finddata_t fileinfo;
+    if(*NowThread)return;
+    QuickString*p,*q;
+    p=new QuickString,q=new QuickString;
+    int len=strlen(setting->root_path->toLocal8Bit())+1;
+    p->append(setting->root_path->toLocal8Bit())->append("\\*");
+    _finddata_t fileinfo;
     long hFile;
     int step(0);
-    if ((hFile=_findfirst(p.c_str(), &fileinfo))!=-1) {
+    if (~(hFile=_findfirst(p->c_str(), &fileinfo))) {
         do {
+            if(fileinfo.attrib&6)continue;
             ++step;
             if (!(step & 1)) continue;
-            q = fileinfo.name;
-            p = string(setting->root_path->toLocal8Bit().data()) + "\\" + q;
-            if (setting->fun_1&&FileName->find(q, q.length())) {
-                wjr->push_back(string_to_QString(p));
+            ++SearchFile;
+            q->resize(0);
+            p->resize(len);
+            q->append(fileinfo.name);
+            p->append(q->c_str());
+            if (setting->fun_1&&FileName->search(q->c_str(), q->nowlength)) {
+                wjr->push_back(CharToQStr(q->c_str()),CharToQStr(p->c_str()));
                 ++cnt1;
             }
-            if ((fileinfo.attrib & _A_SUBDIR)) {
-                if (strcmp(fileinfo.name, ".")!=0  && strcmp(fileinfo.name, "..")!=0)
-                     getFiles(p);
+            if (fileinfo.attrib & _A_SUBDIR) {
+                if (strcmp(q->c_str(), ".")!=0  && strcmp(q->c_str(), "..")!=0)
+                     getFiles(p->c_str());
             }
             else {
-                if (!setting->fun_2 || (fileinfo.attrib & _A_SYSTEM) || setting->__exclude.count(path_extension(fileinfo.name)))
+                if (!setting->fun_2 || setting->__exclude.count(path_extension(fileinfo.name)))
                      continue;
-                ReadFile->ReadFilesIntoString(p,setting->MAX_SIZE);
-                if (FileContent->find(ReadFile->__file, ReadFile->siz)) {
-                    wjr->push_back(string_to_QString(p));
+                ReadFile->QuickFileRead(p->c_str(),setting->MinSize,setting->MaxSize);
+                SearchSize+=ReadFile->len;
+                if (FileContent->search(ReadFile->ptr, ReadFile->len)) {
+                    wjr->push_back(CharToQStr(q->c_str()),CharToQStr(p->c_str()),ReadFile->len);
                     ++cnt2;
                 }
+                ReadFile->close();
             }
         } while (_findnext(hFile, &fileinfo) == 0);
         _findclose(hFile);
     }
-    --*ResThread;
+    delete p;
+    delete q;
 }
 
 void QuickSearchThread::thread_get_Files_2() {
-    ++*ResThread;
-    if(*NowThread){--*ResThread;return;}
-    string p(setting->root_path->toLocal8Bit() + "\\*"), q;
-    struct _finddata_t fileinfo;
+    if(*NowThread)return;
+    QuickString*p,*q;
+    p=new QuickString,q=new QuickString;
+    int len=strlen(setting->root_path->toLocal8Bit())+1;
+    p->append(setting->root_path->toLocal8Bit())->append("\\*");
+    _finddata_t fileinfo;
     long hFile;
     int step(0);
-    if ((hFile=_findfirst(p.c_str(), &fileinfo))!=-1) {
+    if (~(hFile=_findfirst(p->c_str(), &fileinfo))) {
         do {
+            if(fileinfo.attrib&6)continue;
             ++step;
             if (step & 1) continue;
-            q = fileinfo.name;
-            p = string(setting->root_path->toLocal8Bit().data()) + "\\" + q;
-            if (setting->fun_1&&FileName->find(q, q.length())) {
-                wjr->push_back(string_to_QString(p));
+            ++SearchFile;
+            q->resize(0);
+            p->resize(len);
+            q->append(fileinfo.name);
+            p->append(q->c_str());
+            if (setting->fun_1&&FileName->search(q->c_str(), q->nowlength)) {
+                wjr->push_back(CharToQStr(q->c_str()),CharToQStr(p->c_str()));
                 ++cnt1;
             }
-            if ((fileinfo.attrib & _A_SUBDIR)) {
-                if (strcmp(fileinfo.name, ".")!=0  && strcmp(fileinfo.name, "..")!=0)
-                    getFiles(p);
+            if (fileinfo.attrib & _A_SUBDIR) {
+                if (strcmp(q->c_str(), ".")!=0  && strcmp(q->c_str(), "..")!=0)
+                    getFiles(p->c_str());
             }
             else {
-                if (!setting->fun_2 || (fileinfo.attrib & _A_SYSTEM) || setting->__exclude.count(path_extension(fileinfo.name)))
+                if (!setting->fun_2|| setting->__exclude.count(path_extension(fileinfo.name)))
                     continue;
-                ReadFile->ReadFilesIntoString(p,setting->MAX_SIZE);
-                if (FileContent->find(ReadFile->__file, ReadFile->siz)) {
-                    wjr->push_back(string_to_QString(p));
+                ReadFile->QuickFileRead(p->c_str(),setting->MinSize,setting->MaxSize);
+                SearchSize+=ReadFile->len;
+                if (FileContent->search(ReadFile->ptr, ReadFile->len)) {
+                    wjr->push_back(CharToQStr(q->c_str()),CharToQStr(p->c_str()),ReadFile->len);
                     ++cnt2;
                 }
+                ReadFile->close();
             }
         } while (_findnext(hFile, &fileinfo) == 0);
         _findclose(hFile);
     }
-    --*ResThread;
+    delete p;
+    delete q;
 }
 

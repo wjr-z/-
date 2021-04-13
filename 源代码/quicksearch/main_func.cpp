@@ -6,13 +6,13 @@
 #include "ui_mainwindow.h"
 #include "SearchThread.h"
 void MainWindow::show_string(const QString&s){
-    ui->end_output->setText(s);
+    ui->InforOutput->setText(s);
 }
 void MainWindow::end_work(){
     fclose(myout);
     mutex_number.unlock();
 }
-void MainWindow::init(){
+void MainWindow::searchinit(){
     ++now_thread;
     mutex_number.lock();
     --now_thread;
@@ -21,9 +21,9 @@ void MainWindow::init(){
     thread1->clear();
     thread2->clear();
     setting->clear();
-    FileName->clear();
-    FileContent->clear();
-
+    thread1->SearchFile=thread1->SearchSize
+    =thread2->SearchFile=thread2->SearchSize
+    =0;
     errno_t err;
     if (_access("output", 0) == -1)    //如果文件夹不存在
            system("mkdir output");
@@ -34,17 +34,18 @@ void MainWindow::init(){
     }
 }
 
+#include <windows.h>
 void MainWindow::work(){
 
-    init();
+    searchinit();
     if(now_thread){
         end_work();
         return;
     }
+    emit StartTimerSignal(search,1000);
 
     QString tempStr(ui->path_input->text());
 
-    MainTainPath(tempStr);
     *setting->root_path=tempStr;
 
     tempStr=ui->file_name_input->text();
@@ -54,24 +55,31 @@ void MainWindow::work(){
     *setting->FileContent=tempStr;
 
     tempStr=ui->max_size_input->text();
-    setting->MAX_SIZE=tempStr.toInt();
+    setting->MaxSize=tempStr.toInt();
+
+    tempStr=ui->min_size_input->text();
+    setting->MinSize=tempStr.toInt();
 
     setting->is_thread=ui->is_thread->isChecked()==true;
 
     setting->is_case_sensitive=ui->is_case_sensetive->isChecked()==true;
 
     start_time=clock();
-    emit show_end("正在搜索!");
+    emit ShowInfo("正在搜索!");
 
-    FileName->init(setting->FileName);
-    FileContent->init(setting->FileContent);
+    FileName->setpattern(*setting->FileName);
+    FileName->initial();
+    FileName->setmode(setting->is_case_sensitive);
+    FileContent->setpattern(*setting->FileContent);
+    FileContent->initial();
+    FileContent->setmode(setting->is_case_sensitive);
     if (setting->FileName->length())setting->fun_1 = true;
     if (setting->FileContent->length())setting->fun_2 = true;
 
-    if (!setting->is_thread)
-        normal_search();
-    else
-        quick_search();
+    setting->is_thread?quick_search():normal_search();
+
+    emit StopTimerSignal(search);
+
     print();
 }
 
@@ -81,19 +89,26 @@ void MainWindow::print(){
         return;
     }
     end_time=clock();
-    emit show_end("no problem");
     QString str;
-    str=QString("在%1ms内共找到 %2个包含文件名的文件 %3个包含文件内容的文件").arg(end_time-start_time)
+    str=QString("在%1s内共找到 %2个包含文件名的文件 %3个包含文件内容的文件").arg(QString::number((end_time-start_time)/1000.0,'f',2))
             .arg(thread1->cnt1+thread2->cnt1).arg(thread1->cnt2+thread2->cnt2);
-    emit show_end(str);
+    emit ShowInfo(str);
     Merge(thread1->wjr,thread2->wjr);
     ListShow();
-//    MergePrint(thread1->wjr,thread2->wjr);
     return end_work();
 }
 
-void MainWindow::add_file_list(QListWidgetItem*p){
-    ui->file_list->addItem(p);
+void MainWindow::add_file_list(mytableitem*p){
+    QTableWidgetItem*a=new QTableWidgetItem;
+    a->setText(*p->FileName);
+    a->setIcon(icon_provider.icon(*p->Path));
+    ui->file_list->setItem(show_size,0,a);
+    QTableWidgetItem*b=new QTableWidgetItem;
+    b->setText(*p->Path);
+    ui->file_list->setItem(show_size,1,b);
+    QTableWidgetItem*c=new QTableWidgetItem;
+    c->setText(getSize(p->Size));
+    ui->file_list->setItem(show_size,2,c);
     ++show_size;
 }
 
@@ -102,12 +117,13 @@ void MainWindow::use_thread(){
     t.detach();
 }
 
-void MainWindow::my_open_file(QListWidgetItem*p){
-    QDesktopServices::openUrl("file:///"+p->text());
+
+void MainWindow::my_open_file(QTableWidgetItem*p){
+    QDesktopServices::openUrl("file:///"+getPath(p));
 }
 void MainWindow::normal_search(){
     string s=setting->root_path->toStdString();
-    thread1->getFiles(s);
+    thread1->getFiles(s.c_str());
 }
 void MainWindow::quick_search(){
     std::thread t1(&QuickSearchThread::thread_get_Files_1,thread1);
@@ -117,60 +133,102 @@ void MainWindow::quick_search(){
 }
 
 void MainWindow::ListClear(){
-    int len=show_size;
-    for(int i=len-1;~i;--i)
-        ui->file_list->takeItem(i);
+    ui->file_list->reset();
     show_size=0;
 }
+
+void MainWindow::ListSort(mytableitem*head){
+    switch(sortmode){
+    case 0:
+        return sort(head,head+list_size,sort0);
+    case 1:
+        return sort(head,head+list_size,sort1);
+    case 2:
+        return sort(head,head+list_size,sort2);
+    default:
+        return sort(head,head+list_size,sort0);
+    }
+}
+
 void MainWindow::Merge(MyQStringList*p,MyQStringList*q){
 
     ListClear();
-
-    if(List!=nullptr)delete [] List,List=nullptr;
+    for(int i=0;i<3;++i)
+        if(List[i]!=nullptr)
+            delete [] List[i],List[i]=nullptr;
     ListPage=1;
-    p->sort(),q->sort();
-    int n=p->size,m=q->size;
+    p->initial(),q->initial();
+    int n=p->Size,m=q->Size;
     int i(0),j(0);
 
-    List=new QListWidgetItem [n+m];
+    for(int i=0;i<3;++i)
+        List[i]=new mytableitem [n+m];
     list_size=n+m;
     MaxPage=(list_size-1)/PageSize+1;
 
-    QListWidgetItem*head=List;
+    mytableitem*(head[3]);
+    for(int i=0;i<3;++i)
+        head[i]=List[i];
 
-    while(i<n&&j<m){
-        if(p->qwq[i]<q->qwq[j]){
-            head->setIcon(icon_provider.icon(QFileInfo(p->qwq[i])));
-            head->setText(p->qwq[i]);
-            ++head,++i;
-        }else{
-            head->setIcon(icon_provider.icon(QFileInfo(q->qwq[j])));
-            head->setText(q->qwq[j]);
-            ++head,++j;
-        }
-        if(now_thread)return;
-    }
     while(i<n){
-        head->setIcon(icon_provider.icon(QFileInfo(p->qwq[i])));
-        head->setText(p->qwq[i]);
-        ++head,++i;
-        if(now_thread)return ;
+        for(int k=0;k<3;++k)
+            *(head[k]++)=p->wjr[i];
+        ++i;
     }
     while(j<m){
-        head->setIcon(icon_provider.icon(QFileInfo(q->qwq[j])));
-        head->setText(q->qwq[j]);
-        ++head,++j;
-        if(now_thread)return ;
+        for(int k=0;k<3;++k)
+            *(head[k]++)=q->wjr[j];
+        ++j;
     }
+    int pre=sortmode;
+    for(int i=0;i<3;++i)
+        sortmode=i,ListSort(List[i]);//初始化所有升序
+    sortmode=pre;
 }
 void MainWindow::ListShow(){
-    QListWidgetItem*L=List+(ListPage-1)*PageSize,*R=List+min(list_size,ListPage*PageSize)-1;
-    while(L<=R)
-        emit slow_add_file_list(L++);
+    if(!list_size)return;
+    mytableitem*L,*R;
+    int l=(ListPage-1)*PageSize;
+    int r=min(list_size,ListPage*PageSize)-1;
+    if(sortmode&1){//降序，在升序基础上略微修改一点
+        l=antirow(l);
+        r=antirow(r);
+        QuickSwap(l,r);
+    }
+    L=List[sortmode>>1]+l;
+    R=List[sortmode>>1]+r;
+    ui->file_list->setRowCount(R-L+1);
+    if(sortmode&1){
+        while(R>=L)
+            emit slow_add_file_list(R--);
+    }else{
+        while(L<=R)
+            emit slow_add_file_list(L++);
+    }
     PageShow();
 }
 
 void MainWindow::PageShow(){
     ui->TurnToPage->setText(QString("%1").arg(ListPage));
     ui->MaxPage->setText(QString("/%1").arg(MaxPage));
+}
+
+void MainWindow::statusBarShow(QTableWidgetItem*p){
+    ui->statusBar->clearMessage();
+    ui->statusBar->showMessage("路径:"+getPath(p));
+}
+
+void MainWindow::UpdateInfo(){
+    show_string(QString("用时%1s,已搜索%2个文件夹,"+getSize(thread1->SearchSize+thread2->SearchSize)+"的文件")
+                .arg(QString::number((UsedTime+=deltatime)/1000.0,'f',2))
+                .arg(thread1->SearchFile+thread2->SearchFile));
+}
+
+void MainWindow::StartTimer(QTimer*w,const int&ctime){
+    UsedTime=0;
+    setdeltatime(ctime);
+    w->start(ctime);
+}
+void MainWindow::StopTimer(QTimer*w){
+    w->stop();
 }
