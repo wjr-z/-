@@ -1,4 +1,4 @@
-# Math-
+# Math
 数学函数、算法等，暂时正在完善底层的大整数类，准备开始高精度浮点数类
 
 有bint,bint2类，bint为10-bit,bint2为2-bit  
