@@ -11,7 +11,7 @@ _MATH_BEGIN
 /*---bint_fuc部分实现---*/
 
 void Array_func::QuickMul10k(Array<int>& a, const int& k) {//快速乘10^k
-	if (!k)return;
+	if (!k||a.iszero())return;
 	int py = k >> 3;
 	int Length = a.size();
 	int mul10 = _10k[k & 7], mod10 = jw / mul10;
@@ -33,7 +33,7 @@ void Array_func::QuickDivide10k(Array<int>& a, const int& k) {//快速除以10^k
 		mul10 *= 10;
 	int mod10 = jw / mul10;
 	int aftsize = Length - py;
-	if (aftsize < 0) {
+	if (aftsize <= 0) {
 		a.resize(1);
 		a[0] = 0;
 		return;
@@ -95,17 +95,17 @@ public:
 		int len1 = 4 + sqrt(len >> 2), len2 = ((len * 5) >> 3) + 1;
 		if (iplength < len1) {
 			if (iplength <= 1000)
-				ip = new int[iplength = (len1 << 3)];
+				delete[]ip,ip = new int[iplength = (len1 << 3)];
 			else if (iplength <= 10000)
-				ip = new int[iplength = (len1 << 2)];
-			else ip = new int[iplength = (len1 << 1)];
+				delete[]ip,ip = new int[iplength = (len1 << 2)];
+			else delete[]ip,ip = new int[iplength = (len1 << 1)];
 			ip[0] = 0;
 		}
 		if (wlength < len2) {
 			if (wlength <= 10000)
-				w = new double[wlength = (len2 << 3)];
-			else if (wlength <= 100000)w = new double[wlength = (len2 << 2)];
-			else w = new double[wlength = (len2 << 1)];
+				delete[]w,w = new double[wlength = (len2 << 3)];
+			else if (wlength <= 100000)delete[]w,w = new double[wlength = (len2 << 2)];
+			else delete[]w,w = new double[wlength = (len2 << 1)];
 			ip[0] = 0;
 		}
 	}

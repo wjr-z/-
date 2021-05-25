@@ -12,27 +12,29 @@ void randdata(bint& x,int n) {
 }
 
 int main() {
-
-
-	bint a,b,c;
-	a=qpow(bint(1234),56780);
-	b=qpow(bint(123),567);
+	bint x,y;
+	x=qpow(bint(1234),5678);
+	y=qpow(bint(1237),5678);
 	START
-	for(int i=0;i<1000;++i)
-		c=a*a;
+		bint z;
+		for(int i=0;i<1000;++i)
+			z=x*y;
+	
 	END
-	cout<<en-sta<<endl;
+	cout<<en-sta;
+	
+	return 0;
 	
 
-	/*
+	
 
 
 
 	
 	freopen("test.out","w",stdout);
 	cout.setf(ios::left); //设置对齐方式为left 
-	for (int i = 100; i <= 1200; i += 20) {
-		for (int j = 100; j <= i; j += 20) {
+	for (int i = 8000; i <= 8000; i += 50) {
+		for (int j = 20; j <= i; j += 20) {
 			int len1,len2;
 			len1=((i-1)>>3)+1;
 			len2=((j-1)>>3)+1;
@@ -41,7 +43,7 @@ int main() {
 			randdata(y,j);
 			double stime,ftime,ktime;
 			cout<<setw(4)<<"i="<<setw(4)<<i<<setw(6)<<"  j="<<setw(4)<<j<<' ';
-			int K=20;
+			int K=10;
 			START
 			for(int k=0;k<K;++k)
 				test1(x,y);
@@ -87,21 +89,21 @@ int main() {
 	return 0;
 
 
-	mt19937 mt_rand(time(NULL));
-	//system("fc wjr.out wjr2.out");
-	int N=1e6;
-	bint a,b;
-	for(int i=0;i<N;++i)
-		a[i]=(mt_rand()%(100000000-1)+1);
-	for(int i=0;i<N;++i)
-		b[i]= (mt_rand() % (100000000 - 1) + 1);
-	cout<<"rand done\n";
-	START
-	bint2 c=a.to2bit();
-	END
-	cout<<"done in "<<en-sta<<"seconds"<<endl;
-	START
-	return 0;
+	//mt19937 mt_rand(time(NULL));
+	////system("fc wjr.out wjr2.out");
+	//int N=1e6;
+	//bint a,b;
+	//for(int i=0;i<N;++i)
+	//	a[i]=(mt_rand()%(100000000-1)+1);
+	//for(int i=0;i<N;++i)
+	//	b[i]= (mt_rand() % (100000000 - 1) + 1);
+	//cout<<"rand done\n";
+	//START
+	//bint2 c=a.to2bit();
+	//END
+	//cout<<"done in "<<en-sta<<"seconds"<<endl;
+	//START
+	//return 0;
 	/*a*=b;
 	END
 	cout<<en-sta<<endl;

@@ -133,8 +133,7 @@ bint bint::inv(int lim)const {
 		ni.set(lim - fac - 1, val % 10);
 	}
 	else ni.set(lim - fac, 10 / (this->at(fac - 1) + 1));
-	ni.relength(lim);
-	int _maxn = quicklog2(lim) + 4;
+	int _maxn = quicklog2(lim) + 2;
 	/* 初始 F*G = e 
 	* 迭代一次后 G = G * ( 2 - F * G )
 	* F*G = e * ( 2 - e )
@@ -148,6 +147,10 @@ bint bint::inv(int lim)const {
 	ni.positive = this->positive;
 	return ni;
 }
+
+
+
+
 bint& bint::operator+=(const bint& b) {
 	(positive == b.positive) ?
 		(positive ? quickadd(*this, b, true)
@@ -207,6 +210,18 @@ bint& bint::operator%=(const int& b) {
 	if(!b)return *this;
 	(*this)-=((*this)/b)*b;
 	return *this;
+}
+bint& bint::operator|=(const bint&other) {
+	if(this==&other)return*this;
+	return (*this)=(this->to2bit()|other.to2bit()).to10bit();
+}
+bint& bint::operator&=(const bint&other) {
+	if(this==&other)return*this;
+	return (*this)=(this->to2bit()&other.to2bit()).to10bit();
+}
+bint& bint::operator^=(const bint&other) {
+	if (this == &other){resize(1);vec[0]=0;return*this; }
+	return (*this) = (this->to2bit() ^ other.to2bit()).to10bit();
 }
 bint& bint::operator++() {
 	(*this)+=1;
@@ -380,6 +395,45 @@ bool bint2::operator<=(const bint2& other) const {
 bool bint2::operator>(const bint2& other) const { return !((*this) <= other); }
 bool bint2::operator>=(const bint2& other) const { return !((*this) < other); }
 bool bint2::operator!=(const bint2& other)const { return !((*this) == other); }
+
+bint2& bint2::operator|=(const bint2&other) {
+	if(this==&other)return*this;
+	int n=size(),m=other.size();
+	reserve(m);
+	for(int i=0;i<m;++i)
+		vec[i]|=other[i];
+	return*this;
+}
+
+bint2& bint2::operator&=(const bint2&other) {
+	if (this == &other)return*this;
+	int n = size(), m = other.size();
+	if (n >= m) {
+		for(int i=0;i<m;++i)
+			vec[i]&=other[i];
+	}
+	else {
+		for(int i=0;i<n;++i)
+			vec[i]&=other[i];
+	}
+	int tail=size();
+	while(tail>1&&!vec[tail-1])
+		--tail;
+	if(tail!=size())resize(tail);
+	return*this;
+}
+
+bint2& bint2::operator^=(const bint2&other) {
+	if (this == &other) {resize(1);vec[0]=0;return*this;}
+	int n = size(), m = other.size();
+	for(int i=0;i<m;++i)
+		vec[i]^=other[i];
+	int tail = size();
+	while (tail > 1 && !vec[tail - 1])
+		--tail;
+	if (tail != size())resize(tail);
+	return*this;
+}
 
 bint2& bint2::operator+=(const bint2& b) {
 	(positive == b.positive) ?
