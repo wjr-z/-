@@ -1,7 +1,7 @@
 #pragma once
 #ifndef MATH_H
 #define MATH_H
-#include "bint.h"
+#include "bfloat.h"
 
 #define _MATH_BEGIN namespace Math{
 #define _MATH_END }

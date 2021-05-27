@@ -23,7 +23,7 @@ private:
 	vector<Ty>vec;
 	int Size;
 public:
-	Array(const int& index = 1) :vec(index) {Size=1;}
+	Array(const int& index = 1) :vec(index) {Size=index;}
 	const bool iszero()const {
 		if ((Size == 1 && this->operator[](0) == 0) || !Size)return true;
 		return false;
@@ -34,6 +34,19 @@ public:
 	}
 	void resize(const int& index) { vec.resize(index);Size=index; }
 	void reserve(const int& index) { vec.reserve(index); }
+	void clear(){resize(1);vec[0]=0; }
+	void relength(const int& index) {
+		if (!index) { this->resize(1); (*this)[0] = 0; return; }
+		this->resize(((index - 1) >> 3) + 1);
+		int pos = (index - 1) >> 3, x = _10k[((index - 1) & 7) + 1];
+		this->save_at(pos) %= x;
+	}
+	void reverse() {
+		std::reverse(vec.begin(),vec.end());
+	}
+	void append(const Array<Ty>& other) {
+		vec.insert(vec.end(),other.vec.begin(),other.vec.end());
+	}
 
 	Ty& save_at(const int& index) { return vec[index]; }
 	const Ty& operator[](const int& index)const { return vec[index]; }
@@ -46,12 +59,6 @@ public:
 	Ty at(const int& index, const int& kz = 8)const {
 		return (this->operator[](index / kz) / _10k[index % kz]) % 10;
 	}
-	void relength(const int& index) {
-		if (!index) { this->resize(1); (*this)[0] = 0; return; }
-		this->resize(((index - 1) >> 3) + 1);
-		int pos = (index - 1) >> 3, x = _10k[((index - 1) & 7) + 1];
-		this->save_at(pos) %= x;
-	}
 
 	/*---默认8个10进制数一划分---*/
 	/*---考虑到数太大，FFT会爆精度，因此需要先转化为较小的数---*/
@@ -60,7 +67,6 @@ public:
 	Array<short> turnto2()const;//2位划分
 	Array<short> turnto3()const;//3位划分
 	Array<short> turnto4()const;//4位划分
-	Array<Ty> turnto5()const;//5位划分
 	Array<int>turnback(const int& = 1)const;//从 k 位划分转化为 8 为划分
 	void maintain(const int& = 1);//维护，使得不会出现大于等于10^k的
 };
@@ -145,28 +151,6 @@ Array<short> Array<Ty>::turnto4()const {
 		Ty val = vec[i];
 		for (int j = 0; j < 8; ++j) {
 			turnTo[head >> 2] += _10k[head & 3] * (val % 10);
-			++head;
-			val /= 10;
-		}
-	}
-	Size = turnTo.size();
-	while (Size > 1 && !turnTo.save_at(Size - 1))
-		--Size;
-	if (Size != turnTo.size())turnTo.resize(Size);
-	if (turnTo.iszero())
-		turnTo[0] = 0;
-	return turnTo;
-}
-template<typename Ty>
-Array<Ty> Array<Ty>::turnto5()const {
-	int Size = size();
-	Array<Ty>turnTo;
-	turnTo.reserve((Size << 3) / 5);
-	int i, head = 0;
-	for (i = 0; i < Size; ++i) {
-		Ty val = vec[i];
-		for (int j = 0; j < 8; ++j) {
-			turnTo[head / 5] += _10k[head % 5] * (val % 10);
 			++head;
 			val /= 10;
 		}
@@ -280,7 +264,6 @@ public:
 	static void FFTQuickMul2(const Array<int>&, const Array<int>&, Array<int>&);
 	static void FFTQuickMul3(const Array<int>&, const Array<int>&, Array<int>&);
 	static void FFTQuickMul4(const Array<int>&, const Array<int>&, Array<int>&);
-	static void FFTQuickMul5(const Array<int>&, const Array<int>&, Array<int>&);
 	static void FFTQuickMul(const Array<int>&, const Array<int>&, Array<int>&);
 	static Array<int> FFTQuickMul(Array<int>&, Array<int>&);
 

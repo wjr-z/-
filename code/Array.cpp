@@ -1,11 +1,5 @@
 #include "Array.h"
 
-//声明Ooura FFT 相关函数
-extern "C" {
-	void cdft(int, int, double*, int*, double*);
-	void rdft(int, int, double*, int*, double*);
-}
-
 _MATH_BEGIN
 
 /*---bint_fuc部分实现---*/
@@ -82,41 +76,6 @@ Array<int> Array_func::SlowMul(const Array<int>& A, const Array<int>& B) {
 	return c;
 }
 
-/*---Ooura FFT相关函数---*/
-
-struct _Ooura {//non-important
-public:
-	int *ip;
-	double*w;
-	int iplength,wlength;
-	_Ooura(){ip=nullptr;w=nullptr;iplength=wlength=0;}
-	~_Ooura(){delete []ip;delete[]w; }
-	void initial(const int&len) {//可能分配的大小过小，需要重新分配
-		int len1 = 4 + sqrt(len >> 2), len2 = ((len * 5) >> 3) + 1;
-		if (iplength < len1) {
-			if (iplength <= 1000)
-				delete[]ip,ip = new int[iplength = (len1 << 3)];
-			else if (iplength <= 10000)
-				delete[]ip,ip = new int[iplength = (len1 << 2)];
-			else delete[]ip,ip = new int[iplength = (len1 << 1)];
-			ip[0] = 0;
-		}
-		if (wlength < len2) {
-			if (wlength <= 10000)
-				delete[]w,w = new double[wlength = (len2 << 3)];
-			else if (wlength <= 100000)delete[]w,w = new double[wlength = (len2 << 2)];
-			else delete[]w,w = new double[wlength = (len2 << 1)];
-			ip[0] = 0;
-		}
-	}
-};
-
-static _Ooura Oouraip;
-
-
-void initial(const int& len) {//动态扩展和初始化
-	Oouraip.initial(len);
-}
 
 /*---FFT相关,根据范围选择对应函数---*/
 
@@ -135,14 +94,14 @@ void FFT_Array_func::FFTQuickMul1(const Array<int>& A, const Array<int>& B, Arra
 	for (int i = 0; i < m; ++i)
 		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
 
-	initial(s << 1);
+	oourainital(s << 1);
 
-	cdft(s << 1, 1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, 1, a);
 	for (int i = 0; i < s; ++i) {
 		double sa = a[i << 1], sb = a[i << 1 | 1];
 		a[i << 1] = sa * sa - sb * sb, a[i << 1 | 1] = 2 * sa * sb;
 	}
-	cdft(s << 1, -1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, -1, a);
 	double invs = 1.0 / s;
 	for (int i = 0; i < s; ++i)
 		a[i << 1] *= invs;
@@ -176,14 +135,14 @@ void FFT_Array_func::FFTQuickMul2(const Array<int>& A, const Array<int>& B, Arra
 	for (int i = 0; i < m; ++i)
 		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
 
-	initial(s << 1);
+	oourainital(s << 1);
 
-	cdft(s << 1, 1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, 1, a);
 	for (int i = 0; i < s; ++i) {
 		double sa = a[i << 1], sb = a[i << 1 | 1];
 		a[i << 1] = sa * sa - sb * sb, a[i << 1 | 1] = 2 * sa * sb;
 	}
-	cdft(s << 1, -1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, -1, a);
 	double invs = 1.0 / s;
 	for (int i = 0; i < s; ++i)
 		a[i << 1] *= invs;
@@ -220,14 +179,12 @@ void FFT_Array_func::FFTQuickMul3(const Array<int>& A, const Array<int>& B, Arra
 	for (int i = 0; i < m; ++i)
 		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
 
-	initial(s << 1);
-
-	cdft(s << 1, 1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, 1, a);
 	for (int i = 0; i < s; ++i) {
 		double sa = a[i << 1], sb = a[i << 1 | 1];
 		a[i << 1] = sa * sa - sb * sb, a[i << 1 | 1] = 2 * sa * sb;
 	}
-	cdft(s << 1, -1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, -1, a);
 	double invs = 1.0 / s;
 	for (int i = 0; i < s; ++i)
 		a[i << 1] *= invs;
@@ -261,14 +218,12 @@ void FFT_Array_func::FFTQuickMul4(const Array<int>& A, const Array<int>& B, Arra
 	for (int i = 0; i < m; ++i)
 		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
 
-	initial(s << 1);
-
-	cdft(s << 1, 1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, 1, a);
 	for (int i = 0; i < s; ++i) {
 		double sa = a[i << 1], sb = a[i << 1 | 1];
 		a[i << 1] = sa * sa - sb * sb, a[i << 1 | 1] = 2 * sa * sb;
 	}
-	cdft(s << 1, -1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, -1, a);
 	double invs = 1.0 / s;
 	for (int i = 0; i < s; ++i)
 		a[i << 1] *= invs;
@@ -287,55 +242,11 @@ void FFT_Array_func::FFTQuickMul4(const Array<int>& A, const Array<int>& B, Arra
 	c = mida.turnback(4);
 	delete[]a;
 }
-void FFT_Array_func::FFTQuickMul5(const Array<int>& A, const Array<int>& B, Array<int>& c) {
-	int n, m;
-	Array<int>mida = A.turnto5(), midb = B.turnto5();
-	n = mida.size(), m = midb.size();
-	int len = n + m - 1, bit = 1, s = 2;
-	bit = quicklog2(len - 1) + 1, s = 1 << bit;
-
-	double* a = new double[s << 1];
-	for (int i = 0; i < n; ++i)
-		a[i << 1] = mida[i] * 0.5, a[i << 1 | 1] = mida[i] * 0.5;
-	for (int i = (n << 1); i < (s << 1); ++i)
-		a[i] = 0;
-	for (int i = 0; i < m; ++i)
-		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
-
-	initial(s << 1);
-
-	cdft(s << 1, 1, a, Oouraip.ip, Oouraip.w);
-	for (int i = 0; i < s; ++i) {
-		double sa = a[i << 1], sb = a[i << 1 | 1];
-		a[i << 1] = sa * sa - sb * sb, a[i << 1 | 1] = 2 * sa * sb;
-	}
-	cdft(s << 1, -1, a, Oouraip.ip, Oouraip.w);
-	double invs = 1.0 / s;
-	for (int i = 0; i < s; ++i)
-		a[i << 1] *= invs;
-
-	mida.reserve(len+1);
-	mida.resize(len);
-
-	for (int i = 0; i < len; ++i) {
-		long long val = (long long)(a[i << 1] + 0.5);
-		if (val >= 100000) {
-			if (i + 1 < len)a[(i + 1) << 1] += val / 100000;
-			else mida[i + 1] = val / 100000;
-			mida[i] = val % 100000;
-		}
-		else mida[i] = val;
-	}
-	mida.maintain(5);
-	c = mida.turnback(5);
-	delete[]a;
-}
 
 void FFT_Array_func::FFTQuickMul(const Array<int>& A, const Array<int>& B, Array<int>& c) {
 	//保证 k*k*n <= 1e11 k 为 每个元素的最大大小
 	int Length = A.length() + B.length();
-	if (Length <= 1e1)FFTQuickMul5(A, B, c);
-	else if (Length <= 1e3)FFTQuickMul4(A, B, c);
+	if (Length <= 1e3)FFTQuickMul4(A, B, c);
 	else if (Length <= 1e5)FFTQuickMul3(A, B, c);
 	else if (Length <= 1e7)FFTQuickMul2(A, B, c);
 	else FFTQuickMul1(A, B, c);
@@ -598,16 +509,16 @@ void FFT_Array2_func::FFTQuickMul1(const Array2& A, const Array2& B, Array2& c) 
 	for (int i = 0; i < m; ++i)
 		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
 
-	initial(s << 1);
+	oourainital(s << 1);
 
 	/*FFT*/
 
-	cdft(s << 1, 1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, 1, a);
 	for (int i = 0; i < s; ++i) {
 		double sa = a[i << 1], sb = a[i << 1 | 1];
 		a[i << 1] = sa * sa - sb * sb, a[i << 1 | 1] = 2 * sa * sb;
 	}
-	cdft(s << 1, -1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, -1, a);
 	double invs = 1.0 / s;
 	for (int i = 0; i < s; ++i)
 		a[i << 1] *= invs;
@@ -647,14 +558,14 @@ void FFT_Array2_func::FFTQuickMul2(const Array2& A, const Array2& B, Array2& c) 
 	for (int i = 0; i < m; ++i)
 		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
 
-	initial(s << 1);
+	oourainital(s << 1);
 
-	cdft(s << 1, 1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, 1, a);
 	for (int i = 0; i < s; ++i) {
 		double sa = a[i << 1], sb = a[i << 1 | 1];
 		a[i << 1] = sa * sa - sb * sb, a[i << 1 | 1] = 2 * sa * sb;
 	}
-	cdft(s << 1, -1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, -1, a);
 	double invs = 1.0 / s;
 	for (int i = 0; i < s; ++i)
 		a[i << 1] *= invs;
@@ -694,14 +605,14 @@ void FFT_Array2_func::FFTQuickMul3(const Array2& A, const Array2& B, Array2& c) 
 	for (int i = 0; i < m; ++i)
 		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
 
-	initial(s << 1);
+	oourainital(s << 1);
 
-	cdft(s << 1, 1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, 1, a);
 	for (int i = 0; i < s; ++i) {
 		double sa = a[i << 1], sb = a[i << 1 | 1];
 		a[i << 1] = sa * sa - sb * sb, a[i << 1 | 1] = 2 * sa * sb;
 	}
-	cdft(s << 1, -1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, -1, a);
 	double invs = 1.0 / s;
 	for (int i = 0; i < s; ++i)
 		a[i << 1] *= invs;
@@ -738,14 +649,14 @@ void FFT_Array2_func::FFTQuickMul4(const Array2& A, const Array2& B, Array2& c) 
 	for (int i = 0; i < m; ++i)
 		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
 
-	initial(s << 1);
+	oourainital(s << 1);
 
-	cdft(s << 1, 1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, 1, a);
 	for (int i = 0; i < s; ++i) {
 		double sa = a[i << 1], sb = a[i << 1 | 1];
 		a[i << 1] = sa * sa - sb * sb, a[i << 1 | 1] = 2 * sa * sb;
 	}
-	cdft(s << 1, -1, a, Oouraip.ip, Oouraip.w);
+	cdft(s << 1, -1, a);
 	double invs = 1.0 / s;
 	for (int i = 0; i < s; ++i)
 		a[i << 1] *= invs;
