@@ -12,6 +12,7 @@
 
 _MATH_BEGIN
 
+
 using std::vector;
 
 /*---Array<Ty>Àà---*/
@@ -47,6 +48,9 @@ public:
 	void append(const Array<Ty>& other) {
 		vec.insert(vec.end(),other.vec.begin(),other.vec.end());
 	}
+	void insert(const int&pos,const Array<Ty>& other, const int& L, const int& R) {
+		vec.insert(vec.begin()+pos,other.vec.begin()+L,other.vec.begin()+R);
+	}
 
 	Ty& save_at(const int& index) { return vec[index]; }
 	const Ty& operator[](const int& index)const { return vec[index]; }
@@ -65,9 +69,10 @@ public:
 	/*---²»ÓÃÒ»¸öº¯ÊýÐ´ÊÇÒòÎªÖ®Ç°ÊÇÒ»¸öº¯ÊýÐ´µÄ£¬ÏÖÔÚÔÚ½µµÍ³£Êý---*/
 	Array<short> turnto1()const;//Ã¿1Î»»®·Ö
 	Array<short> turnto2()const;//2Î»»®·Ö
-	Array<short> turnto3()const;//3Î»»®·Ö
 	Array<short> turnto4()const;//4Î»»®·Ö
-	Array<int>turnback(const int& = 1)const;//´Ó k Î»»®·Ö×ª»¯Îª 8 Îª»®·Ö
+	Array<int>turnback1()const;
+	Array<int>turnback2()const;
+	Array<int>turnback4()const;
 	void maintain(const int& = 1);//Î¬»¤£¬Ê¹µÃ²»»á³öÏÖ´óÓÚµÈÓÚ10^kµÄ
 };
 
@@ -101,36 +106,13 @@ Array<short> Array<Ty>::turnto2()const {
 	turnTo.reserve(Size << 2);
 	int i, head = 0;
 	for (i = 0; i < Size; ++i) {
-
 		Ty val = vec[i];
-		for (int j = 0; j < 8; ++j) {
-			turnTo[head >> 1] += _10k[head & 1] * (val % 10);
-			++head;
-			val /= 10;
-		}
-	}
-	Size = turnTo.size();
-	while (Size > 1 && !turnTo.save_at(Size - 1))
-		--Size;
-	if (Size != turnTo.size())turnTo.resize(Size);
-	if (turnTo.iszero())
-		turnTo[0] = 0;
-	return turnTo;
-}
-
-template<typename Ty>
-Array<short> Array<Ty>::turnto3()const {
-	int Size = size();
-	Array<short>turnTo;
-	turnTo.reserve((Size << 3) / 3);
-	int i, head = 0;
-	for (i = 0; i < Size; ++i) {
-		Ty val = vec[i];
-		for (int j = 0; j < 8; ++j) {
-			turnTo[head / 3] += _10k[head % 3] * (val % 10);
-			++head;
-			val /= 10;
-		}
+		turnTo[head++]=val%100;
+		val/=100;
+		turnTo[head++]=val%100;
+		val/=100;
+		turnTo[head++]=val%100;
+		turnTo[head++]=val/100;
 	}
 	Size = turnTo.size();
 	while (Size > 1 && !turnTo.save_at(Size - 1))
@@ -145,15 +127,53 @@ template<typename Ty>
 Array<short> Array<Ty>::turnto4()const {
 	int Size = size();
 	Array<short>turnTo;
-	turnTo.reserve(Size << 1);
+	turnTo.resize(Size << 1);
 	int i, head = 0;
 	for (i = 0; i < Size; ++i) {
 		Ty val = vec[i];
-		for (int j = 0; j < 8; ++j) {
-			turnTo[head >> 2] += _10k[head & 3] * (val % 10);
-			++head;
-			val /= 10;
-		}
+		turnTo[head++]=val%10000;
+		turnTo[head++]=val/10000;
+	}
+	Size = turnTo.size();
+	while (Size > 1 && !turnTo.save_at(Size - 1))
+		--Size;
+	if (Size != turnTo.size())turnTo.resize(Size);
+	if (turnTo.iszero())
+		turnTo[0] = 0;
+	return turnTo;
+}
+
+
+template<typename Ty>
+Array<int> Array<Ty>::turnback1()const {
+	int Size = size();
+	Array<int>turnTo;
+	turnTo.reserve(Size >> 3);
+	int i, head = 0;
+	for (i = 0; i + 7 < Size; i+=8,++head) {
+		turnTo[head]=vec[i]+10*vec[i+1]+100*vec[i+2]+
+			1000*vec[i+3]+10000*vec[i+4]+100000*vec[i+5]+
+			1000000*vec[i+6]+10000000*vec[i+7];
+	}
+	switch (Size - i) {
+	case 0:break;
+	case 1:
+		turnTo[head]=vec[i];break;
+	case 2:
+		turnTo[head]=vec[i]+10*vec[i+1];break;
+	case 3:
+		turnTo[head]=vec[i]+10*vec[i+1]+100*vec[i+2];break;
+	case 4:
+		turnTo[head]=vec[i]+10*vec[i+1]+100*vec[i+2]+1000*vec[i+3];break;
+	case 5:
+		turnTo[head]= vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] + 1000 * vec[i + 3]+10000*vec[i+4];break;
+	case 6:
+		turnTo[head]= vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] + 1000 * vec[i + 3]+10000*vec[i+4]+100000*vec[i+5];
+		break;
+	case 7:
+		turnTo[head] = vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] + 1000 * vec[i + 3] + 10000 * vec[i + 4] + 100000 * vec[i + 5]+1000000*vec[i+6];
+		break;
+	default:break;
 	}
 	Size = turnTo.size();
 	while (Size > 1 && !turnTo.save_at(Size - 1))
@@ -165,18 +185,48 @@ Array<short> Array<Ty>::turnto4()const {
 }
 
 template<typename Ty>
-Array<int> Array<Ty>::turnback(const int& kz) const {//½«10½øÖÆ±ä»ØÈ¥
+Array<int> Array<Ty>::turnback2()const {
 	int Size = size();
 	Array<int>turnTo;
-	turnTo.reserve((Size * kz) >> 3);
+	turnTo.reserve(Size>>2);
 	int i, head = 0;
-	for (i = 0; i < Size; ++i) {
-		Ty val = vec[i];
-		for (int j = 0; j < kz; ++j) {
-			turnTo[head >> 3] += _10k[head & 7] * (val % 10);
-			++head;
-			val /= 10;
-		}
+	for (i = 0; i + 3 < Size; i += 4, ++head) {
+		turnTo[head] = vec[i] + 100 * vec[i + 1] + 10000 * vec[i + 2] +
+			1000000 * vec[i + 3];
+	}
+	switch (Size - i) {
+	case 0:break;
+	case 1:
+		turnTo[head] = vec[i]; break;
+	case 2:
+		turnTo[head] = vec[i] + 100 * vec[i + 1]; break;
+	case 3:
+		turnTo[head] = vec[i] + 100 * vec[i + 1] + 10000 * vec[i + 2]; break;
+	default:break;
+	}
+	Size = turnTo.size();
+	while (Size > 1 && !turnTo.save_at(Size - 1))
+		--Size;
+	if (Size != turnTo.size())turnTo.resize(Size);
+	if (turnTo.iszero())
+		turnTo[0] = 0;
+	return turnTo;
+}
+
+template<typename Ty>
+Array<int> Array<Ty>::turnback4()const {
+	int Size = size();
+	Array<int>turnTo;
+	turnTo.reserve(Size>>1);
+	int i, head = 0;
+	for (i = 0; i + 1 < Size; i += 2, ++head) {
+		turnTo[head] = vec[i] + 10000 * vec[i + 1];
+	}
+	switch (Size - i) {
+	case 0:break;
+	case 1:
+		turnTo[head] = vec[i]; break;
+	default:break;
 	}
 	Size = turnTo.size();
 	while (Size > 1 && !turnTo.save_at(Size - 1))
@@ -262,7 +312,6 @@ class FFT_Array_func{//FFT³Ë·¨£¬Ê¹ÓÃÁËOoura FFT£¬¾ÝËµºÜ¿ì£¬Èç¹ûÓÐ¸ü¿ìµÄ»á½øÐÐ¸ü»
 public:
 	static void FFTQuickMul1(const Array<int>&, const Array<int>&, Array<int>&);
 	static void FFTQuickMul2(const Array<int>&, const Array<int>&, Array<int>&);
-	static void FFTQuickMul3(const Array<int>&, const Array<int>&, Array<int>&);
 	static void FFTQuickMul4(const Array<int>&, const Array<int>&, Array<int>&);
 	static void FFTQuickMul(const Array<int>&, const Array<int>&, Array<int>&);
 	static Array<int> FFTQuickMul(Array<int>&, Array<int>&);

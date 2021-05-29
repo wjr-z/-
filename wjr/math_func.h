@@ -8,11 +8,39 @@
 #define _POLY_BEGIN namespace POLY{
 #define _POLY_END }
 
+#include <cmath>
 #include <math.h>
 #include <algorithm>
 
+#define TEST //测试用高精度计时器 ，直接网上找的代码
+#ifdef TEST
+
+extern int mode;
+
+#include <Windows.h>
+static LARGE_INTEGER freq;
+
+static BOOL initFreq() {
+	if (!QueryPerformanceFrequency(&freq))
+		return FALSE;
+	else
+		return TRUE;
+}
+
+extern double currTime(); //使用高精度计时器
+
+extern double tot, sta, en;
+
+#define START sta=currTime();
+#define END en=currTime();
+#define ADD tot+=en-sta;
+
+#endif
+
 _MATH_BEGIN
 
+#undef min
+#undef max
 
 #define uint unsigned int
 #define ull unsigned long long
@@ -44,9 +72,6 @@ static const int debruijn[32] = {
 };
 inline uint _minx(int& x) { return debruijn[(uint)((x & -x) * 0x077CB531U) >> 27]; }//最小的1所在位置
 
-#undef min
-#undef max
-
 template<typename Ty>
 inline Ty min(const Ty& a, const Ty& b) { return a < b ? a : b; }
 
@@ -55,6 +80,8 @@ inline Ty max(const Ty& a, const Ty& b) { return a > b ? a : b; }
 
 template<typename Ty>
 inline Ty sqr(const Ty& val) { return val * val; }
+
+int sqrt(int A);
 
 inline void swap(int&a,int&b){a^=b;b^=a;a^=b;}
 inline void swap(long long&a,long long&b){a^=b;b^=a;a^=b;}
@@ -81,7 +108,7 @@ public:
 	_Ooura() { ip = nullptr; w = nullptr; iplength = wlength = 0; }
 	~_Ooura() { delete[]ip; delete[]w; }
 	void oourainital(const int& len) {//可能分配的大小过小，需要重新分配
-		int len1 = 4 + sqrt(len >> 2), len2 = ((len * 5) >> 3) + 1;
+		int len1 = 4 + Math::sqrt(len>>2), len2 = ((len * 5) >> 3) + 1;
 		if (iplength < len1 || wlength < len2) {
 			if (iplength <= 1000)
 				delete[]ip, ip = new int[iplength = (len1 * 6)];
@@ -137,7 +164,7 @@ static bool isrightdouble(const char* s) {
 			if(pointpos!=-1)return false;
 			pointpos=i;
 		}
-		if (s[i] < '0' || s[i]>'9')return false;
+		else if (s[i] < '0' || s[i]>'9')return false;
 	}
 	return pointpos!=Length-1;
 }

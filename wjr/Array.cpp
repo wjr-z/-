@@ -39,7 +39,7 @@ void Array_func::QuickDivide10k(Array<int>& a, const int& k) {//快速除以10^k
 	}
 	a.resize(aftsize);
 	int aftLength = a.length();
-	for (int i = befLength - k; i < aftLength; ++i)
+	for (int i = max(0,befLength - k); i < aftLength; ++i)
 		a.set(i, 0);
 	while (aftsize > 1 && !a[aftsize - 1])
 		--aftsize;
@@ -53,7 +53,7 @@ void Array_func::SlowMul(const Array<int>& A, const Array<int>& B, Array<int>& c
 	int Length = n + m - 1;
 	for (int i = 0; i < n; ++i)
 		for (int j = 0; j < m; ++j) {
-			long long val = mid[i + j] + A[i] * 1ll * B[j];
+			long long val = (long long)A[i] * B[j] + mid[i+j];
 			if (val >= jw) {
 				mid[i + j + 1] += val / jw;
 				mid[i + j] = val % jw;
@@ -116,7 +116,7 @@ void FFT_Array_func::FFTQuickMul1(const Array<int>& A, const Array<int>& B, Arra
 		}
 		else mida[i] = val;
 	}
-	c = mida.turnback(1);
+	c = mida.turnback1();
 	delete[]a;
 }
 
@@ -158,51 +158,12 @@ void FFT_Array_func::FFTQuickMul2(const Array<int>& A, const Array<int>& B, Arra
 		else mida[i] = val;
 	}
 
-	c = mida.turnback(2);
+	c = mida.turnback2();
 
 
 	delete[]a;
 }
 
-void FFT_Array_func::FFTQuickMul3(const Array<int>& A, const Array<int>& B, Array<int>& c) {
-	int n, m;
-	Array<short>mida = A.turnto3(), midb = B.turnto3();
-	n = mida.size(), m = midb.size();
-	int len = n + m - 1, bit = 1, s = 2;
-	bit = quicklog2(len - 1) + 1, s = 1 << bit;
-
-	double* a = new double[s << 1];
-	for (int i = 0; i < n; ++i)
-		a[i << 1] = mida[i] * 0.5, a[i << 1 | 1] = mida[i] * 0.5;
-	for (int i = (n << 1); i < (s << 1); ++i)
-		a[i] = 0;
-	for (int i = 0; i < m; ++i)
-		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
-
-	cdft(s << 1, 1, a);
-	for (int i = 0; i < s; ++i) {
-		double sa = a[i << 1], sb = a[i << 1 | 1];
-		a[i << 1] = sa * sa - sb * sb, a[i << 1 | 1] = 2 * sa * sb;
-	}
-	cdft(s << 1, -1, a);
-	double invs = 1.0 / s;
-	for (int i = 0; i < s; ++i)
-		a[i << 1] *= invs;
-
-	mida.reserve(len+1);
-	mida.resize(len);
-	for (int i = 0; i < len; ++i) {
-		long long val = (long long)(a[i << 1] + 0.5);
-		if (val >= 1000) {
-			if (i + 1 < len)a[(i + 1) << 1] += val / 1000;
-			else mida[i + 1] = val / 1000;
-			mida[i] = val % 1000;
-		}
-		else mida[i] = val;
-	}
-	c = mida.turnback(3);
-	delete[]a;
-}
 void FFT_Array_func::FFTQuickMul4(const Array<int>& A, const Array<int>& B, Array<int>& c) {
 	int n, m;
 	Array<short>mida = A.turnto4(), midb = B.turnto4();
@@ -217,7 +178,6 @@ void FFT_Array_func::FFTQuickMul4(const Array<int>& A, const Array<int>& B, Arra
 		a[i] = 0;
 	for (int i = 0; i < m; ++i)
 		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
-
 	cdft(s << 1, 1, a);
 	for (int i = 0; i < s; ++i) {
 		double sa = a[i << 1], sb = a[i << 1 | 1];
@@ -228,10 +188,8 @@ void FFT_Array_func::FFTQuickMul4(const Array<int>& A, const Array<int>& B, Arra
 	for (int i = 0; i < s; ++i)
 		a[i << 1] *= invs;
 	mida.reserve(len+1);
-	mida.resize(len);
-
 	for (int i = 0; i < len; ++i) {
-		long long val = (long long)(a[i << 1] + 0.5);
+		long long val = static_cast<long long>(a[i << 1] + 0.5);
 		if (val >= 10000) {
 			if (i + 1 < len)a[(i + 1) << 1] += val / 10000;
 			else mida[i + 1] = val / 10000;
@@ -239,16 +197,15 @@ void FFT_Array_func::FFTQuickMul4(const Array<int>& A, const Array<int>& B, Arra
 		}
 		else mida[i] = val;
 	}
-	c = mida.turnback(4);
+	c = mida.turnback4();
 	delete[]a;
 }
 
 void FFT_Array_func::FFTQuickMul(const Array<int>& A, const Array<int>& B, Array<int>& c) {
 	//保证 k*k*n <= 1e11 k 为 每个元素的最大大小
 	int Length = A.length() + B.length();
-	if (Length <= 1e3)FFTQuickMul4(A, B, c);
-	else if (Length <= 1e5)FFTQuickMul3(A, B, c);
-	else if (Length <= 1e7)FFTQuickMul2(A, B, c);
+	if (Length <= 1e4)FFTQuickMul4(A, B, c);
+	else if (Length <= 1e8)FFTQuickMul2(A, B, c);
 	else FFTQuickMul1(A, B, c);
 }
 
