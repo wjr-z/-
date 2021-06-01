@@ -11,6 +11,7 @@
 #include <cmath>
 #include <math.h>
 #include <algorithm>
+#include <mutex>
 
 #define TEST //测试用高精度计时器 ，直接网上找的代码
 #ifdef TEST
@@ -81,8 +82,6 @@ inline Ty max(const Ty& a, const Ty& b) { return a > b ? a : b; }
 template<typename Ty>
 inline Ty sqr(const Ty& val) { return val * val; }
 
-int sqrt(int A);
-
 inline void swap(int&a,int&b){a^=b;b^=a;a^=b;}
 inline void swap(long long&a,long long&b){a^=b;b^=a;a^=b;}
 
@@ -91,54 +90,11 @@ inline long long lowbit(const long long &x){return x&-x;}
 
 static const int _10k[10] = { 1,10,100,1000,10000,100000,1000000,10000000,100000000,1 };
 
+
 //声明Ooura FFT 相关函数
 extern "C" {
-	extern void cdft(int, int, double*, int*, double*);
-	extern void rdft(int, int, double*, int*, double*);
-}
-
-/*---Ooura FFT相关函数---*/
-
-struct _Ooura {//non-important
-private:
-	int iplength, wlength;
-	int* ip;
-	double* w;
-public:
-	_Ooura() { ip = nullptr; w = nullptr; iplength = wlength = 0; }
-	~_Ooura() { delete[]ip; delete[]w; }
-	void oourainital(const int& len) {//可能分配的大小过小，需要重新分配
-		int len1 = 4 + Math::sqrt(len>>2), len2 = ((len * 5) >> 3) + 1;
-		if (iplength < len1 || wlength < len2) {
-			if (iplength <= 1000)
-				delete[]ip, ip = new int[iplength = (len1 * 6)];
-			else if (iplength <= 10000)
-				delete[]ip, ip = new int[iplength = (len1 * 3)];
-			else delete[]ip, ip = new int[iplength = (len1 * 1.5)];
-
-			if (wlength <= 10000)
-				delete[]w, w = new double[wlength = (len2 << 2)];
-			else if (wlength <= 100000)delete[]w, w = new double[wlength = (len << 1)];
-			else delete[]w, w = new double[wlength = (len2 * 1.5)]; 
-   
-			ip[0] = 0;
-		}
-	}
-	int*getip(){return ip;}
-	double*getw(){return w;}
-};
-
-static _Ooura Oouraip;
-static inline void oourainital(const int& len) {//动态扩展和初始化
-	Oouraip.oourainital(len);
-}
-static void cdft(int n, int f, double* cd) {
-	if(f==1)oourainital(n);
-	cdft(n,f,cd,Oouraip.getip(),Oouraip.getw());
-}
-static void rdft(int n, int f, double* cd) {
-	if(f==1)oourainital(n);
-	rdft(n,f,cd, Oouraip.getip(), Oouraip.getw());
+	extern void cdft(int, int, double*);
+	extern void rdft(int, int, double*);
 }
 
 static bool isrightint(const char* s) {
@@ -167,6 +123,10 @@ static bool isrightdouble(const char* s) {
 		else if (s[i] < '0' || s[i]>'9')return false;
 	}
 	return pointpos!=Length-1;
+}
+
+namespace bit10 {
+
 }
 
 

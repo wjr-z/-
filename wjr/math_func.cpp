@@ -23,15 +23,10 @@ double tot, sta, en;
 
 #endif
 
+
 _MATH_BEGIN
 
-int sqrt(int A) {
-	int ans[2] = { -1,1 };
-	int now = 1;
-	while (std::abs(ans[0] - ans[1]) > 1) {
-		now ^= 1;
-		ans[now] = (ans[now ^ 1] + A / ans[now ^ 1]) / 2;
-	}return ans[now];
-}
+
 
 _MATH_END
+

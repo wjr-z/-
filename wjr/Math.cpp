@@ -10,26 +10,21 @@ std::string bit2_to_bit10(const std::string & str) {
 	return bint2(str).to10bit().tostr();
 }
 
-bint abs(const bint& x) {
-	return bint(x, true);
-}
-bfloat fabs(const bfloat& x) {
-	return bfloat(abs(x.getbase()),true);
-}
-
 bint sqrt(const bint&A) {
 	bint ans[2];
 	int now = 1;
 	ans[0] = -1;
 	ans[1] = A;
 	ans[1].quick_divide_10k(A.length()>>1);
-	int step = 0;
 	bint Ans(A);
 	bint one(1);
 	while (abs(ans[0]-ans[1])>one) {
 		now ^= 1;
-		ans[now] = (ans[now ^ 1] + A / ans[now ^ 1]) / 2;
-
+		START
+		bint W=A/ans[now^1];
+		END
+			ADD
+		ans[now] = (ans[now ^ 1] + W) / 2;
 	}
 	return ans[now];
 }
@@ -42,14 +37,13 @@ bfloat sqrt(const bfloat&A) {
 	_base.relength((_base.length()>>1)+1);
 	ans[1] = _base;
 	ans[1].setexp(A.getexp()>>1);
-	int step = 0;
 	bfloat Ans(A);
 	bfloat Div(0.5);
 	while (!approximate(ans[0], ans[1])) {
 		now ^= 1;
 		ans[now] = (ans[now ^ 1] + A / ans[now ^ 1]) * Div;
-
-	}return ans[now];
+	}
+	return ans[now];
 }
 
 bfloat sqrtk(const bfloat& A,const int&k) {//1/k´Î·½
@@ -120,8 +114,8 @@ int log2(const bint& A) {
 bfloat ln(const bfloat& A) {
 	if (A < bfloat(0.0)) 
 		return bfloat(0.0);
-	int q= (log2(A.getbase()) << 1) + 1;
-	bfloat X=sqrtk(bfloat(A.getbase()),q),Y(1.0),ans;
+	int q= (log2(A.getbase()) << 2) + 1;
+	bfloat X=sqrtk(bfloat(A.getbase()),q),Y(1.0),ans; 
 	X-=bfloat(1.0);
 	bool f=true;
 	for (int i = 1; i <= 32 ; ++i) {

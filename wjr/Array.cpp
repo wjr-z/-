@@ -81,6 +81,7 @@ Array<int> Array_func::SlowMul(const Array<int>& A, const Array<int>& B) {
 
 void FFT_Array_func::FFTQuickMul1(const Array<int>& A, const Array<int>& B, Array<int>& c) {
 	int n, m;
+
 	Array<short>mida = A.turnto1(), midb = B.turnto1();
 	n = mida.size(), m = midb.size();
 	int len = n + m - 1, bit = 1, s = 2;
@@ -93,8 +94,6 @@ void FFT_Array_func::FFTQuickMul1(const Array<int>& A, const Array<int>& B, Arra
 		a[i] = 0;
 	for (int i = 0; i < m; ++i)
 		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
-
-	oourainital(s << 1);
 
 	cdft(s << 1, 1, a);
 	for (int i = 0; i < s; ++i) {
@@ -135,8 +134,6 @@ void FFT_Array_func::FFTQuickMul2(const Array<int>& A, const Array<int>& B, Arra
 	for (int i = 0; i < m; ++i)
 		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
 
-	oourainital(s << 1);
-
 	cdft(s << 1, 1, a);
 	for (int i = 0; i < s; ++i) {
 		double sa = a[i << 1], sb = a[i << 1 | 1];
@@ -163,6 +160,7 @@ void FFT_Array_func::FFTQuickMul2(const Array<int>& A, const Array<int>& B, Arra
 
 	delete[]a;
 }
+
 
 void FFT_Array_func::FFTQuickMul4(const Array<int>& A, const Array<int>& B, Array<int>& c) {
 	int n, m;
@@ -466,8 +464,6 @@ void FFT_Array2_func::FFTQuickMul1(const Array2& A, const Array2& B, Array2& c) 
 	for (int i = 0; i < m; ++i)
 		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
 
-	oourainital(s << 1);
-
 	/*FFT*/
 
 	cdft(s << 1, 1, a);
@@ -515,7 +511,6 @@ void FFT_Array2_func::FFTQuickMul2(const Array2& A, const Array2& B, Array2& c) 
 	for (int i = 0; i < m; ++i)
 		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
 
-	oourainital(s << 1);
 
 	cdft(s << 1, 1, a);
 	for (int i = 0; i < s; ++i) {
@@ -562,8 +557,6 @@ void FFT_Array2_func::FFTQuickMul3(const Array2& A, const Array2& B, Array2& c) 
 	for (int i = 0; i < m; ++i)
 		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
 
-	oourainital(s << 1);
-
 	cdft(s << 1, 1, a);
 	for (int i = 0; i < s; ++i) {
 		double sa = a[i << 1], sb = a[i << 1 | 1];
@@ -605,8 +598,6 @@ void FFT_Array2_func::FFTQuickMul4(const Array2& A, const Array2& B, Array2& c) 
 		a[i] = 0;
 	for (int i = 0; i < m; ++i)
 		a[i << 1] += midb[i] * 0.5, a[i << 1 | 1] -= midb[i] * 0.5;
-
-	oourainital(s << 1);
 
 	cdft(s << 1, 1, a);
 	for (int i = 0; i < s; ++i) {

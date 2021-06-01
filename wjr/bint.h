@@ -94,11 +94,11 @@ private:
 
 	/*---快速加法，但不完全快速---*/
 	/*---有待改进---*/
-	static void quickadd(bint&, const bint&, const bool&, const int&);
+	static void quickadd(bint&, const bint&, const bool&);
 	/*---对于低精度的优化，即降低了常数---*/
 	static void addint(bint&, int, const bool&);
 	/*---快速减法，但实际上就是朴素的压位减法，只是加了个特判---*/
-	static void quickdel(bint&, const bint&, const bool&, const int&);
+	static void quickdel(bint&, const bint&, const bool&);
 	/*---低精度特判---*/
 	static void delint(bint&, int, const bool&);
 	/*---时间复杂度是O(m*(n-m))---*/
@@ -110,7 +110,7 @@ private:
 	static bint largedivide(const bint&, const bint&);
 	static bint middivide(const bint&, const bint&);
 	static bint smalldivide(const bint&, const bint&);
-
+	static bint knuthdivide(const bint&,const bint&);
 	static bint quickdivide(const bint&, const bint&);
 	/*---低精度除法---*/
 	static bint divideint(const bint&, int);
@@ -128,13 +128,13 @@ private:
 	bint inv(int = -1)const;//求精度为lim的逆元，很慢！
 	void clear();
 
-	void resize(const int&);
-	const int size()const;
-	void reserve(const int&);
+	void resize(const size_t&);
+	const size_t size()const;
+	void reserve(const size_t&);
 
-	const int& operator[](const int&)const;//下标的const 访问，略快于非const动态扩展访问
-	int& operator[](const int&);//非const 的动态扩展访问
-	int& save_at(const int&);//vec[index]，但是去掉了动态扩展，且可以修改
+	const int& operator[](const size_t&)const;//下标的const 访问，略快于非const动态扩展访问
+	int& operator[](const size_t&);//非const 的动态扩展访问
+	int& save_at(const size_t&);//vec[index]，但是去掉了动态扩展，且可以修改
 
 public:
 	/*---初始化为other的[L,R]元素---*/
@@ -156,7 +156,6 @@ public:
 		assign(s);
 	}
 	bint(const bint& other) :vec(other.vec), positive(other.positive) {
-
 	}
 	bint(const bint& other, const bool& _positive) :vec(other.vec), positive(_positive) {
 
@@ -187,24 +186,38 @@ public:
 		return*this;
 	}
 
-	const int length()const;
+	const size_t length()const;
 	void relength(const int&);
 	void reverse();
-	bint& append(const bint&);//必须是相同符号
-	void insert(const int&,const bint&,const int&,const int&);
 
-	int at(const int&)const;//10进制下的index位，取值0~9
-	void set(const int&, const int&);//10进制位的index位修改
+	short at(const size_t&)const;//10进制下的index位，取值0~9,因此用short就够了
+	void set(const size_t&, const short&);//10进制位的index位修改
 
 	friend ostream& operator<<(ostream&, const bint&);
 	friend istream& operator>>(istream&, bint&);
 
-	bool operator<(const bint&)const;
-	bool operator==(const bint&)const;
-	bool operator<=(const bint&)const;
-	bool operator>(const bint&)const;
-	bool operator>=(const bint&)const;
-	bool operator!=(const bint&)const;
+
+	/*
+	* 防止int强制转换，同时后期可以针对int进行特别优化 
+	*/
+	friend bool operator<(const bint&,const bint&);
+	friend bool operator<(const bint&,const int&);
+	friend bool operator<(const int&,const bint&);
+	friend bool operator==(const bint&,const bint&);
+	friend bool operator==(const bint&,const int&);
+	friend bool operator==(const int&,const bint&);
+	friend bool operator<=(const bint&,const bint&);
+	friend bool operator<=(const bint&,const int&);
+	friend bool operator<=(const int&,const bint&);
+	friend bool operator>(const bint&,const bint&);
+	friend bool operator>(const bint&,const int&);
+	friend bool operator>(const int&,const bint&);
+	friend bool operator>=(const bint&,const bint&);
+	friend bool operator>=(const bint&,const int&);
+	friend bool operator>=(const int&,const bint&);
+	friend bool operator!=(const bint&,const bint&);
+	friend bool operator!=(const bint&,const int&);
+	friend bool operator!=(const int&,const bint&);
 
 	bint& operator+=(const bint&);
 	bint& operator+=(const int&);
@@ -224,6 +237,8 @@ public:
 
 	bint& operator<<=(const int&);
 	bint& operator>>=(const int&);
+	friend bint operator>>(bint, const int&);
+	friend bint operator<<(bint, const int&);
 
 	friend bint operator+(const bint&);
 	friend bint operator-(const bint&);
@@ -246,17 +261,15 @@ public:
 	friend bint operator%(const bint&, const int&);
 	friend bint operator%(const int&, const bint&);
 
-	friend bint operator>>(bint, const int&);
-	friend bint operator<<(bint, const int&);
-
-	friend bint qpow(bint,int);
 	friend bint qpow(bint,bint);
-
+	friend bint qpow(bint, int);
+	friend bint qpow(int,bint);
 
 	void quick_mul_10();//O(n)乘10，但省去了部分运算
 	bint& quick_mul_10k(const int& = 1);//O(n)乘10^k
 	bint& quick_divide_10k(const int& = 1);
 	void abs();//变为绝对值，即positive取true
+	friend bint abs(const bint&);
 
 	int toint()const;//转为int
 	long long toll()const;//转为long long

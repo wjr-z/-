@@ -80,12 +80,24 @@ public:
 	friend ostream&operator<<(ostream&,const bfloat&);
 	friend istream&operator>>(istream&,bfloat&);
 
-	bool operator<(const bfloat&)const;
-	bool operator==(const bfloat&)const;
-	bool operator<=(const bfloat&)const;
-	bool operator>(const bfloat&)const;
-	bool operator>=(const bfloat&)const;
-	bool operator!=(const bfloat&)const;
+	friend bool operator<(const bfloat&,const bfloat&);
+	friend bool operator<(const bfloat&,const double&);
+	friend bool operator<(const double&,const bfloat&);
+	friend bool operator==(const bfloat&,const bfloat&);
+	friend bool operator==(const bfloat&,const double&);
+	friend bool operator==(const double&,const bfloat&);
+	friend bool operator<=(const bfloat&,const bfloat&);
+	friend bool operator<=(const bfloat&,const double&);
+	friend bool operator<=(const double&,const bfloat&);
+	friend bool operator>(const bfloat&,const bfloat&);
+	friend bool operator>(const bfloat&,const double&);
+	friend bool operator>(const double&,const bfloat&);
+	friend bool operator>=(const bfloat&,const bfloat&);
+	friend bool operator>=(const bfloat&,const double&);
+	friend bool operator>=(const double&,const bfloat&);
+	friend bool operator!=(const bfloat&,const bfloat&);
+	friend bool operator!=(const bfloat&,const double&);
+	friend bool operator!=(const double&,const bfloat&);
 
 	bfloat& operator+=(const bfloat&);
 	bfloat& operator-=(const bfloat&);
@@ -103,17 +115,30 @@ public:
 
 
 	friend bfloat operator+(const bfloat&, const bfloat&);
+	friend bfloat operator+(const bfloat&,const double&);
+	friend bfloat operator+(const double&,const bfloat&);
 	friend bfloat operator-(const bfloat&, const bfloat&);
+	friend bfloat operator-(const bfloat&,const double&);
+	friend bfloat operator-(const double&,const bfloat&);
 
 	friend bfloat operator*(const bfloat&, const bfloat&);
+	friend bfloat operator*(const bfloat&,const double&);
+	friend bfloat operator*(const double&,const bfloat&);
 	friend bfloat operator/(const bfloat&, const bfloat&);
 	friend bfloat operator/(const bfloat&,const double&);
 	friend bfloat operator/(const double&,const bfloat&);
+	friend bfloat fabs(const bfloat&);
 	friend bool approximate(const bfloat&,const bfloat&);
 	friend void setfloatlim(const int&);
 	friend bfloat qpow(bfloat,int);
 	friend bfloat qpow(bfloat,bint);
 	std::string tostr();
+
+#ifdef TEST
+	void add(){++base;}
+	void del(){--base;}
+
+#endif TEST
 };
 
 

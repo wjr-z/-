@@ -22,46 +22,47 @@ template<typename Ty>
 class Array {
 private:
 	vector<Ty>vec;
-	int Size;
+	size_t Size;
+
 public:
-	Array(const int& index = 1) :vec(index) {Size=index;}
+	Array(const size_t& index = 1) :vec(index) { Size = index; }
 	const bool iszero()const {
 		if ((Size == 1 && this->operator[](0) == 0) || !Size)return true;
 		return false;
 	}
-	const int size() const { return Size; }
-	const int length(const int& kz = 8)const {
-		return ((Size-1)*kz)+quicklog10(this->operator[](Size-1))+1;
+	const size_t size() const { return Size; }
+	const size_t length()const {
+		return ((Size - 1) << 3) + quicklog10(this->operator[](Size - 1)) + 1;
 	}
-	void resize(const int& index) { vec.resize(index);Size=index; }
-	void reserve(const int& index) { vec.reserve(index); }
-	void clear(){resize(1);vec[0]=0; }
-	void relength(const int& index) {
-		if (!index) { this->resize(1); (*this)[0] = 0; return; }
+	void resize(const size_t& index) { vec.resize(index); Size = index; }
+	void reserve(const size_t& index) { vec.reserve(index); }
+	void clear() { resize(1); vec[0] = 0; }
+	void relength(const size_t& index) {
+		if (!index) { this->resize(1); this->save_at(0) = 0; return; }
 		this->resize(((index - 1) >> 3) + 1);
-		int pos = (index - 1) >> 3, x = _10k[((index - 1) & 7) + 1];
-		this->save_at(pos) %= x;
+		this->save_at((index - 1) >> 3) %= _10k[((index - 1) & 7) + 1];
 	}
 	void reverse() {
-		std::reverse(vec.begin(),vec.end());
+		std::reverse(vec.begin(), vec.end());
 	}
 	void append(const Array<Ty>& other) {
-		vec.insert(vec.end(),other.vec.begin(),other.vec.end());
+		vec.insert(vec.end(), other.vec.begin(), other.vec.end());
 	}
-	void insert(const int&pos,const Array<Ty>& other, const int& L, const int& R) {
-		vec.insert(vec.begin()+pos,other.vec.begin()+L,other.vec.begin()+R);
+	void insert(const size_t& pos, const Array<Ty>& other, const size_t& L, const size_t& R) {
+		vec.insert(vec.begin() + pos, other.vec.begin() + L, other.vec.begin() + R);
 	}
 
-	Ty& save_at(const int& index) { return vec[index]; }
-	const Ty& operator[](const int& index)const { return vec[index]; }
-	Ty& operator[](const int& index) { if (size() <= index)this->resize(index + 1); return save_at(index); }
+	Ty& save_at(const size_t& index) { return vec[index]; }
+	const Ty& operator[](const size_t& index)const { return vec[index]; }
+	Ty& operator[](const size_t& index) { if (size() <= index)this->resize(index + 1); return save_at(index); }
 
-	void set(const int& index, const Ty& val) {
-		int pos = index >> 3, x = _10k[index & 7];
+	void set(const size_t& index, const Ty& val) {
+		size_t pos = index >> 3;
+		int x = _10k[index & 7];
 		(*this)[pos] += (val - (this->operator[](pos) / x) % 10) * x;
 	}
-	Ty at(const int& index, const int& kz = 8)const {
-		return (this->operator[](index / kz) / _10k[index % kz]) % 10;
+	short at(const int& index)const {
+		return (this->operator[](index >>3 ) / _10k[index & 7]) % 10;
 	}
 
 	/*---默认8个10进制数一划分---*/
@@ -73,15 +74,14 @@ public:
 	Array<int>turnback1()const;
 	Array<int>turnback2()const;
 	Array<int>turnback4()const;
-	void maintain(const int& = 1);//维护，使得不会出现大于等于10^k的
 };
 
 template<typename Ty>
 Array<short> Array<Ty>::turnto1()const {//10^8进制转换为10&kz进制
-	int Size = size();
+	size_t Size = size();
 	Array<short>turnTo;
-	turnTo.reserve((Size << 3));
-	int i, head = 0;
+	turnTo.reserve(Size << 3);
+	size_t i, head = 0;
 	for (i = 0; i < Size; ++i) {
 		Ty val = vec[i];
 		for (int j = 0; j < 8; ++j) {
@@ -101,18 +101,18 @@ Array<short> Array<Ty>::turnto1()const {//10^8进制转换为10&kz进制
 
 template<typename Ty>
 Array<short> Array<Ty>::turnto2()const {
-	int Size = size();
+	size_t Size = size();
 	Array<short>turnTo;
 	turnTo.reserve(Size << 2);
-	int i, head = 0;
+	size_t i, head = 0;
 	for (i = 0; i < Size; ++i) {
 		Ty val = vec[i];
-		turnTo[head++]=val%100;
-		val/=100;
-		turnTo[head++]=val%100;
-		val/=100;
-		turnTo[head++]=val%100;
-		turnTo[head++]=val/100;
+		turnTo[head++] = val % 100;
+		val /= 100;
+		turnTo[head++] = val % 100;
+		val /= 100;
+		turnTo[head++] = val % 100;
+		turnTo[head++] = val / 100;
 	}
 	Size = turnTo.size();
 	while (Size > 1 && !turnTo.save_at(Size - 1))
@@ -125,14 +125,14 @@ Array<short> Array<Ty>::turnto2()const {
 
 template<typename Ty>
 Array<short> Array<Ty>::turnto4()const {
-	int Size = size();
+	size_t Size = size();
 	Array<short>turnTo;
 	turnTo.resize(Size << 1);
-	int i, head = 0;
+	size_t i, head = 0;
 	for (i = 0; i < Size; ++i) {
 		Ty val = vec[i];
-		turnTo[head++]=val%10000;
-		turnTo[head++]=val/10000;
+		turnTo[head++] = val % 10000;
+		turnTo[head++] = val / 10000;
 	}
 	Size = turnTo.size();
 	while (Size > 1 && !turnTo.save_at(Size - 1))
@@ -146,32 +146,32 @@ Array<short> Array<Ty>::turnto4()const {
 
 template<typename Ty>
 Array<int> Array<Ty>::turnback1()const {
-	int Size = size();
+	size_t Size = size();
 	Array<int>turnTo;
 	turnTo.reserve(Size >> 3);
-	int i, head = 0;
-	for (i = 0; i + 7 < Size; i+=8,++head) {
-		turnTo[head]=vec[i]+10*vec[i+1]+100*vec[i+2]+
-			1000*vec[i+3]+10000*vec[i+4]+100000*vec[i+5]+
-			1000000*vec[i+6]+10000000*vec[i+7];
+	size_t i, head = 0;
+	for (i = 0; i + 7 < Size; i += 8, ++head) {
+		turnTo[head] = vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] +
+			1000 * vec[i + 3] + 10000 * vec[i + 4] + 100000 * vec[i + 5] +
+			1000000 * vec[i + 6] + 10000000 * vec[i + 7];
 	}
 	switch (Size - i) {
 	case 0:break;
 	case 1:
-		turnTo[head]=vec[i];break;
+		turnTo[head] = vec[i]; break;
 	case 2:
-		turnTo[head]=vec[i]+10*vec[i+1];break;
+		turnTo[head] = vec[i] + 10 * vec[i + 1]; break;
 	case 3:
-		turnTo[head]=vec[i]+10*vec[i+1]+100*vec[i+2];break;
+		turnTo[head] = vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2]; break;
 	case 4:
-		turnTo[head]=vec[i]+10*vec[i+1]+100*vec[i+2]+1000*vec[i+3];break;
+		turnTo[head] = vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] + 1000 * vec[i + 3]; break;
 	case 5:
-		turnTo[head]= vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] + 1000 * vec[i + 3]+10000*vec[i+4];break;
+		turnTo[head] = vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] + 1000 * vec[i + 3] + 10000 * vec[i + 4]; break;
 	case 6:
-		turnTo[head]= vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] + 1000 * vec[i + 3]+10000*vec[i+4]+100000*vec[i+5];
+		turnTo[head] = vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] + 1000 * vec[i + 3] + 10000 * vec[i + 4] + 100000 * vec[i + 5];
 		break;
 	case 7:
-		turnTo[head] = vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] + 1000 * vec[i + 3] + 10000 * vec[i + 4] + 100000 * vec[i + 5]+1000000*vec[i+6];
+		turnTo[head] = vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] + 1000 * vec[i + 3] + 10000 * vec[i + 4] + 100000 * vec[i + 5] + 1000000 * vec[i + 6];
 		break;
 	default:break;
 	}
@@ -186,10 +186,10 @@ Array<int> Array<Ty>::turnback1()const {
 
 template<typename Ty>
 Array<int> Array<Ty>::turnback2()const {
-	int Size = size();
+	size_t Size = size();
 	Array<int>turnTo;
-	turnTo.reserve(Size>>2);
-	int i, head = 0;
+	turnTo.reserve(Size >> 2);
+	size_t i, head = 0;
 	for (i = 0; i + 3 < Size; i += 4, ++head) {
 		turnTo[head] = vec[i] + 100 * vec[i + 1] + 10000 * vec[i + 2] +
 			1000000 * vec[i + 3];
@@ -215,19 +215,15 @@ Array<int> Array<Ty>::turnback2()const {
 
 template<typename Ty>
 Array<int> Array<Ty>::turnback4()const {
-	int Size = size();
+	size_t Size = size();
 	Array<int>turnTo;
-	turnTo.reserve(Size>>1);
-	int i, head = 0;
+	turnTo.reserve(Size >> 1);
+	size_t i, head = 0;
 	for (i = 0; i + 1 < Size; i += 2, ++head) {
 		turnTo[head] = vec[i] + 10000 * vec[i + 1];
 	}
-	switch (Size - i) {
-	case 0:break;
-	case 1:
-		turnTo[head] = vec[i]; break;
-	default:break;
-	}
+	if (i + 1 == Size)
+		turnTo[head] = vec[i];
 	Size = turnTo.size();
 	while (Size > 1 && !turnTo.save_at(Size - 1))
 		--Size;
@@ -235,25 +231,6 @@ Array<int> Array<Ty>::turnback4()const {
 	if (turnTo.iszero())
 		turnTo[0] = 0;
 	return turnTo;
-}
-
-template<typename Ty>
-void Array<Ty>::maintain(const int& kz) {
-	int Length = size();
-	for (int i = 0; i < Length; ++i)
-		if (save_at(i) >= _10k[kz]) {
-			if (i < Length - 1)save_at(i + 1) += save_at(i) / _10k[kz];
-			else {
-				(*this)[i + 1] += save_at(i) / _10k[kz];
-				++Length;
-			}
-			save_at(i) %= _10k[kz];
-		}
-	Length = size();
-	while (Length > 1 && !save_at(Length - 1))
-		--Length;
-	if (size() != Length)
-		this->resize(Length);
 }
 
 template<typename T>
@@ -296,6 +273,15 @@ bool operator!=(const Array<T>& _left, const Array<T>& _right) {
 	return !(_left == _right);
 }
 
+template<typename T>
+bool headjudge(const Array<T>& lhs, const int& n, const Array<T>& rhs, const int& m) {//lhs的前n位和rhs前m位比较
+	if (n != m)return n < m;
+	for (int i = lhs.size() - 1; i >= lhs.size() - n; --i)
+		if (lhs[i] != rhs[i])
+			return lhs[i] < rhs[i];
+	return false;
+}
+
 /*---biginteger的一些函数---*/
 
 class Array_func {
@@ -308,7 +294,7 @@ public:
 	static Array<int> SlowMul(const Array<int>&, const Array<int>&);
 };
 
-class FFT_Array_func{//FFT乘法，使用了Ooura FFT，据说很快，如果有更快的会进行更换
+class FFT_Array_func {//FFT乘法，使用了Ooura FFT，据说很快，如果有更快的会进行更换
 public:
 	static void FFTQuickMul1(const Array<int>&, const Array<int>&, Array<int>&);
 	static void FFTQuickMul2(const Array<int>&, const Array<int>&, Array<int>&);
@@ -330,7 +316,7 @@ private:
 	vector<uint>vec;
 	uint Size;
 public:
-	Array2(const uint& index = 1) :vec(index) {Size=1;}
+	Array2(const uint& index = 1) :vec(index) { Size = 1; }
 	const bool iszero()const {//判断是否为0
 		if ((Size == 1 && this->operator[](0) == 0) || !Size)return true;
 		return false;
@@ -340,7 +326,7 @@ public:
 		uint Size = size();
 		return ((Size - 1) * blo) + quicklog2(this->operator[](Size - 1)) + 1;
 	}
-	void resize(const uint& index) { vec.resize(index);Size=index; }
+	void resize(const uint& index) { vec.resize(index); Size = index; }
 	void reserve(const uint& index) { vec.reserve(index); }
 
 	//一般而言save_at和const oeprator[]的速度相近,优化速度可以将不会越界的改为save_at
@@ -393,7 +379,7 @@ public:
 
 /*---biginteger的一些函数---*/
 
-class FFT_Array2_func{
+class FFT_Array2_func {
 public:
 	static void FFTQuickMul1(const Array2&, const Array2&, Array2&);
 	static void FFTQuickMul2(const Array2&, const Array2&, Array2&);
