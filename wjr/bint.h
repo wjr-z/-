@@ -53,22 +53,9 @@
 #ifndef BINT_H
 #define BINT_H
 
-#include <iomanip>
-#include <string.h>
-#include <iostream>
-
 #include "Array.h"
 
 _MATH_BEGIN
-
-
-using std::istream;
-using std::ostream;
-using std::cin;
-using std::cout;
-using std::endl;
-
-class bint2;
 
 #define jw 100000000 //进位
 
@@ -77,12 +64,74 @@ class bint2;
 
 #define bintzero bint(0)
 
-class bfloat;
+/*---友元函数声明---*/
 
+//------------------------------------------------------------------//
+
+class bfloat;
+class bint2;
+class bint;
+
+ostream& operator<<(ostream&, const bint&);
+istream& operator>>(istream&, bint&);
+
+bool operator<(const bint&, const bint&);
+bool operator<(const bint&, const int&);
+bool operator<(const int&, const bint&);
+bool operator==(const bint&, const bint&);
+bool operator==(const bint&, const int&);
+bool operator==(const int&, const bint&);
+bool operator<=(const bint&, const bint&);
+bool operator<=(const bint&, const int&);
+bool operator<=(const int&, const bint&);
+bool operator>(const bint&, const bint&);
+bool operator>(const bint&, const int&);
+bool operator>(const int&, const bint&);
+bool operator>=(const bint&, const bint&);
+bool operator>=(const bint&, const int&);
+bool operator>=(const int&, const bint&);
+bool operator!=(const bint&, const bint&);
+bool operator!=(const bint&, const int&);
+bool operator!=(const int&, const bint&);
+
+bint operator>>(bint, const int&);
+bint operator<<(bint, const int&);
+
+bint operator+(const bint&);
+bint operator-(const bint&);
+
+
+bint operator+(const bint&, const bint&);
+bint operator+(const bint&, const int&);
+bint operator+(const int&, const bint&);
+bint operator-(const bint&, const bint&);
+bint operator-(const bint&, const int&);
+bint operator-(const int&, const bint&);
+
+bint operator*(const bint&, const bint&);
+bint operator*(const bint&, const int&);
+bint operator*(const int&, const bint&);
+bint operator/(const bint&, const bint&);
+bint operator/(const bint&, const int&);
+bint operator/(const int&, const bint&);
+bint operator%(const bint&, const bint&);
+bint operator%(const bint&, const int&);
+bint operator%(const int&, const bint&);
+
+bint qpow(bint, bint);
+bint qpow(bint, int);
+bint qpow(int, bint);
+
+bint abs(const bint&);
+
+ostream& operator<<(ostream& out, const bint2& x);
+
+bint2 qpow(bint2, int);
+
+//------------------------------------------------------------------//
 
 class bint {
 	friend class bfloat;
-
 private:
 	Array<int>vec;//每一位存一个int
 	bool positive;//positive为true表示为正数，否则为负数
@@ -116,7 +165,6 @@ private:
 	static bint divideint(const bint&, int);
 	/*---Karatsuba算法求乘法---*/
 	/*---实际使用上几乎没有任意一个范围比FFT和暴力快，大概是常数太大---*/
-	static void quickadd10k(bint&, const bint&, const bool&, const int&);
 	/*---实测只有极少数的范围Karatsuba比其他两种更快---*/
 	/*---效率差别不明显(OouraFFT小范围内也很快)，因此并未使用---*/
 	static void Karatsuba(const bint&, const bint&, bint&);
@@ -141,7 +189,7 @@ public:
 	void assign(const bint& other, const int& L, const int& R);
 	const bool iszero()const;
 	const bool ispositive()const;
-	explicit bint() :positive(true) {
+	bint() :positive(true) {
 	}
 	explicit bint(const int& val) :positive(true) {
 		assign(val);
@@ -188,7 +236,7 @@ public:
 
 	const size_t length()const;
 	void relength(const int&);
-	void reverse();
+	void reverse(int = -1);
 
 	short at(const size_t&)const;//10进制下的index位，取值0~9,因此用short就够了
 	void set(const size_t&, const short&);//10进制位的index位修改
@@ -329,23 +377,23 @@ public:
 		int n = a.size(), m = b.size(), _min = min(n, m), _max = max(n, m);
 
 		if (_max <= 32) {
-			(_min <= (quicklog2(_max) * 3) + 8) ?
+			(_min <= (quicklog2(_max) <<1) + 8) ?
 				Array_func::SlowMul(a.vec, b.vec, c.vec) :
 				FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
 		}
 		else {
-			(_min <= (quicklog2(_max) << 1) + 4) ?
+			(_min <= (quicklog2(_max) ) + 4) ?
 				Array_func::SlowMul(a.vec, b.vec, c.vec) :
 				FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
 		}
 
 		if (_max <= 32) {
-			(_min <= (quicklog2(_max) * 3) + 8) ?
+			(_min <= (quicklog2(_max) ) + 8) ?
 				mode = 1 :
 				mode = 3;
 		}
 		else {
-			(_min <= (quicklog2(_max) << 1) + 4) ?
+			(_min <= (quicklog2(_max) ) + 4) ?
 				mode = 1 :
 				mode = 3;
 		}
@@ -490,7 +538,7 @@ private:
 	}
 public:
 	const bool iszero()const;
-	explicit bint2() :positive(true) {
+	bint2() :positive(true) {
 		vec[0] = 0;
 	}
 	explicit bint2(const int& val) :positive(true) {
@@ -557,13 +605,7 @@ public:
 	bool operator>=(const bint2&)const;
 	bool operator!=(const bint2&)const;
 
-	friend ostream& operator<<(ostream& out, const bint2& x) {
-		if (!x.positive)out << "-";
-		int Length = x.length();
-		for (int i = Length - 1; ~i; --i)
-			out << x.at(i);
-		return out;
-	}
+	friend ostream& operator<<(ostream& out, const bint2& x) ;
 
 	bint2& operator+=(const bint2&);
 	bint2& operator+=(const int&);

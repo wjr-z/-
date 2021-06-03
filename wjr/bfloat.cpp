@@ -1,6 +1,4 @@
 #include "bfloat.h"
-
-
 _MATH_BEGIN
 
 #undef min
@@ -25,20 +23,7 @@ void setfloatlim(const int& index) {//仅最初使用，以确保线程安全以及所有的精度相
 
 
 void bfloat::assign(const double& x) {//对于指数形式的现在还没搞
-	double y=x;
-	if(y<0)y=-y;
-	clear();
-	base = (long long)floor(y);
-	int Length = base.length();
-	y=y-floor(y);
-	for (int i = Length; i < 16; ++i, --exp) {
-		y *= 10;
-		base = base * 10 + (int)floor(y);
-		y-=floor(y);
-	}
-	if(x<0)base*=-1;
-	maintain();
-	if (base.iszero())exp = 0;
+	assign(Math::tostring(x));
 }
 void bfloat::assign(const char* s) {
 	int Length=strlen(s);
@@ -48,20 +33,35 @@ void bfloat::assign(const char* s) {
 	int head=0;
 	if(s[head]=='-')++head;
 	if(s[head]=='+')++head;
-	bool is=false;
+	bool is=false;//是否含有小数点
+	int base_head=0;
 	for (; head < Length; ++head) {
 		if (s[head] == '.') {
 			is=true;
 			continue;
 		}
+		if(s[head]=='e'||s[head]=='E')break;
 		if(is)--exp;
-		base.quick_mul_10();
-		base+=s[head]-'0';
+		base.set(base_head++,s[head]-'0');
 	}
-	for (; !is && head < Length; ++head) {
-		if(s[head]=='.')break;
-		++exp;
+	base.reverse(base_head);
+	
+	if (s[head] == 'e' || s[head] == 'E') {
+		++head;
+		bool scientific_positive=true;
+		int X=0;
+		if (head < Length) {
+			if(s[head]=='+')
+				scientific_positive=true,++head;
+			else scientific_positive=false,++head;
+		}
+		for(;head<Length;++head)
+			X=X*10+s[head]-'0';
+		if(scientific_positive)
+			exp+=X;
+		else exp-=X;
 	}
+
 	if(s[0]=='-')base*=-1;
 	maintain();
 	if (base.iszero())exp = 0;
@@ -146,6 +146,9 @@ int bfloat::at(const int& index)const {
 }
 void bfloat::set(const int& index, const int& val) {
 	base.set(index, val);
+}
+void bfloat::setbase(const bint& other) {
+	this->base=other;
 }
 void bfloat::setexp(const int& index) {
 	this->exp=index;
@@ -482,28 +485,26 @@ bfloat qpow(bfloat lhs, bint rhs) {
 	}return ans;
 }
 
-std::string bfloat::tostr() {//lim为至多显示前lim个
+std::string bfloat::tostr() {//返回一个
 	std::string str;
-	if (this->base < bintzero)str.push_back('-');
-	int tail = max(0, -this->exp), Length = this->length();
-	int head = Length - 1;
+	if (!ispositive())str.push_back('-');
+	int Length=length();
+	int EXP=exp+Length-1;
 
-	if (head < tail)
-		str .push_back('0');
-
-	for (; head >= tail; --head)
-		str.push_back(this->base.at(head));
-	if (this->exp > 0) {
-		for (head = this->exp; head; --head)
-			str.push_back('0');
-	}
-	if (this->exp < 0) {
+	str.push_back('0'+base.at(Length - 1));
+	if (Length > 1) {
 		str.push_back('.');
-		for (int i = head + 1; i < tail; ++i)
-			str.push_back('0');
-		for (; head >= 0; --head)
-			str.push_back(this->base.at(head));
+		for(int i=Length-2;~i;--i)
+			str.push_back('0'+base.at(i));
 	}
+	if (EXP) {
+		str.push_back('e');
+		if(EXP<0)
+			EXP*=-1,str.push_back('-');
+		else str.push_back('+');
+		str.append(Math::tostring(EXP));
+	}
+
 	return str;
 }
 

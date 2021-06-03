@@ -4,6 +4,7 @@
 
 #include "Array.h"
 
+/*---Œ¥ÕÍ…∆---*/
 _MATH_BEGIN
 template<typename Ty>
 class Matrix {

@@ -18,13 +18,10 @@ bint sqrt(const bint&A) {
 	ans[1].quick_divide_10k(A.length()>>1);
 	bint Ans(A);
 	bint one(1);
+	double s=currTime();
 	while (abs(ans[0]-ans[1])>one) {
 		now ^= 1;
-		START
-		bint W=A/ans[now^1];
-		END
-			ADD
-		ans[now] = (ans[now ^ 1] + W) / 2;
+		ans[now] = (ans[now ^ 1] + A / ans[now ^ 1]) / 2;
 	}
 	return ans[now];
 }

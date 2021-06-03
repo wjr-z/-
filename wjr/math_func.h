@@ -2,16 +2,8 @@
 #ifndef MATH_FUNC_H
 #define MATH_FUNC_H
 
-
 #define _MATH_BEGIN namespace Math{
 #define _MATH_END }
-#define _POLY_BEGIN namespace POLY{
-#define _POLY_END }
-
-#include <cmath>
-#include <math.h>
-#include <algorithm>
-#include <mutex>
 
 #define TEST //测试用高精度计时器 ，直接网上找的代码
 #ifdef TEST
@@ -37,6 +29,15 @@ extern double tot, sta, en;
 #define ADD tot+=en-sta;
 
 #endif
+
+#include <iostream>
+#include <iomanip>
+
+using std::istream;
+using std::ostream;
+using std::cin;
+using std::cout;
+using std::endl;
 
 _MATH_BEGIN
 
@@ -97,36 +98,24 @@ extern "C" {
 	extern void rdft(int, int, double*);
 }
 
-static bool isrightint(const char* s) {
-	int Length=strlen(s);
-	int head=0;
-	if(s[0]=='+'||s[0]=='-')
-		++head;
-	for (int i = head; i < Length; ++i) {
-		if(s[i]=='+'||s[i]=='-')return false;
-		if(s[i]<'0'||s[i]>'9')return false;
-	}
-	return true;
-}
-static bool isrightdouble(const char* s) {
-	int Length = strlen(s);
-	int head = 0;
-	if (s[0] == '+' || s[0] == '-')
-		++head;
-	int pointpos=-1;
-	for (int i = head; i < Length; ++i) {
-		if (s[i] == '+' || s[i] == '-')return false;
-		if (s[i] == '.') {
-			if(pointpos!=-1)return false;
-			pointpos=i;
-		}
-		else if (s[i] < '0' || s[i]>'9')return false;
-	}
-	return pointpos!=Length-1;
-}
+bool isrightint(const char*);
+bool isrightdouble(const char*);
 
-namespace bit10 {
+std::string tostring(int);
+std::string tostring(long long);
+std::string tostring(const float&);
+std::string tostring(const double&);
 
+inline void quickintmul(const int&A, const int&B, int&k, int&r) {
+	//将两个1e8以内的int乘起来，并将答案划分为k*100000000+r
+	short a = A / 10000, b = A - a * 10000, c =B / 10000, d = B - c * 10000;
+	int w = a * d + b * c;
+
+	r = b * d + (w % 10000) * 10000;
+	k = a * c + w / 10000;
+
+	if (r >= 100000000)
+		++k, r -= 100000000;
 }
 
 

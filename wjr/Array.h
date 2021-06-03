@@ -1,7 +1,6 @@
 /* 同样分为了 Array 和 Array2 ，分别对应 bint 和 bint2
 * 还有相应的一些功能性函数
 */
-
 #pragma once
 
 #ifndef ARRAY_H
@@ -15,6 +14,20 @@ _MATH_BEGIN
 
 using std::vector;
 
+/*---友元函数声明---*/
+
+//------------------------------------------------------------------//
+
+class Array2;
+bool operator<(const Array2&, const Array2&);
+bool operator==(const Array2&, const Array2&);
+bool operator<=(const Array2&, const Array2&);
+bool operator>(const Array2&, const Array2&);
+bool operator>=(const Array2&, const Array2&);
+bool operator!=(const Array2&, const Array2&);
+
+//------------------------------------------------------------------//
+
 /*---Array<Ty>类---*/
 /*---使用vector---*/
 
@@ -25,7 +38,17 @@ private:
 	size_t Size;
 
 public:
-	Array(const size_t& index = 1) :vec(index) { Size = index; }
+	Array(const size_t& index = 1) :vec(index),Size(index) {
+	
+	}
+	Array(const Array& other) :vec(other.vec), Size(other.Size) {
+
+	}
+	Array& operator=(const Array& other) {
+		Size=other.Size;
+		vec.assign(other.vec.begin(),other.vec.end());
+		return*this;
+	}
 	const bool iszero()const {
 		if ((Size == 1 && this->operator[](0) == 0) || !Size)return true;
 		return false;
@@ -36,9 +59,9 @@ public:
 	}
 	void resize(const size_t& index) { vec.resize(index); Size = index; }
 	void reserve(const size_t& index) { vec.reserve(index); }
-	void clear() { resize(1); vec[0] = 0; }
+	void clear() { resize(1); save_at(0) = 0; }
 	void relength(const size_t& index) {
-		if (!index) { this->resize(1); this->save_at(0) = 0; return; }
+		if (!index) { clear(); return; }
 		this->resize(((index - 1) >> 3) + 1);
 		this->save_at((index - 1) >> 3) %= _10k[((index - 1) & 7) + 1];
 	}
@@ -209,7 +232,7 @@ Array<int> Array<Ty>::turnback2()const {
 		--Size;
 	if (Size != turnTo.size())turnTo.resize(Size);
 	if (turnTo.iszero())
-		turnTo[0] = 0;
+		turnTo.clear();
 	return turnTo;
 }
 

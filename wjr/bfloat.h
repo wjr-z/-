@@ -6,7 +6,58 @@
 
 _MATH_BEGIN
 
+/*---ÓÑÔªº¯ÊýÉùÃ÷---*/
+
+//------------------------------------------------------------------//
+
+class bfloat;
+
+ostream& operator<<(ostream&, const bfloat&);
+istream& operator>>(istream&, bfloat&);
+
+bool operator<(const bfloat&, const bfloat&);
+bool operator<(const bfloat&, const double&);
+bool operator<(const double&, const bfloat&);
+bool operator==(const bfloat&, const bfloat&);
+bool operator==(const bfloat&, const double&);
+bool operator==(const double&, const bfloat&);
+bool operator<=(const bfloat&, const bfloat&);
+bool operator<=(const bfloat&, const double&);
+bool operator<=(const double&, const bfloat&);
+bool operator>(const bfloat&, const bfloat&);
+bool operator>(const bfloat&, const double&);
+bool operator>(const double&, const bfloat&);
+bool operator>=(const bfloat&, const bfloat&);
+bool operator>=(const bfloat&, const double&);
+bool operator>=(const double&, const bfloat&);
+bool operator!=(const bfloat&, const bfloat&);
+bool operator!=(const bfloat&, const double&);
+bool operator!=(const double&, const bfloat&);
+
+bfloat operator+(const bfloat&);
+bfloat operator-(const bfloat&);
+
+
+bfloat operator+(const bfloat&, const bfloat&);
+bfloat operator+(const bfloat&, const double&);
+bfloat operator+(const double&, const bfloat&);
+bfloat operator-(const bfloat&, const bfloat&);
+bfloat operator-(const bfloat&, const double&);
+bfloat operator-(const double&, const bfloat&);
+
+bfloat operator*(const bfloat&, const bfloat&);
+bfloat operator*(const bfloat&, const double&);
+bfloat operator*(const double&, const bfloat&);
+bfloat operator/(const bfloat&, const bfloat&);
+bfloat operator/(const bfloat&, const double&);
+bfloat operator/(const double&, const bfloat&);
+bfloat fabs(const bfloat&);
+bool approximate(const bfloat&, const bfloat&);
 void setfloatlim(const int&);
+bfloat qpow(bfloat, int);
+bfloat qpow(bfloat, bint);
+
+//------------------------------------------------------------------//
 
 class bfloat {
 public:
@@ -31,7 +82,7 @@ private:
 public:
 	const bool iszero()const;
 	const bool ispositive()const;
-	explicit bfloat():exp(0) {
+	bfloat():exp(0) {
 
 	}
 	explicit bfloat(const double& val):exp(0){
@@ -65,6 +116,7 @@ public:
 		if(this==&other)return*this;
 		base=other.base;
 		exp=other.exp;
+		return*this;
 	}
 
 	const int length()const;
@@ -72,6 +124,7 @@ public:
 
 	int at(const int&)const;
 	void set(const int&,const int&);
+	void setbase(const bint&);
 	void setexp(const int&);
 
 	const bint&getbase()const;
