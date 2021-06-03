@@ -32,23 +32,126 @@ ostream<< : 输出
 相关函数：
 
 ### 成员函数：
-assign(const bint& other, const int& L, const int& R) : 从头拷贝另一个 bint 的第 L 个元素到第R-1个元素。
-iszero() : 判断是否为 0 。
-ispositive() :  true代表是正数，false代表是负数。
-length() : 返回数字有几位。
-relength(const int&) : 设置位数，如果小于当前位数，自动舍去高位。
-reverse(int Length) : 将低位开始的 Length位翻转，默认 Length=length() 。
-at(const size_t& index) : 返回第 index 位的数字。
-set(const size_t&index,const short&val) : 设置第 index 位为 val 。
-quick_mul_10() : 快速乘以 10 ，比直接乘以 10 会更快，因为使用的是整体移位，复杂度是O(n) 。
-quick_mul_10k(const int&k) : 快速乘以 10^k ，复杂度是 O(n+k) 。
-quick_divide_10k(const int&k) : 快速除以 10^k ，复杂度是O(n) 。
-abs() : 变为绝对值
-toint() : 返回 int ，注意，存储的数大于 int 最大值会爆int。
-toll() : 返回 long long ，存储的数大于long long 最大值会爆 long long。
-tostr() : 返回 string 。
-to2bit() : 返会 bint2 ，bint2 是 2^32 进制的 bint 类（不完善）。
+void assign(const bint& other, const int& L, const int& R) : 从头拷贝另一个 bint 的第 L 个元素到第R-1个元素。   
+bool iszero() : 判断是否为 0 。   
+bool ispositive() :  true代表是正数，false代表是负数。   
+uint length() : 返回数字有几位。   
+void relength(const int&) : 设置位数，如果小于当前位数，自动舍去高位。   
+void reverse(int Length) : 将低位开始的 Length位翻转，默认 Length=length() 。   
+short at(const size_t& index) : 返回第 index 位的数字。   
+void set(const size_t&index,const short&val) : 设置第 index 位为 val 。   
+void quick_mul_10() : 快速乘以 10 ，比直接乘以 10 会更快，因为使用的是整体移位，复杂度是O(n) 。   
+bint& quick_mul_10k(const int&k) : 快速乘以 10^k ，复杂度是 O(n+k) 。   
+bint& quick_divide_10k(const int&k) : 快速除以 10^k ，复杂度是O(n) 。   
+void abs() : 变为绝对值   
+int toint() : 返回 int ，注意，存储的数大于 int 最大值会爆int。   
+long long toll() : 返回 long long ，存储的数大于long long 最大值会爆 long long。   
+string tostr() : 返回 string 。   
+bint2 to2bit() : 返会 bint2 ，bint2 是 2^32 进制的 bint 类（不完善）。复杂度是O(nlogn)，但常数略大   
 
 ### 友元函数：
-qpow(bint ,int ) / qpow(int ,bint ) / qpow(bint ,bint ) : 使用快速幂
+bint qpow(bint ,int ) / qpow(int ,bint ) / qpow(bint ,bint ) : 使用快速幂    
+bint abs(bint) : 返回绝对值   
 
+### Math.h中函数：
+bint sqrt(bint) : 返回开方，取了相近的迭代初值，均摊复杂度较小   
+int log2(const bint&) : 返回 log2 ，原理是先转化为 bint2,返回 bint2 的位数即答案。
+
+---
+
+## bint2 类
+大致同 bint ，是用的2^32进制存储，暂且仅用作十进制和二进制转化。
+
+## bfloat 类
+尾数使用 bint ，指数使用 int，精度为10^(-floatlim)，floatlim初始为64，可以自行设置（设置是非线程安全的，因此需要在多线程外设置精度，建议在main开始就设置，且仅设置一次）   
+大致同 bint    
+
+特有函数：   
+
+### 成员函数：
+void setbase(const bint&) : 设置尾数   
+void setexp(const int&) : 设置指数   
+string tostr() :  返回以科学计数法表示的string   
+
+### 友元函数：
+bfloat fabs(const bfloat&) : 返回绝对值   
+bool approximate(const bfloat&,const bfloat&) : 判断两个数是否相似，误差在5\*10^(-floatlim)之内返回true   
+void setfloatlim(const int&) : 设置精度，即尾数最大位数，在main开始时就应该设置，且最好仅设置一次，或者不在多线程内设置即可。   
+bfloat qpow(bfloat ,int ) : 快速幂   
+bfloat qpow(bfloat ,bint ) : 快速幂   
+
+### Math.h中函数：
+bfloat sqrt(const bfloat&) : 开根   
+bfloat sqrtk(const bfloat&,const int&k) : 1/k 次方   
+bfloat sqrtk(const bfloat&,const bint&k) :  1/k 次方   
+bfloat sqrtpq(const bfloat&,const bfloat&p,const bfloat&q) : p/q 次方   
+bfloat pow(const bfloat&a,const  bfloat&b) : a^b，暂且不支持b为负数    
+bfloat ln(const bfloat&) : 求 ln x，但暂时精度可能会有些许问题，floatlim=64时大概能保证32位的精度吧   
+bfloat exp(const bfloat&) : 求 e^x，精度问题同上。   
+
+---
+
+## Matrix类
+非常不完善。   
+
+--- 
+
+## Array\<Ty\>类
+即动态扩展的vector，当下标访问越界时，自动扩展   
+使用 save_at 是无越界检查，因此快于普通的下标访问。   
+当在const函数或者本身是const时的下标访问是无越界检查的，也要快于普通的下标访问。   
+其余函数可以在代码中查看，因为这个类只是方便其他类的。   
+
+---
+
+## math_func.h
+有一些相关函数，例如quicklog2、quicklog10等，对于一些操作进行了效率优化。   
+
+---
+
+## fftsg_h : 
+使用的 ooura_FFT ，据说很快，也确实很快！   
+
+
+---
+
+下面是用到的一些算法及分析：   
+
+### bint乘法：
+对于数据范围采用三种算法，一种是乘以int，一种是暴力，一种是FFT。   
+因为这个FFT常数真的是小，所以Karatsuba没用到qwq   
+
+- 当 m = 1 时使用低精度乘以高精度   
+- 当 m < 32 时 ， m <= 2*log2(n) + 8 时使用暴力，否则使用 FFT 。   
+- 当 m >= 32 时， m <= log2(n) + 4 时使用暴力，否则使用 FFT 。   
+
+为啥我没用TOOM-COOK？因为太懒了   
+
+### bint除法：
+自研的两种算法+knuth除法   
+详见代码。   
+
+### 二进制转十进制 以及 十进制转二进制
+采用分治实现，具体实现很简单，见代码   
+
+### sqrt
+采用牛顿迭代    
+设一个迭代初值X，每次让X=(X+A/X)/2即可，当相邻两次迭代值相差较小时即可退出，例如整数为1，浮点数我设置的是5\*10\^(-floatlim)。
+
+### pow(a,b)
+设 C 为 b 整数部分，先用快速幂求出，然后对于 b 的小数部分，化为 sqrtpq来求即可，但这样误差可能较大，以后改进
+
+### ln x
+使用的泰勒展开，先将 x 缩小到 2 以内(小于1的可以转化为大于1的再做)，这个可以用 ln a^b =b ln a 来实现，然后用泰勒展开实现。
+
+### exp x 
+将 x 缩小到 1 以内再泰勒展开。
+
+---
+
+效率方面
+
+计算1000次 1234^5678 的平方，python用时0.67s，bint用时0.45s。   
+乘法在大范围内远快于python，中等范围接近，小范围内慢于python，而且会慢很多，因为常数较大，之后使用TOOM-COOK或者优化Karatsuba常数可能会有所改观。
+除法在中等范围内时间接近，大范围会快很多吧，小范围慢于python。   
+现在主要是常数问题，不得不说有的时候一点点的改动就会使常数减少很多呢。
