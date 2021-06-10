@@ -36,17 +36,16 @@ class Array {
 private:
 	vector<Ty>vec;
 	size_t Size;
-
 public:
-	Array(const size_t& index = 1) :vec(index),Size(index) {
-	
+	Array(const size_t& index = 1) :vec(index) {
+		resize(1);
 	}
 	Array(const Array& other) :vec(other.vec), Size(other.Size) {
 
 	}
 	Array& operator=(const Array& other) {
-		Size=other.Size;
-		vec.assign(other.vec.begin(),other.vec.end());
+		Size = other.Size;
+		vec.assign(other.vec.begin(), other.vec.end());
 		return*this;
 	}
 	const bool iszero()const {
@@ -74,6 +73,10 @@ public:
 	void insert(const size_t& pos, const Array<Ty>& other, const size_t& L, const size_t& R) {
 		vec.insert(vec.begin() + pos, other.vec.begin() + L, other.vec.begin() + R);
 	}
+	void assign(const Array<Ty>&other,const int&L,const int&R) {
+		vec.assign(other.vec.begin()+L,other.vec.begin()+R);
+		Size=R-L;
+	}
 
 	Ty& save_at(const size_t& index) { return vec[index]; }
 	const Ty& operator[](const size_t& index)const { return vec[index]; }
@@ -85,7 +88,7 @@ public:
 		(*this)[pos] += (val - (this->operator[](pos) / x) % 10) * x;
 	}
 	short at(const int& index)const {
-		return (this->operator[](index >>3 ) / _10k[index & 7]) % 10;
+		return (this->operator[](index >> 3) / _10k[index & 7]) % 10;
 	}
 
 	/*---默认8个10进制数一划分---*/

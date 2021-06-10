@@ -2114,7 +2114,7 @@ void cftmdl1(int n, double *a)
     double x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i;
     
     mh = n >> 3;
-    m = 2 * mh;
+    m =  mh << 1;
     j1 = m;
     j2 = j1 + m;
     j3 = j2 + m;
@@ -2150,7 +2150,7 @@ void cftmdl1(int n, double *a)
     ss3 = 2 * wk3i;
     i = 0;
     for (;;) {
-        i0 = i + 4 * CDFT_LOOP_DIV;
+        i0 = i + 128 ;
         if (i0 > mh - 4) {
             i0 = mh - 4;
         }
@@ -2343,7 +2343,7 @@ void cftmdl2(int n, double *a)
     double x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i, y0r, y0i, y2r, y2i;
     
     mh = n >> 3;
-    m = 2 * mh;
+    m =  mh << 1;
     wn4r = WR5000;
     j1 = m;
     j2 = j1 + m;
@@ -2392,7 +2392,7 @@ void cftmdl2(int n, double *a)
     wd3i = -wn4r * (wk3i + wk3r);
     i = 0;
     for (;;) {
-        i0 = i + 4 * CDFT_LOOP_DIV;
+        i0 = i + 128 ;
         if (i0 > mh - 4) {
             i0 = mh - 4;
         }

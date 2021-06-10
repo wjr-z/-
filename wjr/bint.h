@@ -57,8 +57,6 @@
 
 _MATH_BEGIN
 
-#define jw 100000000 //进位
-
 /*---biginter类(10bit)---*/
 /*---每一位对10^8取模的动态扩展大整数类---*/
 
@@ -159,14 +157,13 @@ private:
 	static bint largedivide(const bint&, const bint&);
 	static bint middivide(const bint&, const bint&);
 	static bint smalldivide(const bint&, const bint&);
-	static bint knuthdivide(const bint&,const bint&);
+	static bint knuthdivide(const bint&, const bint&);
 	static bint quickdivide(const bint&, const bint&);
 	/*---低精度除法---*/
 	static bint divideint(const bint&, int);
-	/*---Karatsuba算法求乘法---*/
-	/*---实际使用上几乎没有任意一个范围比FFT和暴力快，大概是常数太大---*/
-	/*---实测只有极少数的范围Karatsuba比其他两种更快---*/
-	/*---效率差别不明显(OouraFFT小范围内也很快)，因此并未使用---*/
+	/*---Karatsuba算法---*/
+	/*---复杂度为O(n*m^0.517)---*/
+	/*---当m<=64时使用暴力乘法---*/
 	static void Karatsuba(const bint&, const bint&, bint&);
 	/*---快速乘法，自动选择不同算法---*/
 	static void quickmul(const bint&, const bint&, bint&);
@@ -183,7 +180,9 @@ private:
 	const int& operator[](const size_t&)const;//下标的const 访问，略快于非const动态扩展访问
 	int& operator[](const size_t&);//非const 的动态扩展访问
 	int& save_at(const size_t&);//vec[index]，但是去掉了动态扩展，且可以修改
+	bint(const int& len, int):vec(len),positive(true){
 
+	}
 public:
 	/*---初始化为other的[L,R]元素---*/
 	void assign(const bint& other, const int& L, const int& R);
@@ -246,26 +245,26 @@ public:
 
 
 	/*
-	* 防止int强制转换，同时后期可以针对int进行特别优化 
+	* 防止int强制转换，同时后期可以针对int进行特别优化
 	*/
-	friend bool operator<(const bint&,const bint&);
-	friend bool operator<(const bint&,const int&);
-	friend bool operator<(const int&,const bint&);
-	friend bool operator==(const bint&,const bint&);
-	friend bool operator==(const bint&,const int&);
-	friend bool operator==(const int&,const bint&);
-	friend bool operator<=(const bint&,const bint&);
-	friend bool operator<=(const bint&,const int&);
-	friend bool operator<=(const int&,const bint&);
-	friend bool operator>(const bint&,const bint&);
-	friend bool operator>(const bint&,const int&);
-	friend bool operator>(const int&,const bint&);
-	friend bool operator>=(const bint&,const bint&);
-	friend bool operator>=(const bint&,const int&);
-	friend bool operator>=(const int&,const bint&);
-	friend bool operator!=(const bint&,const bint&);
-	friend bool operator!=(const bint&,const int&);
-	friend bool operator!=(const int&,const bint&);
+	friend bool operator<(const bint&, const bint&);
+	friend bool operator<(const bint&, const int&);
+	friend bool operator<(const int&, const bint&);
+	friend bool operator==(const bint&, const bint&);
+	friend bool operator==(const bint&, const int&);
+	friend bool operator==(const int&, const bint&);
+	friend bool operator<=(const bint&, const bint&);
+	friend bool operator<=(const bint&, const int&);
+	friend bool operator<=(const int&, const bint&);
+	friend bool operator>(const bint&, const bint&);
+	friend bool operator>(const bint&, const int&);
+	friend bool operator>(const int&, const bint&);
+	friend bool operator>=(const bint&, const bint&);
+	friend bool operator>=(const bint&, const int&);
+	friend bool operator>=(const int&, const bint&);
+	friend bool operator!=(const bint&, const bint&);
+	friend bool operator!=(const bint&, const int&);
+	friend bool operator!=(const int&, const bint&);
 
 	bint& operator+=(const bint&);
 	bint& operator+=(const int&);
@@ -309,9 +308,9 @@ public:
 	friend bint operator%(const bint&, const int&);
 	friend bint operator%(const int&, const bint&);
 
-	friend bint qpow(bint,bint);
+	friend bint qpow(bint, bint);
 	friend bint qpow(bint, int);
-	friend bint qpow(int,bint);
+	friend bint qpow(int, bint);
 
 	void quick_mul_10();//O(n)乘10，但省去了部分运算
 	bint& quick_mul_10k(const int& = 1);//O(n)乘10^k
@@ -327,13 +326,10 @@ public:
 	//用于测试三种乘法
 #ifdef TEST
 	friend bint test1(const bint& a, const bint& b) {
-		bint c;
 		if (a.iszero() || b.iszero()) {
-			c = 0;
-			c.positive = true;
-			return c;
+			return bintzero;
 		}
-		int n = a.size(), m = b.size(), _min = min(n, m), _max = max(n, m);
+		bint c;
 		Array_func::SlowMul(a.vec, b.vec, c.vec);
 
 		c.positive = !(a.positive ^ b.positive);
@@ -341,13 +337,11 @@ public:
 		return c;
 	}
 	friend bint test2(const bint& a, const bint& b) {
-		bint c;
 		if (a.iszero() || b.iszero()) {
-			c = 0;
-			c.positive = true;
-			return c;
+			return bintzero;
 		}
-		Karatsuba(a, b, c);
+		bint c;
+		Karatsuba(a,b,c);
 		c.positive = !(a.positive ^ b.positive);
 		if (c.iszero())c.positive = true;
 		return c;
@@ -376,27 +370,13 @@ public:
 		}
 		int n = a.size(), m = b.size(), _min = min(n, m), _max = max(n, m);
 
-		if (_max <= 32) {
-			(_min <= (quicklog2(_max) <<1) + 8) ?
-				Array_func::SlowMul(a.vec, b.vec, c.vec) :
-				FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
-		}
-		else {
-			(_min <= (quicklog2(_max) ) + 4) ?
-				Array_func::SlowMul(a.vec, b.vec, c.vec) :
-				FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
-		}
+		(_min <= (quicklog2(_max)) + 16) ?
+			Karatsuba(a,b,c) :
+			FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
 
-		if (_max <= 32) {
-			(_min <= (quicklog2(_max) ) + 8) ?
-				mode = 1 :
+		(_min <= (quicklog2(_max)) + 16) ?
+				mode = 2 :
 				mode = 3;
-		}
-		else {
-			(_min <= (quicklog2(_max) ) + 4) ?
-				mode = 1 :
-				mode = 3;
-		}
 		c.positive = !(a.positive ^ b.positive);
 		if (c.iszero())c.positive = true;
 		return c;
@@ -605,7 +585,7 @@ public:
 	bool operator>=(const bint2&)const;
 	bool operator!=(const bint2&)const;
 
-	friend ostream& operator<<(ostream& out, const bint2& x) ;
+	friend ostream& operator<<(ostream& out, const bint2& x);
 
 	bint2& operator+=(const bint2&);
 	bint2& operator+=(const int&);
@@ -652,13 +632,12 @@ public:
 	void reserve(const uint&);
 	void relength(const uint&);
 
-	friend bint2 qpow(bint2,int);
+	friend bint2 qpow(bint2, int);
 
 	std::string tostr()const;
 	bint to10bit()const;
 };
 
-#undef jw
 
 _MATH_END
 

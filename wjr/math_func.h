@@ -41,17 +41,16 @@ using std::endl;
 
 _MATH_BEGIN
 
-#undef min
-#undef max
+#define bintjw 100000000
 
 #define uint unsigned int
 #define ull unsigned long long
 static const double PI = 3.14159265358979323846, matheps = 1e-6;//圆周率和浮点误差
-static const uint maxuint=(1ll<<32)-1;//最大的unsigned int
+static const uint maxuint = (1ll << 32) - 1;//最大的unsigned int
 
-static const unsigned int tabel[16] = { 0,0,1,1,2,2,2,2,3,3,3,3,3,3,3,3 };
-
-inline int quicklog2(unsigned int x) {//快速求log2 ，复杂度 O ( log log n )
+static const size_t tabel[16] = { 0,0,1,1,2,2,2,2,3,3,3,3,3,3,3,3 };
+inline short quicklog2(size_t x) {//快速求log2 ，复杂度 O ( log log n )
+	
 	int ans = 0;
 	if (x >> 16) { ans += 16; x >>= 16; }
 	if (x >> 8) { ans += 8; x >>= 8; }
@@ -60,11 +59,11 @@ inline int quicklog2(unsigned int x) {//快速求log2 ，复杂度 O ( log log n )
 }
 
 inline unsigned int quicklog10(unsigned int x) {//快速求 log10，复杂度 O( log log n )
-	unsigned int ans=0;
-	if(x>=100000000){ans+=8;x/=100000000;}
-	if(x>=10000){ans+=4;x/=10000;}
-	if(x>=100){ans+=2;;x/=100;}
-	if(x>=10){++ans;x/=10;}
+	unsigned int ans = 0;
+	if (x >= bintjw) { ans += 8; x /= bintjw; }
+	if (x >= 10000) { ans += 4; x /= 10000; }
+	if (x >= 100) { ans += 2;; x /= 100; }
+	if (x >= 10) { ++ans; x /= 10; }
 	return ans;
 }
 
@@ -75,21 +74,15 @@ static const int debruijn[32] = {
 inline uint _minx(int& x) { return debruijn[(uint)((x & -x) * 0x077CB531U) >> 27]; }//最小的1所在位置
 
 template<typename Ty>
-inline Ty min(const Ty& a, const Ty& b) { return a < b ? a : b; }
-
-template<typename Ty>
-inline Ty max(const Ty& a, const Ty& b) { return a > b ? a : b; }
-
-template<typename Ty>
 inline Ty sqr(const Ty& val) { return val * val; }
 
-inline void swap(int&a,int&b){a^=b;b^=a;a^=b;}
-inline void swap(long long&a,long long&b){a^=b;b^=a;a^=b;}
+inline void swap(int& a, int& b) { a ^= b; b ^= a; a ^= b; }
+inline void swap(long long& a, long long& b) { a ^= b; b ^= a; a ^= b; }
 
-inline int lowbit(const int&x){return x&-x;}
-inline long long lowbit(const long long &x){return x&-x;}
+inline int lowbit(const int& x) { return x & -x; }
+inline long long lowbit(const long long& x) { return x & -x; }
 
-static const int _10k[10] = { 1,10,100,1000,10000,100000,1000000,10000000,100000000,1 };
+static const int _10k[10] = { 1,10,100,1000,10000,100000,1000000,10000000,bintjw,1 };
 
 
 //声明Ooura FFT 相关函数
@@ -106,16 +99,16 @@ std::string tostring(long long);
 std::string tostring(const float&);
 std::string tostring(const double&);
 
-inline void quickintmul(const int&A, const int&B, int&k, int&r) {
-	//将两个1e8以内的int乘起来，并将答案划分为k*100000000+r
-	short a = A / 10000, b = A - a * 10000, c =B / 10000, d = B - c * 10000;
+inline void quickintmul(const int& A, const int& B, int& k, int& r) {
+	//将两个1e8以内的int乘起来，并将答案划分为k*bintjw+r
+	short a = A / 10000, b = A - a * 10000, c = B / 10000, d = B - c * 10000;
 	int w = a * d + b * c;
 
 	r = b * d + (w % 10000) * 10000;
 	k = a * c + w / 10000;
 
-	if (r >= 100000000)
-		++k, r -= 100000000;
+	if (r >= bintjw)
+		++k, r -= bintjw;
 }
 
 

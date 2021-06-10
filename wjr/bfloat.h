@@ -62,7 +62,7 @@ bfloat qpow(bfloat, bint);
 class bfloat {
 public:
 	static int floatlim;
-	static bfloat minpoint,exe;
+	static bfloat exe;
 private:
 	bint base;//µ×Êý
 	int exp;//Ö¸Êý
@@ -82,22 +82,23 @@ private:
 public:
 	const bool iszero()const;
 	const bool ispositive()const;
-	bfloat():exp(0) {
+	bfloat() :exp(0) {
 
 	}
-	explicit bfloat(const double& val):exp(0){
+	explicit bfloat(const double& val) :exp(0) {
 		assign(val);
 	}
 	bfloat(const char* s) :exp(0) {
+
 		assign(s);
 	}
 	bfloat(const std::string& s) :exp(0) {
 		assign(s);
 	}
-	bfloat(const bfloat& other):base(other.base),exp(other.exp) {
+	bfloat(const bfloat& other) :base(other.base), exp(other.exp) {
 
 	}
-	bfloat(const bint& a, const int& index=0) :base(a), exp(index) {
+	bfloat(const bint& a, const int& index = 0) :base(a), exp(index) {
 
 	}
 	bfloat& operator=(const double& val) {
@@ -113,9 +114,9 @@ public:
 		return*this;
 	}
 	bfloat& operator=(const bfloat& other) {
-		if(this==&other)return*this;
-		base=other.base;
-		exp=other.exp;
+		if (this == &other)return*this;
+		base = other.base;
+		exp = other.exp;
 		return*this;
 	}
 
@@ -123,34 +124,34 @@ public:
 	void relength(const int&);
 
 	int at(const int&)const;
-	void set(const int&,const int&);
+	void set(const int&, const int&);
 	void setbase(const bint&);
 	void setexp(const int&);
 
-	const bint&getbase()const;
-	const int&getexp()const;
+	const bint& getbase()const;
+	const int& getexp()const;
 
-	friend ostream&operator<<(ostream&,const bfloat&);
-	friend istream&operator>>(istream&,bfloat&);
+	friend ostream& operator<<(ostream&, const bfloat&);
+	friend istream& operator>>(istream&, bfloat&);
 
-	friend bool operator<(const bfloat&,const bfloat&);
-	friend bool operator<(const bfloat&,const double&);
-	friend bool operator<(const double&,const bfloat&);
-	friend bool operator==(const bfloat&,const bfloat&);
-	friend bool operator==(const bfloat&,const double&);
-	friend bool operator==(const double&,const bfloat&);
-	friend bool operator<=(const bfloat&,const bfloat&);
-	friend bool operator<=(const bfloat&,const double&);
-	friend bool operator<=(const double&,const bfloat&);
-	friend bool operator>(const bfloat&,const bfloat&);
-	friend bool operator>(const bfloat&,const double&);
-	friend bool operator>(const double&,const bfloat&);
-	friend bool operator>=(const bfloat&,const bfloat&);
-	friend bool operator>=(const bfloat&,const double&);
-	friend bool operator>=(const double&,const bfloat&);
-	friend bool operator!=(const bfloat&,const bfloat&);
-	friend bool operator!=(const bfloat&,const double&);
-	friend bool operator!=(const double&,const bfloat&);
+	friend bool operator<(const bfloat&, const bfloat&);
+	friend bool operator<(const bfloat&, const double&);
+	friend bool operator<(const double&, const bfloat&);
+	friend bool operator==(const bfloat&, const bfloat&);
+	friend bool operator==(const bfloat&, const double&);
+	friend bool operator==(const double&, const bfloat&);
+	friend bool operator<=(const bfloat&, const bfloat&);
+	friend bool operator<=(const bfloat&, const double&);
+	friend bool operator<=(const double&, const bfloat&);
+	friend bool operator>(const bfloat&, const bfloat&);
+	friend bool operator>(const bfloat&, const double&);
+	friend bool operator>(const double&, const bfloat&);
+	friend bool operator>=(const bfloat&, const bfloat&);
+	friend bool operator>=(const bfloat&, const double&);
+	friend bool operator>=(const double&, const bfloat&);
+	friend bool operator!=(const bfloat&, const bfloat&);
+	friend bool operator!=(const bfloat&, const double&);
+	friend bool operator!=(const double&, const bfloat&);
 
 	bfloat& operator+=(const bfloat&);
 	bfloat& operator-=(const bfloat&);
@@ -168,28 +169,28 @@ public:
 
 
 	friend bfloat operator+(const bfloat&, const bfloat&);
-	friend bfloat operator+(const bfloat&,const double&);
-	friend bfloat operator+(const double&,const bfloat&);
+	friend bfloat operator+(const bfloat&, const double&);
+	friend bfloat operator+(const double&, const bfloat&);
 	friend bfloat operator-(const bfloat&, const bfloat&);
-	friend bfloat operator-(const bfloat&,const double&);
-	friend bfloat operator-(const double&,const bfloat&);
+	friend bfloat operator-(const bfloat&, const double&);
+	friend bfloat operator-(const double&, const bfloat&);
 
 	friend bfloat operator*(const bfloat&, const bfloat&);
-	friend bfloat operator*(const bfloat&,const double&);
-	friend bfloat operator*(const double&,const bfloat&);
+	friend bfloat operator*(const bfloat&, const double&);
+	friend bfloat operator*(const double&, const bfloat&);
 	friend bfloat operator/(const bfloat&, const bfloat&);
-	friend bfloat operator/(const bfloat&,const double&);
-	friend bfloat operator/(const double&,const bfloat&);
+	friend bfloat operator/(const bfloat&, const double&);
+	friend bfloat operator/(const double&, const bfloat&);
 	friend bfloat fabs(const bfloat&);
-	friend bool approximate(const bfloat&,const bfloat&);
+	friend bool approximate(const bfloat&, const bfloat&);
 	friend void setfloatlim(const int&);
-	friend bfloat qpow(bfloat,int);
-	friend bfloat qpow(bfloat,bint);
+	friend bfloat qpow(bfloat, int);
+	friend bfloat qpow(bfloat, bint);
 	std::string tostr();
 
 #ifdef TEST
-	void add(){++base;}
-	void del(){--base;}
+	void add() { ++base; }
+	void del() { --base; }
 
 #endif TEST
 };

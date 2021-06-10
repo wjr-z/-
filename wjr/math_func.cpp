@@ -45,7 +45,7 @@ bool isrightdouble(const char* s) {
 		++head;
 	int pointpos = -1;
 	for (; head < Length; ++head) {
-		if (s[head] == 'e'||s[head]=='E') 
+		if (s[head] == 'e' || s[head] == 'E')
 			break;
 		if (s[head] == '.') {
 			if (pointpos != -1)return false;
@@ -53,13 +53,13 @@ bool isrightdouble(const char* s) {
 		}
 		else if (s[head] < '0' || s[head]>'9')return false;
 	}
-	if(pointpos==head-1)return false;
-	if (s[head]=='e'||s[head]=='E') {
+	if (pointpos == head - 1)return false;
+	if (s[head] == 'e' || s[head] == 'E') {
 		++head;
-		if (head<Length&&(s[head] == '+' || s[head] == '-'))
+		if (head < Length && (s[head] == '+' || s[head] == '-'))
 			++head;
-		for (; head < Length; ++head) 
-			if(s[head]<'0'||s[head]>'9')return false;
+		for (; head < Length; ++head)
+			if (s[head] < '0' || s[head]>'9')return false;
 	}
 
 	return true;
@@ -67,13 +67,13 @@ bool isrightdouble(const char* s) {
 
 std::string tostring(int x) {
 	std::string str;
-	bool temp=true;
-	if(x<0)
-		temp=false,x*=-1;
-	while(x)
-		str.push_back('0'+x % 10), x /= 10;
-	if(!temp)str.push_back('-');
-	reverse(str.begin(),str.end());
+	bool temp = true;
+	if (x < 0)
+		temp = false, x *= -1;
+	while (x)
+		str.push_back('0' + x % 10), x /= 10;
+	if (!temp)str.push_back('-');
+	reverse(str.begin(), str.end());
 	return str;
 }
 std::string tostring(long long x) {
@@ -82,17 +82,17 @@ std::string tostring(long long x) {
 	if (x < 0)
 		temp = false, x *= -1;
 	while (x)
-		str.push_back('0'+x % 10), x /= 10;
+		str.push_back('0' + x % 10), x /= 10;
 	if (!temp)str.push_back('-');
 	reverse(str.begin(), str.end());
 	return str;
 }
-std::string tostring(const float&x) {
+std::string tostring(const float& x) {
 	static char str[20];
 	sprintf(str, "%.15e", x);
 	return std::string(str);
 }
-std::string tostring(const double&x) {
+std::string tostring(const double& x) {
 	static char str[24];
 	sprintf(str, "%.15e", x);
 	return std::string(str);

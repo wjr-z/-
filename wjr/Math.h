@@ -3,6 +3,7 @@
 #define MATH_H
 #include "bfloat.h"
 #include "Matrix.h"
+#include "Splay.h"
 
 _MATH_BEGIN
 
@@ -13,11 +14,11 @@ bint sqrt(const bint&);
 bfloat sqrt(const bfloat&);//bfloat开根
 
 /*---目前精度仅能达到大约32位，若设置精度为128及以上，则尽量别用---*/
-bfloat sqrtk(const bfloat&,const int&);//1/k次方
-bfloat sqrtk(const bfloat&,const bint&);
-bfloat sqrtpq(const bfloat&,const bint&,const bint&);
+bfloat sqrtk(const bfloat&, const int&);//1/k次方
+bfloat sqrtk(const bfloat&, const bint&);
+bfloat sqrtpq(const bfloat&, const bint&, const bint&);
 
-bfloat pow(const bfloat&,const bfloat&);//p^q次方
+bfloat pow(const bfloat&, const bfloat&);//p^q次方
 
 int log2(const bint&);
 

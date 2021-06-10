@@ -1,11 +1,7 @@
 #include "bint.h"
 
-#define jw 100000000
-
 _MATH_BEGIN
 
-#undef min
-#undef max
 
 
 /*---bint类部分函数定义---*/
@@ -17,25 +13,25 @@ void bint::assign(const int& v) {
 	int val = v;
 	clear();
 	if (val < 0)val = -val, positive ^= 1;
-	for (int i = 0; val; ++i, val /= jw)
-		vec[i] = val % jw;
+	for (int i = 0; val; ++i, val /= bintjw)
+		vec[i] = val % bintjw;
 }
 void bint::assign(const long long& v) {
 	long long val = v;
 	clear();
 	if (val < 0)val = -val, positive ^= 1;
-	for (int i = 0; val; ++i, val /= jw)
-		vec[i] = val % jw;
+	for (int i = 0; val; ++i, val /= bintjw)
+		vec[i] = val % bintjw;
 }
 
 void bint::assign(const char* s) {
 	int Length = strlen(s);
-	if(!isrightint(s))return;
+	if (!isrightint(s))return;
 	clear();
 	reserve(Length >> 3);
 	int i = Length - 1, head = 0, j = 0;
 	int fir = 0;
-	if(s[fir]=='-')positive^=-1,++fir;
+	if (s[fir] == '-')positive ^= 1, ++fir;
 	while (i - fir >= 7) {//从后往前每8位一搞
 		for (j = i - 7; j <= i; ++j)
 			vec[head] = vec[head] * 10 + s[j] - '0';
@@ -57,14 +53,14 @@ void bint::quickadd(bint& a, const bint& b, const bool& _positive) {
 		bint c(b);
 		for (int i = 0; i < n; ++i) {
 			c.save_at(i) += a.save_at(i);
-			if (c.save_at(i) >= jw) {
-				c.save_at(i) -= jw;
+			if (c.save_at(i) >= bintjw) {
+				c.save_at(i) -= bintjw;
 				++c[i + 1];
 			}
 		}
-		for (int tail = n; tail < m&&c.save_at(tail)>=jw; ++tail) {//答案最多是m+1位
-			c.save_at(tail)-=jw;
-			++c[tail+1];//当tail=m-1时进位则答案位数加1，且之后不会再进位
+		for (int tail = n; tail < m && c.save_at(tail) >= bintjw; ++tail) {//答案最多是m+1位
+			c.save_at(tail) -= bintjw;
+			++c[tail + 1];//当tail=m-1时进位则答案位数加1，且之后不会再进位
 		}
 		c.positive = _positive;
 		if (c.iszero())
@@ -74,13 +70,13 @@ void bint::quickadd(bint& a, const bint& b, const bool& _positive) {
 	}//a比b大，则只用进行b的位数次加法
 	for (int i = 0; i < m; ++i) {
 		a.save_at(i) += b[i];
-		if (a.save_at(i) >= jw) {
-			a.save_at(i) -= jw;
+		if (a.save_at(i) >= bintjw) {
+			a.save_at(i) -= bintjw;
 			++a[i + 1];
 		}
 	}
-	for (int tail = m; tail < n && a.save_at(tail) >= jw; ++tail) {//如果n=m并且能进位，则上面就已经进位了
-		a.save_at(tail) -= jw;
+	for (int tail = m; tail < n && a.save_at(tail) >= bintjw; ++tail) {//如果n=m并且能进位，则上面就已经进位了
+		a.save_at(tail) -= bintjw;
 		++a[tail + 1];
 	}
 	a.positive = _positive;
@@ -88,13 +84,13 @@ void bint::quickadd(bint& a, const bint& b, const bool& _positive) {
 		a.positive = true;
 }
 void bint::addint(bint& a, int b, const bool& _positive) {
-	if (b >= jw - a[0]) {//可能会溢出，因此要用减法这样比较
+	if (b >= bintjw - a[0]) {//可能会溢出，因此要用减法这样比较
 		long long val = a[0] + b;//防止溢出
-		a[0] = val % jw;
-		b = val / jw;
+		a[0] = val % bintjw;
+		b = val / bintjw;
 		int head = 1;
-		while (a[head] + b >= jw) {
-			a[head] += b - jw;
+		while (a[head] + b >= bintjw) {
+			a[head] += b - bintjw;
 			b = 1;//考虑到b最大为2e9左右，第一次最多进位10，之后最多进位1
 			++head;
 		}
@@ -110,15 +106,15 @@ void bint::quickdel(bint& a, const bint& b, const bool& _positive) {
 		for (int i = 0; i < n; ++i) {
 			c.save_at(i) -= a.save_at(i);
 			if (c.save_at(i) < 0) {
-				c.save_at(i) += jw;
+				c.save_at(i) += bintjw;
 				--c[i + 1];
 			}
 		}
 		for (int tail = n; tail < m && c.save_at(tail) < 0; ++tail) {
 			//实际上因为a<b，则最高位必定不会借位
 			//之后进行极致速度优化时进行修改
-			c.save_at(tail)+=jw;
-			--c[tail+1];
+			c.save_at(tail) += bintjw;
+			--c[tail + 1];
 		}
 
 		int Length = c.size();
@@ -136,12 +132,12 @@ void bint::quickdel(bint& a, const bint& b, const bool& _positive) {
 	for (int i = 0; i < m; ++i) {
 		a.save_at(i) -= b[i];
 		if (a.save_at(i) < 0) {
-			a.save_at(i) += jw;
+			a.save_at(i) += bintjw;
 			--a[i + 1];
 		}
 	}
 	for (int tail = m; tail < n && a.save_at(tail) < 0; ++tail) {
-		a.save_at(tail) += jw;
+		a.save_at(tail) += bintjw;
 		--a[tail + 1];
 	}
 
@@ -162,28 +158,29 @@ void bint::delint(bint& a, int b, const bool& _positive) {
 		return;
 	}
 	if (a[0] < b) {
-		int val=a[0]-b;
-		a[0]=(val%jw)+jw;
-		b=val/jw+1;
-		int head=1;
+		int val = a[0] - b;
+		a[0] = (val % bintjw) + bintjw;
+		b = val / bintjw + 1;
+		int head = 1;
 		while (a[head] < b) {
-			a[head]+=jw-b;
-			b=1;
+			a[head] += bintjw - b;
+			b = 1;
 			++head;
 		}
-		a[head]-=b;
+		a[head] -= b;
 		int tail = a.size();
 		while (!a.save_at(tail - 1))
 			--tail;
 		a.resize(tail);
-	}else a[0]-=b;
+	}
+	else a[0] -= b;
 }
 
 bint bint::randomdivide(const bint& A, const bint& B) {
 	bint copyA(A), copyB(B);
 	copyA.abs(), copyB.abs();
 	if (copyA < copyB)return bintzero;//如果更小，返回0
-	bint copyB2(copyB+copyB), copyB4(copyB2+copyB2), copyB8(copyB4+copyB4);
+	bint copyB2(copyB + copyB), copyB4(copyB2 + copyB2), copyB8(copyB4 + copyB4);
 	bint ans;
 	ans.reserve(A.size() - B.size() + 1);//提前预留空间
 	int val, head = 0, step = 0;
@@ -223,7 +220,7 @@ bint bint::randomdivide(const bint& A, const bint& B) {
 	return ans;
 }
 
-bint bint::matchdivide(const bint&A, const bint&B) {
+bint bint::matchdivide(const bint& A, const bint& B) {
 	bint copyA(A), copyB(B);
 	copyA.abs(), copyB.abs();
 	int lim = copyA.length() + copyB.length();
@@ -259,7 +256,7 @@ bint bint::largedivide(const bint& A, const bint& B) {
 }
 
 bint bint::middivide(const bint& A, const bint& B) {
-	int n = A.size(), m = B.size(), mid = (5 * m)/2 - n - 2;
+	int n = A.size(), m = B.size(), mid = (5 * m) / 2 - n - 2;
 	bint copyA, copyB;
 	copyA.assign(A, mid, n);//舍去2m-n-2位
 	copyB.assign(B, mid, m);
@@ -267,13 +264,13 @@ bint bint::middivide(const bint& A, const bint& B) {
 	bint ans = copyA / copyB;
 	copyA = A, copyB = B;
 	copyA.abs(), copyB.abs();
-	ans+=(copyA - ans * copyB )/copyB;
+	ans += (copyA - ans * copyB) / copyB;
 	ans.positive = !(A.positive ^ B.positive);
 	return ans;
 }
 bint bint::smalldivide(const bint& A, const bint& B) {
 	int n = A.size(), m = B.size(), mid = (n - m) >> 1;
-	bint copyA, copyB(Math::abs(B)); 
+	bint copyA, copyB(Math::abs(B));
 	copyA.assign(A, mid, n);
 	bint ans = copyA / copyB;
 	bint mo = Math::abs(A) - (ans * copyB).quick_mul_10k(mid << 3);
@@ -284,37 +281,37 @@ bint bint::smalldivide(const bint& A, const bint& B) {
 }
 
 bint bint::knuthdivide(const bint& A, const bint& B) {//比我那个优化的暴力略快一点
-	bint r(Math::abs(A)),copyB(Math::abs(B));
+	bint r(Math::abs(A)), copyB(Math::abs(B));
 	bint ans;
-	int BW = 100000000;
+	int BW = bintjw;
 
 	if (copyB[copyB.size() - 1] < (BW >> 1)) {
-		int a=BW>>1,b=copyB[copyB.size()-1];
-		int K=(a+b-1)/b;
-		r*=K,copyB*=K;
+		int a = BW >> 1, b = copyB[copyB.size() - 1];
+		int K = (a + b - 1) / b;
+		r *= K, copyB *= K;
 	}
 
-	int n=copyB.size(),m=r.size()-copyB.size();
+	int n = copyB.size(), m = r.size() - copyB.size();
 	bint copyA(r);
-	r.quick_divide_10k(m<<3);
-	int i=n+m,j=m;
+	r.quick_divide_10k(m << 3);
+	int i = n + m, j = m;
 	do {
 		int q;
-		if(r.size()>n)
+		if (r.size() > n)
 			q = min((long long)BW - 1, (r[n] * 1ll * BW + r[n - 1]) / copyB[n - 1]);
-		else if(r.size()>n-1)
-			q = min(BW - 1, r[n - 1]/ copyB[n - 1]);
-		else q=0;
-		r-=copyB*q;
-		while(!r.ispositive())
-			--q,r+=copyB;
+		else if (r.size() > n - 1)
+			q = min(BW - 1, r[n - 1] / copyB[n - 1]);
+		else q = 0;
+		r -= copyB * q;
+		while (!r.ispositive())
+			--q, r += copyB;
 		r.quick_mul_10k(8);
-		if(j>0)r[0]=copyA[j-1];
-		ans[j]=q;
-		--i,--j;
-	}while(i>=n);
-	while(!ans[ans.size()-1])
-		ans.resize(ans.size()-1);
+		if (j > 0)r[0] = copyA[j - 1];
+		ans[j] = q;
+		--i, --j;
+	} while (i >= n);
+	while (!ans[ans.size() - 1])
+		ans.resize(ans.size() - 1);
 	return ans;
 }
 
@@ -322,9 +319,9 @@ bint bint::knuthdivide(const bint& A, const bint& B) {//比我那个优化的暴力略快一
 bint bint::quickdivide(const bint& A, const bint& B) {
 	if (A.vec < B.vec)return bintzero;
 	int n = A.size(), m = B.size();
-	if(m==1)return divideint(A,B[0]*(B.positive?1:-1));//低精度除法
+	if (m == 1)return divideint(A, B[0] * (B.positive ? 1 : -1));//低精度除法
 	if (m <= quicklog2(n) + 32) return knuthdivide(A, B);//m比较小直接用O(m*(n-m))算法
-	if(m*3>=2*n)return largedivide(A,B);
+	if (m * 3 >= 2 * n)return largedivide(A, B);
 	return smalldivide(A, B);
 }
 
@@ -336,65 +333,79 @@ bint bint::divideint(const bint& A, int B) {
 	long long copyA = 0;
 	ans.reserve(Size);
 	for (int i = Size - 1; ~i; --i) {
-		copyA = copyA * jw + A[i];
-		if(copyA>=B)
-			ans[i] = copyA / B , copyA %= B;
+		copyA = copyA * bintjw + A[i];
+		if (copyA >= B)
+			ans[i] = copyA / B, copyA %= B;
 	}
 	return ans;
 }
 
 
 void bint::Karatsuba(const bint& a, const bint& b, bint& c) {
-	int lena = a.size(), lenb = b.size(), _min = min(lena, lenb), _max = _min ^ lena ^ lenb;
-	if (_min <= 32) {
-		if (a == bintzero || b == bintzero) {
+	size_t lena = a.size(), lenb = b.size(), _min = min(lena, lenb), _max = _min ^ lena ^ lenb;
+	if ((_min<<1)<=_max||_min<=32) {
+		if (a.iszero() || b.iszero()) {
 			c = bintzero;
 			return;
 		}
 		Array_func::SlowMul(a.vec, b.vec, c.vec);
 		return;
 	}
+
 	int midlen = (_max + 1) >> 1;
 	bint A, B, C, D;
-	A.assign(a,midlen,lena);
+	A.assign(a, midlen, lena);
 	B.assign(a, 0, midlen);
 	C.assign(b, midlen, lenb);
 	D.assign(b, 0, midlen);
-	Karatsuba(B,D,c);
+	Karatsuba(B, D, c);
 	bint F, G;
 	Karatsuba(A, C, F);
 	Karatsuba(A + B, C + D, G);
-	G -= c;
-	G -= F;
-	c+=G.quick_mul_10k(midlen<<3)+F.quick_mul_10k(midlen<<4);
+	G -= c + F;
+	for (int i = F.size() - 1; ~i; --i)
+		c[i + (midlen << 1)] += F.save_at(i);
+	for (int i = G.size() - 1; ~i; --i)
+		c[i + midlen] += G.save_at(i);
+	int Siz=c.size();
+	for (int i = 0; i < Siz - 1 ; ++i) {
+		while(c.save_at(i)>=bintjw)
+			++c.save_at(i+1),c.save_at(i)-=bintjw;
+	}
+	while(c.save_at(Siz-1)>=bintjw)
+		++c[Siz],c.save_at(Siz-1)-=bintjw;
+	Siz=c.size();
+	while(Siz>1&&!c.save_at(Siz-1))
+		--Siz;
+	if(c.size()!=Siz)
+		c.resize(Siz);
 }
 
 void bint::quickmul(const bint& a, const bint& b, bint& c) {
 	if (a.iszero() || b.iszero()) {
-		c = 0;
-		c.positive = true;
+		c=bintzero;
 		return;
 	}
-	int n = a.size(), m = b.size(), Min = min(n, m), Max = n^m^Min;
+	int n = a.size(), m = b.size(), Min = min(n, m), Max = n ^ m ^ Min;
 
 	/*---根据不同范围选择不同算法---*/
 
 	if (Min != 1) {
-		if (!(Max >> 5)) {
+		if (!(Min >> 5)) {
 			(Min <= (quicklog2(Max) << 1) + 8) ?
 				Array_func::SlowMul(a.vec, b.vec, c.vec) :
 				FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
 		}
 		else {
-			(Min <= (quicklog2(Max)) + 4) ?
+			(Min <= quicklog2(Max) + 4) ?
 				Array_func::SlowMul(a.vec, b.vec, c.vec) :
 				FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
 		}
 	}
 	else {
-		if(n==1)
-			mulint(b,a[0],c);
-		else mulint(a,b[0],c);
+		if (n == 1)
+			mulint(b, a[0], c);
+		else mulint(a, b[0], c);
 	}
 	c.positive = !(a.positive ^ b.positive);
 	if (c.iszero())c.positive = true;
@@ -404,50 +415,41 @@ void bint::quickmul(const bint& a, const bint& b, bint& c) {
 void bint::mulint(const bint& a, const int& b, bint& c) {
 	if (!b) {
 		c.clear();
-		return ;
+		return;
 	}
-	int copyb=b;
+	int copyb = b;
 	bool f = copyb >= 0;
-	if(copyb<0)copyb*=-1;
+	if (copyb < 0)copyb *= -1;
 	int n = a.size();
 
 	int k, r;
-	c.resize(n+1);
-	if (copyb <= jw) {//可以进一步优化
+	c.resize(n + 1);
+	if (copyb <= bintjw) {//可以进一步优化
 		for (int i = n - 1; ~i; --i) {
 			quickintmul(a[i], copyb, k, r);
-
 			c.save_at(i) = r;
 			c.save_at(i + 1) += k;
-			
 		}
-		n = c.size();
-		for (int i = 0; i < n; ++i)
-			while (c.save_at(i) >= jw) {
-				++c[i + 1];
-				c.save_at(i) -= jw;
-			}
 	}
 	else {
 		for (int i = n - 1; ~i; --i) {
 			long long val = a[i] * 1ll * copyb;
-			if (val >= jw) {
-				c.save_at(i) = val % jw;
-				c.save_at(i+1) += val / jw;
+			if (val >= bintjw) {
+				c.save_at(i) = val % bintjw;
+				c.save_at(i + 1) += val / bintjw;
 			}
 			else c.save_at(i) = val;
 		}
-		n = c.size();
-		for (int i = 0; i < n; ++i)
-			if (c.save_at(i) >= jw) {
-				c[i + 1] += c.save_at(i) / jw;
-				c.save_at(i) %= jw;
-			}
 	}
-	n=c.size();
-	while(n>1&&!c.save_at(n-1))
+	n = c.size();
+	for (int i = 0; i < n - 1 ; ++i)
+		if (c.save_at(i) >= bintjw) {
+			c.save_at(i+1) += c.save_at(i) / bintjw;
+			c.save_at(i) %= bintjw;
+		}
+	while (n > 1 && !c.save_at(n - 1))
 		--n;
-	if(n!=c.size())
+	if (n != c.size())
 		c.resize(n);
 	c.positive = !(a.positive ^ f);
 }
@@ -499,14 +501,10 @@ void bint::assign(const bint& other, const int& L, const int& R) {
 	int Size = other.size();
 	int l = min(L, Size), r = min(R, Size);
 	if (l == r) {
-		resize(1);
-		positive=true;
-		this->save_at(0)=0;
-		return ;
+		clear();
+		return;
 	}
-	resize(r-l);
-	for (int i = l; i < r; ++i)
-		this->save_at(i - l) = other[i];
+	vec.assign(other.vec,l,r);
 	int tail = r - l;
 	while (tail > 1 && !this->save_at(tail - 1))--tail;
 	if (tail != size())resize(tail);
@@ -521,12 +519,12 @@ const bool bint::ispositive()const {
 
 const size_t bint::length() const { return vec.length(); }
 void bint::relength(const int& index) { vec.relength(index); }
-void bint::reverse(int Length){
-	if(Length==-1)Length=length();
+void bint::reverse(int Length) {
+	if (Length == -1)Length = length();
 	for (int i = 0; (i << 1) < Length; ++i) {
-		int u=at(i),v=at(Length-1-i);
-		set(i,v);
-		set(Length-1-i,u);
+		int u = at(i), v = at(Length - 1 - i);
+		set(i, v);
+		set(Length - 1 - i, u);
 	}
 }
 
@@ -555,44 +553,44 @@ istream& operator>>(istream& in, bint& x) {
 bool operator<(const bint& lhs, const bint& rhs) {
 	return ((lhs.positive == rhs.positive) && (lhs.vec < rhs.vec)) ^ (!lhs.positive);
 }
-bool operator<(const bint&lhs, const int& rhs) {
-	return lhs<bint(rhs);//经典偷懒 
+bool operator<(const bint& lhs, const int& rhs) {
+	return lhs < bint(rhs);//经典偷懒 
 }
 bool operator<(const int& lhs, const bint& rhs) {
-	return bint(lhs)<rhs;
+	return bint(lhs) < rhs;
 }
 
-bool operator==(const bint& lhs,const bint&rhs) {
+bool operator==(const bint& lhs, const bint& rhs) {
 	return ((lhs.positive == rhs.positive) && lhs.vec == rhs.vec);
 }
 bool operator==(const bint& lhs, const int& rhs) {
-	return lhs==bint(rhs);
+	return lhs == bint(rhs);
 }
 bool operator==(const int& lhs, const bint& rhs) {
-	return bint(lhs)==rhs;
+	return bint(lhs) == rhs;
 }
 
 bool operator<=(const bint& lhs, const bint& rhs) {
 	return !(((lhs.positive == rhs.positive) && (lhs.vec > rhs.vec)) ^ (!lhs.positive));
 }
 bool operator<=(const bint& lhs, const int& rhs) {
-	return lhs<=bint(rhs);
+	return lhs <= bint(rhs);
 }
 bool operator<=(const int& lhs, const bint& rhs) {
-	return bint(lhs)<=rhs;
+	return bint(lhs) <= rhs;
 }
 
 bool operator>(const bint& lhs, const bint& rhs) { return !(lhs <= rhs); }
-bool operator>(const bint&lhs,const int&rhs){return lhs>bint(rhs); }
-bool operator>(const int&lhs,const bint&rhs){return bint(lhs)>bint(rhs); }
+bool operator>(const bint& lhs, const int& rhs) { return lhs > bint(rhs); }
+bool operator>(const int& lhs, const bint& rhs) { return bint(lhs) > bint(rhs); }
 
 bool operator>=(const bint& lhs, const bint& rhs) { return !(lhs < rhs); }
-bool operator>=(const bint&lhs,const int&rhs){return lhs>=bint(rhs); }
-bool operator>=(const int&lhs,const bint&rhs){return bint(lhs)>=rhs; }
+bool operator>=(const bint& lhs, const int& rhs) { return lhs >= bint(rhs); }
+bool operator>=(const int& lhs, const bint& rhs) { return bint(lhs) >= rhs; }
 
 bool operator!=(const bint& lhs, const bint& rhs) { return !(lhs == rhs); }
-bool operator!=(const bint&lhs,const int&rhs){return lhs!=bint(rhs); }
-bool operator!=(const int&lhs,const bint&rhs){return bint(lhs)!=rhs; }
+bool operator!=(const bint& lhs, const int& rhs) { return lhs != bint(rhs); }
+bool operator!=(const int& lhs, const bint& rhs) { return bint(lhs) != rhs; }
 
 
 bint& bint::operator+=(const bint& b) {
@@ -693,7 +691,7 @@ bint& bint::operator>>=(const int& index) {
 		(*this) /= (1 << index);
 		return*this;
 	}
-	(*this) /= qpow(bint(2),index);
+	(*this) /= qpow(bint(2), index);
 	return*this;
 }
 bint& bint::operator<<=(const int& index) {
@@ -701,7 +699,7 @@ bint& bint::operator<<=(const int& index) {
 		(*this) *= (1 << index);
 		return*this;
 	}
-	(*this) *= qpow(bint(2),index);
+	(*this) *= qpow(bint(2), index);
 	return*this;
 }
 
@@ -729,8 +727,8 @@ bint operator+(const bint& X) {
 }
 
 bint operator-(const bint& X) {
-	if(!X.iszero())return bint(X.vec,true);
-	return bint(X.vec, X.positive^1);
+	if (!X.iszero())return bint(X.vec, true);
+	return bint(X.vec, X.positive ^ 1);
 }
 
 bint operator+(const bint& a, const bint& b) {
@@ -766,18 +764,18 @@ bint operator-(const int& a, const bint& b) {
 }
 
 bint operator*(const bint& a, const bint& b) {
-	bint c;
+	bint c(a.size()+b.size(),-1);
 	bint::quickmul(a, b, c);
 	return c;
 }
 bint operator*(const bint& a, const int& b) {
-	bint c;
+	bint c(a.size()+1,-1);
 	bint::mulint(a, b, c);
 	return c;
 }
 
 bint operator*(const int& a, const bint& b) {
-	bint c;
+	bint c(b.size()+1,-1);
 	bint::mulint(b, a, c);
 	return c;
 }
@@ -831,7 +829,7 @@ bint qpow(bint a, int b) {
 	}return ans;
 }
 bint qpow(int a, bint b) {
-	return qpow(bint(a),b);
+	return qpow(bint(a), b);
 }
 
 
@@ -846,51 +844,51 @@ void bint::quick_mul_10() {
 	vec[0] = (vec.save_at(0) % 10000000) * 10;
 }
 
-bint& bint::quick_mul_10k(const int& k ) {
+bint& bint::quick_mul_10k(const int& k) {
 	Array_func::QuickMul10k(this->vec, k);
 	return*this;
 }
 
 bint& bint::quick_divide_10k(const int& k) {
-	Array_func::QuickDivide10k(this->vec,k);
+	Array_func::QuickDivide10k(this->vec, k);
 	return*this;
 }
 
 void bint::abs() {
-	this->positive=true;
+	this->positive = true;
 }
 
 bint abs(const bint& x) {
-	return bint(x.vec,true);
+	return bint(x.vec, true);
 }
 
 int bint::toint()const {
 	int Length = size(), x = vec[0];
 	for (int i = 1; i < Length; ++i)
-		x = x * jw + vec[i];
+		x = x * bintjw + vec[i];
 	return x;
 }
 long long bint::toll()const {
 	int Length = size();
 	long long x = vec[0];
 	for (int i = 1; i < Length; ++i)
-		x = x * jw + vec[i];
+		x = x * bintjw + vec[i];
 	return x;
 }
 
 std::string bint::tostr()const {
 	std::string str;
-	int Size=size();
-	int x=(*this)[Size-1];
+	int Size = size();
+	int x = (*this)[Size - 1];
 	while (x) {
-		str.push_back(x%10+'0');
-		x/=10;
+		str.push_back(x % 10 + '0');
+		x /= 10;
 	}
-	std::reverse(str.begin(),str.end());
+	std::reverse(str.begin(), str.end());
 	for (int i = Size - 2; ~i; --i) {
-		x=(*this)[i];
-		for(int j=7;~j;--j)
-			str.push_back((x/_10k[j])%10+'0');
+		x = (*this)[i];
+		for (int j = 7; ~j; --j)
+			str.push_back((x / _10k[j]) % 10 + '0');
 	}
 	return str;
 }
@@ -899,26 +897,26 @@ std::string bint::tostr()const {
 * 思想是对于长度较小的暴力转换
 * 对于长度较大的，取长度一半向上取整
 * 分为 l 和 r ，并分治得到 l 和 r 转换为的 bint2 ，即转化成的 2 进制
-* 然后对于 l.to2bit() 乘以 10^mid再加上 r.to2bit() 即为 当前的 to2bit() 
+* 然后对于 l.to2bit() 乘以 10^mid再加上 r.to2bit() 即为 当前的 to2bit()
 * 本质就是对于每一位 a_i 乘以 10 ^ i ，然后采用分治来做
 * 期望复杂度是 O( n*log n )，常数带一个 0.67 ，但实际上因为我还没有预处理出 10 ^ mid
 * 导致会额外进行一倍以上的运算，且递归常数较大，所以实际常数较大
 */
 bint2 bint::to2bit()const {
-	int Size=size();
+	int Size = size();
 	if (Size <= 16) {
 		bint2 x;
-		x=vec[Size-1];
-		for(int i=Size-2;~i;--i)
-			x=x*bint2(100000000)+vec[i];
+		x = vec[Size - 1];
+		for (int i = Size - 2; ~i; --i)
+			x = x * bint2(bintjw) + vec[i];
 		return x;
 	}
-	int mid=(Size+1)>>1;
-	bint l,r;
-	r.assign(*this,0,mid);
-	l.assign(*this,mid,Size);
+	int mid = (Size + 1) >> 1;
+	bint l, r;
+	r.assign(*this, 0, mid);
+	l.assign(*this, mid, Size);
 
-	return l.to2bit()*(qpow(bint2(100000000),mid))+r.to2bit();
+	return l.to2bit() * (qpow(bint2(bintjw), mid)) + r.to2bit();
 	//其实qpow这一步是可以通过预处理得到的
 }
 
@@ -948,27 +946,27 @@ void bint2::assign(const long long& v) {
 		vec[0] = 0;
 }
 
-void bint2::assign(const char*_s) {
-	char*s=const_cast<char*>(_s);
-	int Length=strlen(s);
-	reserve(Length>>5);
-	int i=Length-1,head=0,j=0;
-	int fir=0;
-	while(fir<Length&&s[fir]=='-')
-		positive^=1,++fir;
+void bint2::assign(const char* _s) {
+	char* s = const_cast<char*>(_s);
+	int Length = strlen(s);
+	reserve(Length >> 5);
+	int i = Length - 1, head = 0, j = 0;
+	int fir = 0;
+	while (fir < Length && s[fir] == '-')
+		positive ^= 1, ++fir;
 	while (i - fir >= 31) {
-		for(j=i-31;j<=i;++j)
-			vec[head]=(vec[head]<<1)+(s[j]-'0');
+		for (j = i - 31; j <= i; ++j)
+			vec[head] = (vec[head] << 1) + (s[j] - '0');
 		++head;
-		i-=32;
+		i -= 32;
 	}
-	for(j=fir;j<=i;++j)
-		vec[head]=(vec[head]<<1)+(s[j]-'0');
-	if(iszero())
-		vec[0]=0;
+	for (j = fir; j <= i; ++j)
+		vec[head] = (vec[head] << 1) + (s[j] - '0');
+	if (iszero())
+		vec[0] = 0;
 
 }
-void bint2::assign(const std::string&s){assign(s.c_str()); }
+void bint2::assign(const std::string& s) { assign(s.c_str()); }
 
 bint2 bint2::add(const bint2& a, const bint2& b, const bool& _positive) {
 	int n = a.size(), m = b.size();
@@ -1087,10 +1085,10 @@ bint2& bint2::operator*=(const bint2& b) {
 bint2 qpow(bint2 a, int b) {
 	bint2 s(1);
 	while (b) {
-		if(b&1)
-			s*=a;
-		a*=a;
-		b>>=1;
+		if (b & 1)
+			s *= a;
+		a *= a;
+		b >>= 1;
 	}return s;
 }
 
@@ -1114,25 +1112,23 @@ std::string bint2::tostr()const {
 */
 
 bint bint2::to10bit()const {
-	int Size=size();
+	int Size = size();
 	if (Size <= 16) {
 		bint x;
-		x=bint((long long)vec[Size-1]);
+		x = bint((long long)vec[Size - 1]);
 		for (int i = Size - 2; ~i; --i) {
-			x<<=32;
-			x+=bint((long long)vec[i]);
+			x <<= 32;
+			x += bint((long long)vec[i]);
 		}
-	
+
 		return x;
 	}
-	bint2 l,r;
-	int mid=(Size+1)>>1;
-	r.assign(*this,0,mid);
-	l.assign(*this,mid,Size);
-	return l.to10bit()*(qpow(bint(1<<16),(mid<<1)))+r.to10bit();
+	bint2 l, r;
+	int mid = (Size + 1) >> 1;
+	r.assign(*this, 0, mid);
+	l.assign(*this, mid, Size);
+	return l.to10bit() * (qpow(bint(1 << 16), (mid << 1))) + r.to10bit();
 }
 
 _MATH_END
 
-
-#undef jw 
