@@ -89,7 +89,6 @@ public:
 		assign(val);
 	}
 	bfloat(const char* s) :exp(0) {
-
 		assign(s);
 	}
 	bfloat(const std::string& s) :exp(0) {

@@ -65,39 +65,6 @@ bool isrightdouble(const char* s) {
 	return true;
 }
 
-std::string tostring(int x) {
-	std::string str;
-	bool temp = true;
-	if (x < 0)
-		temp = false, x *= -1;
-	while (x)
-		str.push_back('0' + x % 10), x /= 10;
-	if (!temp)str.push_back('-');
-	reverse(str.begin(), str.end());
-	return str;
-}
-std::string tostring(long long x) {
-	std::string str;
-	bool temp = true;
-	if (x < 0)
-		temp = false, x *= -1;
-	while (x)
-		str.push_back('0' + x % 10), x /= 10;
-	if (!temp)str.push_back('-');
-	reverse(str.begin(), str.end());
-	return str;
-}
-std::string tostring(const float& x) {
-	static char str[20];
-	sprintf(str, "%.15e", x);
-	return std::string(str);
-}
-std::string tostring(const double& x) {
-	static char str[24];
-	sprintf(str, "%.15e", x);
-	return std::string(str);
-}
-
 
 _MATH_END
 

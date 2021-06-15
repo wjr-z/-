@@ -1,4 +1,5 @@
 #include "bfloat.h"
+#include <string>
 _MATH_BEGIN
 
 
@@ -16,7 +17,7 @@ void setfloatlim(const int& index) {//仅最初使用，以确保线程安全以及所有的精度相
 
 
 void bfloat::assign(const double& x) {//对于指数形式的现在还没搞
-	assign(Math::tostring(x));
+	assign(std::to_string(x));
 }
 void bfloat::assign(const char* s) {
 	int Length = strlen(s);
@@ -495,7 +496,7 @@ std::string bfloat::tostr() {//返回一个
 		if (EXP < 0)
 			EXP *= -1, str.push_back('-');
 		else str.push_back('+');
-		str.append(Math::tostring(EXP));
+		str.append(std::to_string(EXP));
 	}
 
 	return str;

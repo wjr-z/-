@@ -4,6 +4,7 @@
 #include "bfloat.h"
 #include "Matrix.h"
 #include "Splay.h"
+#include "Deque.h"
 
 _MATH_BEGIN
 

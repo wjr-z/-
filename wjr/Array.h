@@ -11,6 +11,8 @@
 
 _MATH_BEGIN
 
+//#define ARRAYDEBUG
+
 
 using std::vector;
 
@@ -37,15 +39,37 @@ private:
 	vector<Ty>vec;
 	size_t Size;
 public:
-	Array(const size_t& index = 1) :vec(index) {
+	Array(const size_t& index = 1)noexcept :vec(index) {
+	#ifdef ARRAYDEBUG
+		cout<<"Array构造函数\n";
+	#endif ARRAYDEBUG
 		resize(1);
 	}
-	Array(const Array& other) :vec(other.vec), Size(other.Size) {
-
+	Array(const Array& other)noexcept :vec(other.vec), Size(other.Size) {
+	#ifdef ARRAYDEBUG
+		cout<<"Array左值拷贝构造\n";
+	#endif ARRAYDEBUG
 	}
-	Array& operator=(const Array& other) {
+	Array(Array&& other)noexcept
+		:vec(std::move(other.vec)),Size(other.Size) {
+	#ifdef ARRAYDEBUG
+		cout<<"Array右值拷贝构造\n";
+	#endif ARRAYDEBUG
+	}
+	Array& operator=(const Array& other)noexcept {
+	#ifdef ARRAYDEBUG
+		cout<<"Array左值复制\n";
+	#endif ARRAYDEBUG
+		vec = other.vec;
 		Size = other.Size;
-		vec.assign(other.vec.begin(), other.vec.end());
+		return*this;
+	}
+	Array& operator=(Array&& other)noexcept {
+	#ifdef ARRAYDEBUG
+		cout<<"Array右值复制\n";
+	#endif ARRAYDEBUG
+		vec=std::move(other.vec);
+		Size=other.Size;
 		return*this;
 	}
 	const bool iszero()const {
@@ -87,176 +111,21 @@ public:
 		int x = _10k[index & 7];
 		(*this)[pos] += (val - (this->operator[](pos) / x) % 10) * x;
 	}
-	short at(const int& index)const {
+	uint at(const int& index)const {
 		return (this->operator[](index >> 3) / _10k[index & 7]) % 10;
 	}
-
-	/*---默认8个10进制数一划分---*/
-	/*---考虑到数太大，FFT会爆精度，因此需要先转化为较小的数---*/
-	/*---不用一个函数写是因为之前是一个函数写的，现在在降低常数---*/
-	Array<short> turnto1()const;//每1位划分
-	Array<short> turnto2()const;//2位划分
-	Array<short> turnto4()const;//4位划分
-	Array<int>turnback1()const;
-	Array<int>turnback2()const;
-	Array<int>turnback4()const;
+	void swap(Array<Ty>&other);
 };
 
 template<typename Ty>
-Array<short> Array<Ty>::turnto1()const {//10^8进制转换为10&kz进制
-	size_t Size = size();
-	Array<short>turnTo;
-	turnTo.reserve(Size << 3);
-	size_t i, head = 0;
-	for (i = 0; i < Size; ++i) {
-		Ty val = vec[i];
-		for (int j = 0; j < 8; ++j) {
-			turnTo[head] += (val % 10);
-			++head;
-			val /= 10;
-		}
-	}
-	Size = turnTo.size();
-	while (Size > 1 && !turnTo.save_at(Size - 1))
-		--Size;
-	if (Size != turnTo.size())turnTo.resize(Size);
-	if (turnTo.iszero())
-		turnTo[0] = 0;
-	return turnTo;
+void Array<Ty>::swap(Array<Ty>& other) {
+	vec.swap(other.vec);
+	std::swap(Size,other.Size);
 }
 
 template<typename Ty>
-Array<short> Array<Ty>::turnto2()const {
-	size_t Size = size();
-	Array<short>turnTo;
-	turnTo.reserve(Size << 2);
-	size_t i, head = 0;
-	for (i = 0; i < Size; ++i) {
-		Ty val = vec[i];
-		turnTo[head++] = val % 100;
-		val /= 100;
-		turnTo[head++] = val % 100;
-		val /= 100;
-		turnTo[head++] = val % 100;
-		turnTo[head++] = val / 100;
-	}
-	Size = turnTo.size();
-	while (Size > 1 && !turnTo.save_at(Size - 1))
-		--Size;
-	if (Size != turnTo.size())turnTo.resize(Size);
-	if (turnTo.iszero())
-		turnTo[0] = 0;
-	return turnTo;
-}
-
-template<typename Ty>
-Array<short> Array<Ty>::turnto4()const {
-	size_t Size = size();
-	Array<short>turnTo;
-	turnTo.resize(Size << 1);
-	size_t i, head = 0;
-	for (i = 0; i < Size; ++i) {
-		Ty val = vec[i];
-		turnTo[head++] = val % 10000;
-		turnTo[head++] = val / 10000;
-	}
-	Size = turnTo.size();
-	while (Size > 1 && !turnTo.save_at(Size - 1))
-		--Size;
-	if (Size != turnTo.size())turnTo.resize(Size);
-	if (turnTo.iszero())
-		turnTo[0] = 0;
-	return turnTo;
-}
-
-
-template<typename Ty>
-Array<int> Array<Ty>::turnback1()const {
-	size_t Size = size();
-	Array<int>turnTo;
-	turnTo.reserve(Size >> 3);
-	size_t i, head = 0;
-	for (i = 0; i + 7 < Size; i += 8, ++head) {
-		turnTo[head] = vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] +
-			1000 * vec[i + 3] + 10000 * vec[i + 4] + 100000 * vec[i + 5] +
-			1000000 * vec[i + 6] + 10000000 * vec[i + 7];
-	}
-	switch (Size - i) {
-	case 0:break;
-	case 1:
-		turnTo[head] = vec[i]; break;
-	case 2:
-		turnTo[head] = vec[i] + 10 * vec[i + 1]; break;
-	case 3:
-		turnTo[head] = vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2]; break;
-	case 4:
-		turnTo[head] = vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] + 1000 * vec[i + 3]; break;
-	case 5:
-		turnTo[head] = vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] + 1000 * vec[i + 3] + 10000 * vec[i + 4]; break;
-	case 6:
-		turnTo[head] = vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] + 1000 * vec[i + 3] + 10000 * vec[i + 4] + 100000 * vec[i + 5];
-		break;
-	case 7:
-		turnTo[head] = vec[i] + 10 * vec[i + 1] + 100 * vec[i + 2] + 1000 * vec[i + 3] + 10000 * vec[i + 4] + 100000 * vec[i + 5] + 1000000 * vec[i + 6];
-		break;
-	default:break;
-	}
-	Size = turnTo.size();
-	while (Size > 1 && !turnTo.save_at(Size - 1))
-		--Size;
-	if (Size != turnTo.size())turnTo.resize(Size);
-	if (turnTo.iszero())
-		turnTo[0] = 0;
-	return turnTo;
-}
-
-template<typename Ty>
-Array<int> Array<Ty>::turnback2()const {
-	size_t Size = size();
-	Array<int>turnTo;
-	turnTo.reserve(Size >> 2);
-	size_t i, head = 0;
-	for (i = 0; i + 3 < Size; i += 4, ++head) {
-		turnTo[head] = vec[i] + 100 * vec[i + 1] + 10000 * vec[i + 2] +
-			1000000 * vec[i + 3];
-	}
-	switch (Size - i) {
-	case 0:break;
-	case 1:
-		turnTo[head] = vec[i]; break;
-	case 2:
-		turnTo[head] = vec[i] + 100 * vec[i + 1]; break;
-	case 3:
-		turnTo[head] = vec[i] + 100 * vec[i + 1] + 10000 * vec[i + 2]; break;
-	default:break;
-	}
-	Size = turnTo.size();
-	while (Size > 1 && !turnTo.save_at(Size - 1))
-		--Size;
-	if (Size != turnTo.size())turnTo.resize(Size);
-	if (turnTo.iszero())
-		turnTo.clear();
-	return turnTo;
-}
-
-template<typename Ty>
-Array<int> Array<Ty>::turnback4()const {
-	size_t Size = size();
-	Array<int>turnTo;
-	turnTo.reserve(Size >> 1);
-	size_t i, head = 0;
-	for (i = 0; i + 1 < Size; i += 2, ++head) {
-		turnTo[head] = vec[i] + 10000 * vec[i + 1];
-	}
-	if (i + 1 == Size)
-		turnTo[head] = vec[i];
-	Size = turnTo.size();
-	while (Size > 1 && !turnTo.save_at(Size - 1))
-		--Size;
-	if (Size != turnTo.size())turnTo.resize(Size);
-	if (turnTo.iszero())
-		turnTo[0] = 0;
-	return turnTo;
+void swap(Array<Ty>& lhs, Array<Ty>& rhs) {
+	lhs.swap(rhs);
 }
 
 template<typename T>

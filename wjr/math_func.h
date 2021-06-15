@@ -48,18 +48,17 @@ _MATH_BEGIN
 static const double PI = 3.14159265358979323846, matheps = 1e-6;//圆周率和浮点误差
 static const uint maxuint = (1ll << 32) - 1;//最大的unsigned int
 
-static const size_t tabel[16] = { 0,0,1,1,2,2,2,2,3,3,3,3,3,3,3,3 };
-inline short quicklog2(size_t x) {//快速求log2 ，复杂度 O ( log log n )
-	
-	int ans = 0;
+constexpr static const uint tabel[16] = { 0,0,1,1,2,2,2,2,3,3,3,3,3,3,3,3 };
+inline uint quicklog2(size_t x) {//快速求log2 ，复杂度 O ( log log n )
+	uint ans = 0;
 	if (x >> 16) { ans += 16; x >>= 16; }
 	if (x >> 8) { ans += 8; x >>= 8; }
 	if (x >> 4) { ans += 4; x >>= 4; }
 	return ans + tabel[x];
 }
 
-inline unsigned int quicklog10(unsigned int x) {//快速求 log10，复杂度 O( log log n )
-	unsigned int ans = 0;
+inline uint quicklog10(size_t x) {//快速求 log10，复杂度 O( log log n )
+	uint ans = 0;
 	if (x >= bintjw) { ans += 8; x /= bintjw; }
 	if (x >= 10000) { ans += 4; x /= 10000; }
 	if (x >= 100) { ans += 2;; x /= 100; }
@@ -94,22 +93,6 @@ extern "C" {
 bool isrightint(const char*);
 bool isrightdouble(const char*);
 
-std::string tostring(int);
-std::string tostring(long long);
-std::string tostring(const float&);
-std::string tostring(const double&);
-
-inline void quickintmul(const int& A, const int& B, int& k, int& r) {
-	//将两个1e8以内的int乘起来，并将答案划分为k*bintjw+r
-	short a = A / 10000, b = A - a * 10000, c = B / 10000, d = B - c * 10000;
-	int w = a * d + b * c;
-
-	r = b * d + (w % 10000) * 10000;
-	k = a * c + w / 10000;
-
-	if (r >= bintjw)
-		++k, r -= bintjw;
-}
 
 
 _MATH_END

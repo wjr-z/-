@@ -60,7 +60,10 @@ _MATH_BEGIN
 /*---biginter类(10bit)---*/
 /*---每一位对10^8取模的动态扩展大整数类---*/
 
-#define bintzero bint(0)
+#define bintzero bint::getBintZero()
+
+//#define BINTDEBUG
+
 
 /*---友元函数声明---*/
 
@@ -95,16 +98,16 @@ bool operator!=(const int&, const bint&);
 bint operator>>(bint, const int&);
 bint operator<<(bint, const int&);
 
-bint operator+(const bint&);
-bint operator-(const bint&);
+bint operator+(bint);
+bint operator-(bint);
 
 
-bint operator+(const bint&, const bint&);
-bint operator+(const bint&, const int&);
-bint operator+(const int&, const bint&);
-bint operator-(const bint&, const bint&);
-bint operator-(const bint&, const int&);
-bint operator-(const int&, const bint&);
+bint operator+(bint, const bint&);
+bint operator+(bint, const int&);
+bint operator+(const int&, bint);
+bint operator-(bint, const bint&);
+bint operator-(bint, const int&);
+bint operator-(const int&, bint);
 
 bint operator*(const bint&, const bint&);
 bint operator*(const bint&, const int&);
@@ -121,6 +124,7 @@ bint qpow(bint, int);
 bint qpow(int, bint);
 
 bint abs(const bint&);
+bint gcd(const bint&,const bint&);
 
 ostream& operator<<(ostream& out, const bint2& x);
 
@@ -181,64 +185,138 @@ private:
 	int& operator[](const size_t&);//非const 的动态扩展访问
 	int& save_at(const size_t&);//vec[index]，但是去掉了动态扩展，且可以修改
 	bint(const int& len, int):vec(len),positive(true){
-
+	#ifdef BINTDEBUG
+		cout<<"bint构造函数\n";
+	#endif
 	}
 public:
 	/*---初始化为other的[L,R]元素---*/
 	void assign(const bint& other, const int& L, const int& R);
 	const bool iszero()const;
 	const bool ispositive()const;
-	bint() :positive(true) {
+	bint()noexcept :positive(true) {
+	#ifdef BINTDEBUG
+		cout<<"bint构造函数\n";
+	#endif BINTDEBUG
 	}
-	explicit bint(const int& val) :positive(true) {
+	~bint() {
+	#ifdef BINTDEBUG
+		cout << "bint析构函数\n";
+	#endif
+	}
+	explicit bint(const int& val)noexcept :positive(true) {
+	#ifdef BINTDEBUG
+		cout << "bint构造函数\n";
+	#endif 
 		assign(val);
 	}
-	explicit bint(const long long& val) :positive(true) {
+	explicit bint(const long long& val)noexcept :positive(true) {
+	#ifdef BINTDEBUG
+		cout << "bint构造函数\n";
+	#endif 
 		assign(val);
 	}
-	bint(const char* s) :positive(true) {
+	bint(const char* s)noexcept :positive(true) {
+	#ifdef BINTDEBUG
+		cout << "bint构造函数\n";
+	#endif
 		assign(s);
 	}
-	bint(const std::string& s) :positive(true) {
+	bint(const std::string& s)noexcept :positive(true) {
+	#ifdef BINTDEBUG
+		cout << "bint构造函数\n";
+	#endif
 		assign(s);
 	}
-	bint(const bint& other) :vec(other.vec), positive(other.positive) {
+	bint(const bint& other)noexcept :vec(other.vec), positive(other.positive) {
+	#ifdef BINTDEBUG
+		cout << "bint拷贝构造函数\n";
+	#endif
 	}
-	bint(const bint& other, const bool& _positive) :vec(other.vec), positive(_positive) {
+	bint(bint&& other)noexcept : vec(std::move(other.vec)),positive(other.positive) {
+	#ifdef BINTDEBUG
+		cout<<"bint右值拷贝构造函数\n";
+	#endif
+	}
+	bint(const bint& other, const bool& _positive)noexcept :vec(other.vec), positive(_positive) {
+	#ifdef BINTDEBUG
+		cout << "bint拷贝构造函数\n";
+	#endif 
+	}
+	bint(bint&&other, const bool& _positive)noexcept :vec(std::move(other.vec)), positive(_positive) {
+	#ifdef BINTDEBUG
+		cout << "bint右值拷贝构造函数\n";
+	#endif 
+	}
+
+	bint(const bint& other, const int& L, const int& R)noexcept : vec(max(1,R-L)),positive(true){
+	#ifdef BINTDEBUG
+		cout << "bint拷贝构造函数\n";
+	#endif
+		assign(other,L,R);
+	}
+	bint(const Array<int>& _vec, const bool& _positive)noexcept :vec(_vec), positive(_positive) {
+	#ifdef BINTDEBUG
+		cout << "bint拷贝构造函数\n";
+	#endif
 
 	}
-	bint(const Array<int>& _vec, const bool& _positive) :vec(_vec), positive(_positive) {
-
-	}
-	bint& operator=(const int& val) {
+	bint& operator=(const int& val)noexcept {
+	#ifdef BINTDEBUG
+		cout<<"bint复制函数\n";
+	#endif
 		assign(val);
 		return*this;
 	}
-	bint& operator=(const long long& val) {
+	bint& operator=(const long long& val)noexcept {
+	#ifdef BINTDEBUG
+		cout << "bint复制函数\n";
+	#endif
 		assign(val);
 		return*this;
 	}
-	bint& operator=(const char* s) {
+	bint& operator=(const char* s)noexcept {
+	#ifdef BINTDEBUG
+		cout << "bint复制函数\n";
+	#endif
 		assign(s);
 		return*this;
 	}
-	bint& operator=(const std::string& s) {
+	bint& operator=(const std::string& s)noexcept {
+	#ifdef BINTDEBUG
+		cout << "bint复制函数\n";
+	#endif
 		assign(s);
 		return*this;
 	}
-	bint& operator=(const bint& other) {
-		if (this == &other)return*this;
+	bint& operator=(const bint& other)noexcept {
+	#ifdef BINTDEBUG
+		cout << "bint复制函数\n";
+	#endif
 		vec = other.vec;
 		positive = other.positive;
 		return*this;
+	}
+	bint& operator=(bint&& other)noexcept {
+	#ifdef BINTDEBUG
+		cout<<"bint右值复制\n";
+	#endif
+		vec=std::move(other.vec);
+		positive=other.positive;
+		return*this;
+	}
+	static bint getBintZero() {
+		static bint BINTZERO;
+		return BINTZERO;
 	}
 
 	const size_t length()const;
 	void relength(const int&);
 	void reverse(int = -1);
 
-	short at(const size_t&)const;//10进制下的index位，取值0~9,因此用short就够了
-	void set(const size_t&, const short&);//10进制位的index位修改
+	uint at(const size_t&)const;//10进制下的index位，取值0~9,因此用short就够了
+	void set(const size_t&, const uint&);//10进制位的index位修改
+	void randdata(const bint&other);
 
 	friend ostream& operator<<(ostream&, const bint&);
 	friend istream& operator>>(istream&, bint&);
@@ -287,16 +365,16 @@ public:
 	friend bint operator>>(bint, const int&);
 	friend bint operator<<(bint, const int&);
 
-	friend bint operator+(const bint&);
-	friend bint operator-(const bint&);
+	friend bint operator+(bint);
+	friend bint operator-(bint);
 
 
-	friend bint operator+(const bint&, const bint&);
-	friend bint operator+(const bint&, const int&);
-	friend bint operator+(const int&, const bint&);
-	friend bint operator-(const bint&, const bint&);
-	friend bint operator-(const bint&, const int&);
-	friend bint operator-(const int&, const bint&);
+	friend bint operator+(bint, const bint&);
+	friend bint operator+(bint, const int&);
+	friend bint operator+(const int&, bint);
+	friend bint operator-(bint, const bint&);
+	friend bint operator-(bint, const int&);
+	friend bint operator-(const int&, bint);
 
 	friend bint operator*(const bint&, const bint&);
 	friend bint operator*(const bint&, const int&);
@@ -317,6 +395,7 @@ public:
 	bint& quick_divide_10k(const int& = 1);
 	void abs();//变为绝对值，即positive取true
 	friend bint abs(const bint&);
+	void swap(bint&other);
 
 	int toint()const;//转为int
 	long long toll()const;//转为long long
@@ -370,19 +449,36 @@ public:
 		}
 		int n = a.size(), m = b.size(), _min = min(n, m), _max = max(n, m);
 
-		(_min <= (quicklog2(_max)) + 16) ?
-			Karatsuba(a,b,c) :
-			FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
+		if (!(_max >> 5)) {
+			Array_func::SlowMul(a.vec, b.vec, c.vec);
+		}
+		else {
+			(_min<= (quicklog2(_max) << 2) + 16) ?
+				Array_func::SlowMul(a.vec, b.vec, c.vec) :
+				FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
+		}
 
-		(_min <= (quicklog2(_max)) + 16) ?
-				mode = 2 :
+		if (!(_max >> 5)) {
+			mode=1;
+		}
+		else {
+			(_min <= (quicklog2(_max)<<1) + 32) ?
+				mode = 1 :
 				mode = 3;
+		}
+
 		c.positive = !(a.positive ^ b.positive);
 		if (c.iszero())c.positive = true;
 		return c;
 	}
 #endif
 };
+
+template<typename Ty>
+void swap(bint& lhs, bint& rhs) {
+	lhs.swap(rhs);
+}
+
 
 
 /* bigintger类(2bit)

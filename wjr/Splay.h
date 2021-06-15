@@ -9,6 +9,8 @@
 
 _MATH_BEGIN
 
+//注意，非线程安全
+
 /*---SplayNode---*/
 /*---splay节点存储的值，标记等---*/
 /*---默认Splay节点，可以自定义---*/
@@ -125,9 +127,7 @@ class MyIterator : public std::iterator<std::input_iterator_tag, Ty> {
 	friend class Splay;
 
 public:
-	MyIterator(Ty* p = nullptr, Ty** _rt = nullptr) {
-		_ptr = p;
-		rt = _rt;
+	MyIterator(Ty* p = nullptr, Ty** _rt = nullptr):_ptr(p),rt(_rt){
 	}
 	//赋值
 	MyIterator& operator = (const MyIterator& iter) {
@@ -259,6 +259,7 @@ private:
 	Ty** rt;//指向原容器的根节点，因为需要splay到根来确保复杂度。
 };
 
+//非线程安全，请勿在多个线程使用一个Splay实例，或者自行实现锁或原子操作
 
 template<typename Ty, typename Pr>
 class Splay {//维护序列
@@ -466,7 +467,7 @@ public:
 	iterator end() {
 		return iterator(End, &rt);
 	}
-	void DEBUG() {
+	void debug() {
 		for (auto it = begin(); it != end(); ++it) {
 			std::cout<<it->getval()<<' ';
 		}
@@ -499,12 +500,10 @@ public:
 		size=getSize(l)+getSize(r)+1;
 		sum=getSum(l)+getSum(r)+val;
 	}
-	void pushtag(int S) {
-		sum+=S*1ll*size;
-		val+=S;
-		tag+=S;
-	}
 
+	void pushrev(TESTSplayNode* l, TESTSplayNode* r) {
+
+	}
 	void pushdown(TESTSplayNode* l, TESTSplayNode* r) {
 		if (tag) {
 			if(l!=nullptr)
@@ -514,6 +513,12 @@ public:
 			tag=0;
 		}
 	}
+	void pushtag(int S) {
+		sum += S * 1ll * size;
+		val += S;
+		tag += S;
+	}
+
 };
 
 

@@ -20,7 +20,6 @@ bint sqrt(const bint& A) {
 	ans[0] = -1;
 	ans[1] = A;
 	ans[1].quick_divide_10k(A.length() >> 1);
-	bint Ans(A);
 	bint one(1);
 	double s = currTime();
 	while (abs(ans[0] - ans[1]) > one) {
