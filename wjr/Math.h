@@ -5,6 +5,7 @@
 #include "Matrix.h"
 #include "Splay.h"
 #include "Deque.h"
+#include "PollardRho.h"
 
 _MATH_BEGIN
 

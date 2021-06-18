@@ -60,7 +60,7 @@ _MATH_BEGIN
 /*---biginter类(10bit)---*/
 /*---每一位对10^8取模的动态扩展大整数类---*/
 
-#define bintzero bint::getBintZero()
+#define bintzero bint()
 
 //#define BINTDEBUG
 
@@ -100,18 +100,28 @@ bint operator<<(bint, const int&);
 
 bint operator+(bint);
 bint operator-(bint);
+bint Factorial(const bint&);
 
 
-bint operator+(bint, const bint&);
+bint operator+(const bint&, const bint&);
+bint operator+(bint&&,const bint&);
+bint operator+(const bint&,bint&&);
+bint operator+(bint&&,bint&&);
 bint operator+(bint, const int&);
 bint operator+(const int&, bint);
-bint operator-(bint, const bint&);
+bint operator-(const bint&, const bint&);
+bint operator-(bint&&,const bint&);
+bint operator-(const bint&,bint&&);
+bint operator-(bint&&,bint&&);
 bint operator-(bint, const int&);
 bint operator-(const int&, bint);
 
-bint operator*(const bint&, const bint&);
-bint operator*(const bint&, const int&);
-bint operator*(const int&, const bint&);
+bint operator*(const bint&,const bint&);
+bint operator*(bint&&,const bint&);
+bint operator*(const bint&,bint&&);
+bint operator*(bint&&,bint&&);
+bint operator*(bint, const int&);
+bint operator*(const int&, bint);
 bint operator/(const bint&, const bint&);
 bint operator/(const bint&, const int&);
 bint operator/(const int&, const bint&);
@@ -123,8 +133,10 @@ bint qpow(bint, bint);
 bint qpow(bint, int);
 bint qpow(int, bint);
 
-bint abs(const bint&);
+bint abs(bint);
 bint gcd(const bint&,const bint&);
+bint randdata(const bint&L,const bint&R);
+bint randdata(const int);
 
 ostream& operator<<(ostream& out, const bint2& x);
 
@@ -138,7 +150,7 @@ private:
 	Array<int>vec;//每一位存一个int
 	bool positive;//positive为true表示为正数，否则为负数
 	/*---从不同数据类型初始化---*/
-	void assign(const int&);
+	void assign(int);
 	void assign(const long long&);
 	void assign(const char*);
 	void assign(const std::string&);
@@ -159,9 +171,8 @@ private:
 	static bint matchdivide(const bint&, const bint&);//稳定的除法，复杂度在O(A*nlogn)左右，常数很大
 	/*---当B的长度大于A的长度的2/3时只有1的误差---*/
 	static bint largedivide(const bint&, const bint&);
-	static bint middivide(const bint&, const bint&);
 	static bint smalldivide(const bint&, const bint&);
-	static bint knuthdivide(const bint&, const bint&);
+	static bint knuthdivide(const bint&,const bint&);
 	static bint quickdivide(const bint&, const bint&);
 	/*---低精度除法---*/
 	static bint divideint(const bint&, int);
@@ -170,9 +181,10 @@ private:
 	/*---当m<=64时使用暴力乘法---*/
 	static void Karatsuba(const bint&, const bint&, bint&);
 	/*---快速乘法，自动选择不同算法---*/
-	static void quickmul(const bint&, const bint&, bint&);
+	static void quickmul(bint&, const bint&);
 	/*---低精度乘法---*/
 	static void mulint(const bint&, const int&, bint&);
+	static bint Factorial(const bint&, const bint&);
 
 	bint inv(int = -1)const;//求精度为lim的逆元，很慢！
 	void clear();
@@ -180,10 +192,6 @@ private:
 	void resize(const size_t&);
 	const size_t size()const;
 	void reserve(const size_t&);
-
-	const int& operator[](const size_t&)const;//下标的const 访问，略快于非const动态扩展访问
-	int& operator[](const size_t&);//非const 的动态扩展访问
-	int& save_at(const size_t&);//vec[index]，但是去掉了动态扩展，且可以修改
 	bint(const int& len, int):vec(len),positive(true){
 	#ifdef BINTDEBUG
 		cout<<"bint构造函数\n";
@@ -204,7 +212,7 @@ public:
 		cout << "bint析构函数\n";
 	#endif
 	}
-	explicit bint(const int& val)noexcept :positive(true) {
+	explicit bint(const int& val)noexcept {
 	#ifdef BINTDEBUG
 		cout << "bint构造函数\n";
 	#endif 
@@ -216,13 +224,13 @@ public:
 	#endif 
 		assign(val);
 	}
-	bint(const char* s)noexcept :positive(true) {
+	explicit bint(const char* s)noexcept :positive(true) {
 	#ifdef BINTDEBUG
 		cout << "bint构造函数\n";
 	#endif
 		assign(s);
 	}
-	bint(const std::string& s)noexcept :positive(true) {
+	explicit bint(const std::string& s)noexcept :positive(true) {
 	#ifdef BINTDEBUG
 		cout << "bint构造函数\n";
 	#endif
@@ -305,14 +313,14 @@ public:
 		positive=other.positive;
 		return*this;
 	}
-	static bint getBintZero() {
-		static bint BINTZERO;
-		return BINTZERO;
-	}
 
 	const size_t length()const;
 	void relength(const int&);
 	void reverse(int = -1);
+
+	const int& operator[](const size_t&)const;//下标的const 访问，略快于非const动态扩展访问
+	int& operator[](const size_t&);//非const 的动态扩展访问
+	int& save_at(const size_t&);//vec[index]，但是去掉了动态扩展，且可以修改
 
 	uint at(const size_t&)const;//10进制下的index位，取值0~9,因此用short就够了
 	void set(const size_t&, const uint&);//10进制位的index位修改
@@ -367,18 +375,28 @@ public:
 
 	friend bint operator+(bint);
 	friend bint operator-(bint);
+	friend bint Factorial(const bint&);
 
 
-	friend bint operator+(bint, const bint&);
+	friend bint operator+(const bint&, const bint&);
+	friend bint operator+(bint&&, const bint&);
+	friend bint operator+(const bint&, bint&&);
+	friend bint operator+(bint&&, bint&&);
 	friend bint operator+(bint, const int&);
 	friend bint operator+(const int&, bint);
-	friend bint operator-(bint, const bint&);
+	friend bint operator-(const bint&, const bint&);
+	friend bint operator-(bint&&, const bint&);
+	friend bint operator-(const bint&, bint&&);
+	friend bint operator-(bint&&, bint&&);
 	friend bint operator-(bint, const int&);
 	friend bint operator-(const int&, bint);
 
 	friend bint operator*(const bint&, const bint&);
-	friend bint operator*(const bint&, const int&);
-	friend bint operator*(const int&, const bint&);
+	friend bint operator*(bint&&, const bint&);
+	friend bint operator*(const bint&, bint&&);
+	friend bint operator*(bint&&,bint&&);
+	friend bint operator*(bint, const int&);
+	friend bint operator*(const int&, bint);
 	friend bint operator/(const bint&, const bint&);
 	friend bint operator/(const bint&, const int&);
 	friend bint operator/(const int&, const bint&);
@@ -394,7 +412,7 @@ public:
 	bint& quick_mul_10k(const int& = 1);//O(n)乘10^k
 	bint& quick_divide_10k(const int& = 1);
 	void abs();//变为绝对值，即positive取true
-	friend bint abs(const bint&);
+	friend bint abs(bint);
 	void swap(bint&other);
 
 	int toint()const;//转为int
@@ -614,47 +632,58 @@ private:
 	}
 public:
 	const bool iszero()const;
-	bint2() :positive(true) {
+	bint2()noexcept :positive(true) {
 		vec[0] = 0;
 	}
-	explicit bint2(const int& val) :positive(true) {
+	~bint2() {
+
+	}
+	explicit bint2(const int& val)noexcept :positive(true) {
 		assign(val);
 	}
-	explicit bint2(const long long& val) :positive(true) {
+	explicit bint2(const long long& val)noexcept :positive(true) {
 		assign(val);
 	}
-	bint2(const char* s) :positive(true) {
+	explicit bint2(const char* s)noexcept :positive(true) {
 		assign(s);
 	}
-	bint2(const std::string& s) :positive(true) {
+	explicit bint2(const std::string& s)noexcept :positive(true) {
 		assign(s);
 	}
 
-	bint2(const bint2& other) :vec(other.vec), positive(other.positive) {
+	bint2(const bint2& other)noexcept :vec(other.vec), positive(other.positive) {
 
 	}
-	bint2(const Array2& _vec, const bool& _positive) :vec(_vec), positive(_positive) {
+	bint2(bint2&& other)noexcept :vec(std::move(other.vec)), positive(other.positive) {
 
 	}
-	bint2& operator=(const int& val) {
+	bint2(const Array2& _vec, const bool& _positive)noexcept :vec(_vec), positive(_positive) {
+
+	}
+	bint2& operator=(const int& val) noexcept {
 		assign(val);
 		return*this;
 	}
-	bint2& operator=(const long long& val) {
+	bint2& operator=(const long long& val) noexcept {
 		assign(val);
 		return*this;
 	}
-	bint2& operator=(const bint2& other) {
+	bint2& operator=(const bint2& other)noexcept {
 		if (this == &other)return*this;
 		vec = other.vec;
 		positive = other.positive;
 		return*this;
 	}
-	bint2& operator=(const char* s) {
+	bint2& operator=(bint2&& other) noexcept{
+		vec=std::move(other.vec);
+		positive=other.positive;
+		return*this;
+	}
+	bint2& operator=(const char* s) noexcept{
 		assign(s);
 		return*this;
 	}
-	bint2& operator=(const std::string& s) {
+	bint2& operator=(const std::string& s)noexcept {
 		assign(s);
 		return*this;
 	}
@@ -672,7 +701,7 @@ public:
 	uint& operator[](const int&);
 	bool at(const int&)const;
 	uint& save_at(const int&);
-	//void set(const int&, const bool&);
+	void set(const int&, const bool&);
 
 	bool operator<(const bint2&)const;
 	bool operator==(const bint2&)const;

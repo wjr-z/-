@@ -1,5 +1,5 @@
 #include "math_func.h"
-
+#include <random>
 
 /*---测试用高精度计时器---*/
 #ifdef TEST
@@ -63,6 +63,13 @@ bool isrightdouble(const char* s) {
 	}
 
 	return true;
+}
+
+int randdata(int L, int R) {
+	static std::mt19937 mt_rand(time(NULL));
+	if(L>R)std::swap(L,R);
+	return mt_rand()%(R-L+1)+L;
+
 }
 
 

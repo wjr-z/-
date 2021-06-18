@@ -75,14 +75,10 @@ inline uint _minx(int& x) { return debruijn[(uint)((x & -x) * 0x077CB531U) >> 27
 template<typename Ty>
 inline Ty sqr(const Ty& val) { return val * val; }
 
-inline void swap(int& a, int& b) { a ^= b; b ^= a; a ^= b; }
-inline void swap(long long& a, long long& b) { a ^= b; b ^= a; a ^= b; }
-
 inline int lowbit(const int& x) { return x & -x; }
 inline long long lowbit(const long long& x) { return x & -x; }
 
 static const int _10k[10] = { 1,10,100,1000,10000,100000,1000000,10000000,bintjw,1 };
-
 
 //声明Ooura FFT 相关函数
 extern "C" {
@@ -92,6 +88,8 @@ extern "C" {
 
 bool isrightint(const char*);
 bool isrightdouble(const char*);
+
+int randdata(int,int);
 
 
 

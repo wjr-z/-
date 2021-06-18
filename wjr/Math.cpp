@@ -26,6 +26,8 @@ bint sqrt(const bint& A) {
 		now ^= 1;
 		ans[now] = (ans[now ^ 1] + A / ans[now ^ 1]) / 2;
 	}
+	if(ans[now]*ans[now]>A)
+		--ans[now];
 	return ans[now];
 }
 

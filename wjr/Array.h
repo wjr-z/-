@@ -209,20 +209,39 @@ public:
 class Array2 {
 private:
 	vector<uint>vec;
-	uint Size;
+	size_t Size;
 public:
-	Array2(const uint& index = 1) :vec(index) { Size = 1; }
+	Array2(const size_t& index = 1)noexcept :vec(index) { 
+		resize(1);
+	}
+	Array2(const Array2& other)noexcept :vec(other.vec), Size(other.Size) {
+
+	}
+	Array2(Array2&& other)noexcept
+		:vec(std::move(other.vec)), Size(other.Size) {
+
+	}
+	Array2& operator=(const Array2& other)noexcept {
+		vec=other.vec;
+		Size=other.Size;
+		return*this;
+	}
+	Array2& operator=(Array2&& other)noexcept {
+		vec=std::move(other.vec);
+		Size=other.Size;
+		return*this;
+	}
 	const bool iszero()const {//判断是否为0
 		if ((Size == 1 && this->operator[](0) == 0) || !Size)return true;
 		return false;
 	}
-	const uint size() const { return Size; }//获得size
-	const uint length(const uint& blo = 32)const {//求出二进制总长度
-		uint Size = size();
-		return ((Size - 1) * blo) + quicklog2(this->operator[](Size - 1)) + 1;
+	const size_t size() const { return Size; }//获得size
+	const size_t length()const {//求出二进制总长度
+		return ((Size - 1) <<5) + quicklog2(this->operator[](Size - 1)) + 1;
 	}
-	void resize(const uint& index) { vec.resize(index); Size = index; }
-	void reserve(const uint& index) { vec.reserve(index); }
+	void resize(const size_t& index) { vec.resize(index); Size = index; }
+	void reserve(const size_t& index) { vec.reserve(index); }
+	void clear() { resize(1); save_at(0) = 0; }
 
 	//一般而言save_at和const oeprator[]的速度相近,优化速度可以将不会越界的改为save_at
 	//对于const 变量、函数，使用[]即为const oeprator[]
@@ -247,11 +266,6 @@ public:
 		if (index & 31)
 			this->save_at(index - 1 >> 5) &= ((1 << index & 31) - 1);//对于最后一个可能高位被舍去
 	}
-	Array2 turnto1()const;//2^32 - > 2^2
-	Array2 turnto2()const;//2^32 - > 2^4
-	Array2 turnto3()const;//2^32 - > 2^8
-	Array2 turnto4()const;//2^32 - > 2^16
-	Array2 turnback(const uint & = 1)const;//2^(2^k) - > 2^32
 
 	friend bool operator<(const Array2&, const Array2&);
 	friend bool operator==(const Array2&, const Array2&);
@@ -260,7 +274,6 @@ public:
 	friend bool operator>=(const Array2&, const Array2&);
 	friend bool operator!=(const Array2&, const Array2&);
 };
-
 
 
 
@@ -276,7 +289,6 @@ public:
 
 class FFT_Array2_func {
 public:
-	static void FFTQuickMul1(const Array2&, const Array2&, Array2&);
 	static void FFTQuickMul2(const Array2&, const Array2&, Array2&);
 	static void FFTQuickMul3(const Array2&, const Array2&, Array2&);
 	static void FFTQuickMul4(const Array2&, const Array2&, Array2&);

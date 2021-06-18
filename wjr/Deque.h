@@ -13,8 +13,8 @@ _MATH_BEGIN
 template<typename Ty>
 class Deque {
 private:
-	vector<Ty>head;
-	vector<Ty>tail;
+	std::vector<Ty>head;
+	std::vector<Ty>tail;
 public:
 	Deque() {
 
