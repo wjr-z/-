@@ -100,6 +100,8 @@ bint operator<<(bint, const int&);
 
 bint operator+(bint);
 bint operator-(bint);
+bool operator!(const bint&);
+bool operator!(bint&&);
 bint Factorial(const bint&);
 
 
@@ -144,6 +146,8 @@ bint2 qpow(bint2, int);
 
 //------------------------------------------------------------------//
 
+
+
 class bint {
 	friend class bfloat;
 private:
@@ -151,7 +155,7 @@ private:
 	bool positive;//positive为true表示为正数，否则为负数
 	/*---从不同数据类型初始化---*/
 	void assign(int);
-	void assign(const long long&);
+	void assign(long long);
 	void assign(const char*);
 	void assign(const std::string&);
 
@@ -162,6 +166,7 @@ private:
 	static void addint(bint&, int, const bool&);
 	/*---快速减法，但实际上就是朴素的压位减法，只是加了个特判---*/
 	static void quickdel(bint&, const bint&, const bool&);
+	static void quickdel(bint&, bint&&, const bool&);
 	/*---低精度特判---*/
 	static void delint(bint&, int, const bool&);
 	/*---时间复杂度是O(m*(n-m))---*/
@@ -355,6 +360,7 @@ public:
 	bint& operator+=(const bint&);
 	bint& operator+=(const int&);
 	bint& operator-=(const bint&);
+	bint& operator-=(bint&&);
 	bint& operator-=(const int&);
 	bint& operator*=(const bint&);
 	bint& operator*=(const int&);
@@ -375,6 +381,8 @@ public:
 
 	friend bint operator+(bint);
 	friend bint operator-(bint);
+	friend bool operator!(const bint&);
+	friend bool operator!(bint&&);
 	friend bint Factorial(const bint&);
 
 

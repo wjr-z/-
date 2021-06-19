@@ -6,13 +6,14 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
+#include "Allocator.h"
 #include <vector>
 #include "math_func.h"
+
 
 _MATH_BEGIN
 
 //#define ARRAYDEBUG
-
 
 using std::vector;
 
@@ -33,10 +34,16 @@ bool operator!=(const Array2&, const Array2&);
 /*---Array<Ty>¿‡---*/
 /*--- π”√vector---*/
 
+
 template<typename Ty>
 class Array {
 private:
+#if _ITERATOR_DEBUG_LEVEL != 0
 	vector<Ty>vec;
+#endif
+#if _ITERATOR_DEBUG_LEVEL ==0
+	vector<Ty, Allocator<Ty>>vec;
+#endif
 	size_t Size;
 public:
 	Array(const size_t& index = 1)noexcept :vec(index) {

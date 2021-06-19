@@ -47,11 +47,11 @@ void Array_func::QuickDivide10k(Array<int>& a, const int& k) {//¿ìËÙ³ýÒÔ10^k
 }
 void Array_func::SlowMul(const Array<int>& A, const Array<int>& B, Array<int>& c) {
 	const int n = A.size(), m = B.size();
-	static std::allocator<uint>test;
+	static Allocator<uint>test;
 	uint*mid=test.allocate(n+m);
 
 	memset(mid,0,sizeof(uint)*(n+m));
-	const int Length = n + m - 1;
+	int Length = n + m - 1;
 
 	for (int i = 0; i < n; ++i) {
 		ull AA=static_cast<ull>(A[i]);

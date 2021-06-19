@@ -51,8 +51,7 @@ bool isprime(const int& n) {
 }
 
 bint modpow(bint a, bint b,const bint&mod) {
-	static bint ans;
-	ans=1;
+	bint ans(1);
 	while (!b.iszero()) {
 		if(b[0]&1)
 			ans*=a,ans%=mod;
