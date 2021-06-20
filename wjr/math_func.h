@@ -90,6 +90,7 @@ bool isrightint(const char*);
 bool isrightdouble(const char*);
 
 int randdata(int,int);
+int gcd(int,int);
 
 
 

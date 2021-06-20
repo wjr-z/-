@@ -162,6 +162,7 @@ private:
 	/*---快速加法，但不完全快速---*/
 	/*---有待改进---*/
 	static void quickadd(bint&, const bint&, const bool&);
+	static void quickadd(bint&, bint&&, const bool&);
 	/*---对于低精度的优化，即降低了常数---*/
 	static void addint(bint&, int, const bool&);
 	/*---快速减法，但实际上就是朴素的压位减法，只是加了个特判---*/
@@ -358,6 +359,7 @@ public:
 	friend bool operator!=(const int&, const bint&);
 
 	bint& operator+=(const bint&);
+	bint& operator+=(bint&&);
 	bint& operator+=(const int&);
 	bint& operator-=(const bint&);
 	bint& operator-=(bint&&);

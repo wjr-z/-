@@ -23,7 +23,7 @@ bool witness(int n, int seed, int d, int r) {
 	}return false;
 }
 
-bool MillerRobin(const int& n, const int k = 4) {
+bool MillerRobin(int n, const int k = 5) {
 	if (n == 2 || n == 3 || n == 5)return true;
 	if (n == 1 || !(n&1) || n == 27509653 || n == 74927161)return false;
 	int d=n-1;
@@ -46,8 +46,49 @@ bool MillerRobin(const int& n, const int k = 4) {
 	return true;
 }
 
-bool isprime(const int& n) {
+bool isprime(int n) {
 	return MillerRobin(n);
+}
+
+int rho(int x) {
+	if (x == 4)
+		return 2;
+	while (true) {
+		int c = randdata(1, x - 1);
+		auto f = [=](const int& a) { return (a *1ll* a + c) % x; };
+		int t, r, p(1), d;
+		t = r = randdata(1, x - 1);
+		int i = 0, j = 1;
+		while (++i) {//开始玄学生成
+			r = f(r);
+			p = (p * std::abs(r - t)) % x;
+			if (t == r || !p)break;
+			if (!(i & 127) || i == j) {//我们不仅在等127次之后gcd我们还会倍增的来gcd
+				d = Math::gcd(p, x);
+				if (d > 1)return d;
+				if (i == j)t = r, j <<= 1;//维护倍增正确性，并判环（一箭双雕）
+			}
+		}
+
+	}
+	return x;
+}
+
+void pollard_rho(int x, vector<int>& ans) {
+	if(x<2)return ;
+	if (isprime(x)) {
+		ans.push_back(x);
+		return ;
+	}
+	int pri=rho(x);
+	while(x%pri==0)x/=pri;
+	pollard_rho(pri,ans);
+	pollard_rho(x,ans);
+}
+vector<int> pollard_rho(int x) {
+	vector<int>ans;
+	pollard_rho(x,ans);
+	return ans;
 }
 
 bint modpow(bint a, bint b,const bint&mod) {
@@ -62,10 +103,9 @@ bint modpow(bint a, bint b,const bint&mod) {
 	return ans;
 }
 
-bool witness(const bint&n,bint seed,const bint&d,int r) {
+bool witness(const bint&n,const bint&S,bint seed,const bint&d,int r) {
 	seed=std::move(modpow(seed,d,n));
 	if(seed==1)return true;
-	bint S(n-1);
 	for (int i = 0; i < r; ++i) {
 		if(seed==S)return true;
 		seed*=seed;
@@ -74,9 +114,8 @@ bool witness(const bint&n,bint seed,const bint&d,int r) {
 	}return false;
 }
 
-bool MillerRobin(const bint& n, int k=3) {
-	if(n==2||n==3||n==5)return true;
-	if(n==1||n[0]%2==0)return false;
+bool MillerRobin(const bint& n, int k=5) {
+	if(n[0]%2==0)return false;
 	bint d(n-1);
 	int r=0;
 	while (d % 2 == 0) {
@@ -85,12 +124,13 @@ bool MillerRobin(const bint& n, int k=3) {
 	}
 	bint seed;
 	bint L=bint(4),R=bint(n-2);
-	if(!witness(n,std::move(bint(2)),d,r))return false;//可以筛去绝大部分的合数
-	if(!witness(n, std::move(bint(3)), d, r))return false;
-	if(n>61&& !witness(n, std::move(bint(61)), d, r))return false;
+	bint S(n-1);
+	if(!witness(n,S,std::move(bint(2)),d,r))return false;//可以筛去绝大部分的合数
+	if(!witness(n,S,std::move(bint(3)), d, r))return false;
+	if(n>61&& !witness(n,S, std::move(bint(61)), d, r))return false;
 	for (int i = 0; i < k; ++i) {
 		seed=std::move(randdata(L,R));
-		if (!witness(n, std::move(seed),d, r))return false;
+		if (!witness(n,S,std::move(seed),d, r))return false;
 	}
 	return true;
 }
@@ -98,6 +138,49 @@ bool MillerRobin(const bint& n, int k=3) {
 bool isprime(const bint& n) {
 	if(n<=10000000000)return isprime(n.toint());
 	return MillerRobin(n);
+}
+
+
+bint rho(const bint&x) {
+	if (x == 4)
+		return bint(2);
+	while (true) {
+		bint c = randdata(bint(1), x-1);
+		auto f = [=](const bint&a) { return (a*a+c) % x; };
+		bint t, r, p(1),d;
+		t=r= randdata(bint(1), x - 1);
+		int i=0,j=1;
+		while (++i) {//开始玄学生成
+			r=f(r);
+			t=f(f(t));
+			p = (p * Math::abs(r - t)) % x;
+			if (t==r||!p)break;
+			if (!(i & 127) || i == j) {//我们不仅在等127次之后gcd我们还会倍增的来gcd
+				d=gcd(p,x);
+				if (d > 1)return d;
+				if (i == j)t = r, j <<= 1;//维护倍增正确性，并判环（一箭双雕）
+			}
+		}
+
+	}
+	return x;
+}
+
+void pollard_rho(bint&x, vector<bint>& ans) {
+	if (x < 2)return;
+	if (isprime(x)) {
+		ans.emplace_back(std::move(x));
+		return;
+	}
+	bint pri = rho(x);
+	while (x % pri == 0)x /= pri;
+	pollard_rho(pri, ans);
+	pollard_rho(x, ans);
+}
+vector<bint> pollard_rho(bint x) {
+	vector<bint>ans;
+	pollard_rho(x, ans);
+	return ans;
 }
 
 _MATH_END

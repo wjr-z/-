@@ -71,6 +71,7 @@ int randdata(int L, int R) {
 	return mt_rand()%(R-L+1)+L;
 
 }
+int gcd(int a,int b){return !b?a:gcd(b,a%b); }
 
 
 _MATH_END

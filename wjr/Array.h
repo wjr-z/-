@@ -6,8 +6,8 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
-#include "Allocator.h"
 #include <vector>
+#include "Allocator.h"
 #include "math_func.h"
 
 
@@ -34,14 +34,18 @@ bool operator!=(const Array2&, const Array2&);
 /*---Array<Ty>类---*/
 /*---使用vector---*/
 
+#if defined(_ITERATOR_DEBUG_LEVEL) && _ITERATOR_DEBUG_LEVEL!=0
+#define _ALLOCATOR_DEBUG
+#endif
+
 
 template<typename Ty>
 class Array {
 private:
-#if _ITERATOR_DEBUG_LEVEL != 0
+#ifdef _ALLOCATOR_DEBUG //DEBUG版本
 	vector<Ty>vec;
 #endif
-#if _ITERATOR_DEBUG_LEVEL ==0
+#ifndef _ALLOCATOR_DEBUG
 	vector<Ty, Allocator<Ty>>vec;
 #endif
 	size_t Size;
