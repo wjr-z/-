@@ -81,7 +81,7 @@ int log2(const bint&) : 返回 log2 ，原理是先转化为 bint2,返回 bint2 
 ---
 
 ## bint2 类
-大致同 bint ，是用的2^32进制存储，暂且仅用作十进制和二进制转化。
+略快于bint类，不是很完善
 
 ## bfloat 类
 尾数使用 bint ，指数使用 int，精度为10^(-floatlim)，floatlim初始为64，可以自行设置（设置是非线程安全的，因此需要在多线程外设置精度，建议在main开始就设置，且仅设置一次）   
