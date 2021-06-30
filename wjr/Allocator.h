@@ -1,8 +1,5 @@
-#pragma once
 #ifndef ALLOCATOR_H
 #define ALLOCATOR_H
-
-#include <malloc.h>
 
 namespace Math {
     //----------------------------------------------
@@ -17,7 +14,7 @@ namespace Math {
 
     public:
         static void* allocate(size_t n) {
-            return malloc(n);
+            return malloc(n); 
         }
         static void deallocate(void* p, size_t /* n */) {
             free(p);                    //直接使用 free()

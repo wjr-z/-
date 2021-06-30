@@ -1,20 +1,17 @@
-#pragma once
 #ifndef POLLARDRHO_H
 #define POLLARDRHO_H
 
-#define _MATH_BEGIN namespace Math{
-#define _MATH_END }
 
 #include <vector>
 
-_MATH_BEGIN
+namespace Math{
 
-class bint;
-bool isprime(int);//int判别质数，已验证
-std::vector<int>pollard_rho(int);
-bool isprime(const bint&);//大数判别质数
-std::vector<bint>pollard_rho(bint);
+	bool isprime(int);//int判别质数，已验证
+	std::vector<int>pollard_rho(int);
 
-_MATH_END
+	bool isprime(long long);
+	std::vector<long long>pollard_rho(long long);
+
+}
 
 #endif POLLARDRHO_H

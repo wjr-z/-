@@ -215,7 +215,7 @@ macro definitions
             }
         .
 */
-
+#define USE_CDFT_WINTHREADS
 
 
 void cdft(int n, int isgn, double *a)
@@ -525,7 +525,7 @@ void dfst(int n, double *a)
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "..\..\source\repos\Math\bint.h"
+//#include "..\..\source\repos\Math\bint.h"
 #define cdft_thread_t HANDLE
 #define cdft_thread_create(thp,func,argp) { \
     DWORD thid; \
@@ -1999,7 +1999,7 @@ void cftrec4(int n, double *a)
     cftleaf(m, 1, &a[n - m]);
     k = 0;
     for (j = n - m; j > 0; j -= m) {
-        k++;
+        ++k;
         isplt = cfttree(m, j, k, a);
         cftleaf(m, isplt, &a[j - m]);
     }
