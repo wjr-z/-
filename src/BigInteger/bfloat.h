@@ -3,7 +3,6 @@
 
 #include "bint.h"
 
-
 namespace Math {
 
 	/*---ÓÑÔªº¯ÊıÉùÃ÷---*/

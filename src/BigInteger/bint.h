@@ -54,7 +54,16 @@
 
 #include "Array.h"
 
+#include <iostream>
+#include <iomanip>
+
 namespace Math {
+
+	using std::istream;
+	using std::ostream;
+	using std::cin;
+	using std::cout;
+	using std::endl;
 
 	/*---biginter类(10bit)---*/
 	/*---每一位对10^8取模的动态扩展大整数类---*/
@@ -81,7 +90,7 @@ namespace Math {
 	bool operator==(const bint&, int);
 	bool operator==(const int&, const bint&);
 	bool operator<=(const bint&, const bint&);
-	bool operator<=(const bint&, const int&);
+	bool operator<=(const bint&, int);
 	bool operator<=(const int&, const bint&);
 	bool operator>(const bint&, const bint&);
 	bool operator>(const bint&, const int&);
@@ -100,7 +109,7 @@ namespace Math {
 	bint operator-(bint);
 	bool operator!(const bint&);
 	bool operator!(bint&&);
-	bint Factorial(const bint&);
+	bint Factorial(int);
 
 
 	bint operator+(const bint&, const bint&);
@@ -256,7 +265,7 @@ namespace Math {
 		static void quickmul(bint&, const bint&);
 		/*---低精度乘法---*/
 		static void mulint(const bint&, const int&, bint&);
-		static bint Factorial(const bint&, const bint&);
+		static bint Factorial(int,int);
 
 		bint2 get2bit()const;
 
@@ -415,7 +424,7 @@ namespace Math {
 		friend bool operator==(const bint&, int);
 		friend bool operator==(const int&, const bint&);
 		friend bool operator<=(const bint&, const bint&);
-		friend bool operator<=(const bint&, const int&);
+		friend bool operator<=(const bint&, int);
 		friend bool operator<=(const int&, const bint&);
 		friend bool operator>(const bint&, const bint&);
 		friend bool operator>(const bint&, const int&);
@@ -454,7 +463,7 @@ namespace Math {
 		friend bint operator-(bint);
 		friend bool operator!(const bint&);
 		friend bool operator!(bint&&);
-		friend bint Factorial(const bint&);
+		friend bint Factorial(int);
 
 
 		friend bint operator+(const bint&, const bint&);

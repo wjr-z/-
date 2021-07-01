@@ -1,6 +1,8 @@
 #ifndef ALLOCATOR_H
 #define ALLOCATOR_H
 
+//这只是找到的alloc源码
+
 namespace Math {
     //----------------------------------------------
     // 第1級配置器。

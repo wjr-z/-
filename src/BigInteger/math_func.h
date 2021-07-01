@@ -26,16 +26,8 @@ extern double tot, sta, en;
 
 #endif
 
-#include <iostream>
-#include <iomanip>
 
 namespace Math{
-
-	using std::istream;
-	using std::ostream;
-	using std::cin;
-	using std::cout;
-	using std::endl;
 
 #define bintjw 100000000
 #define uint unsigned int

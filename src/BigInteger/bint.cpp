@@ -606,14 +606,15 @@ namespace Math{
 
 	void bint::Karatsuba(const bint& a, const bint& b, bint& c) {
 		int lena = a.size(), lenb = b.size(), _min = min(lena, lenb), _max = max(lena,lenb);
-		if (_max<=64) {
-			if (a.iszero() || b.iszero()) {
+		if (_max<=32) {
+			if (!a||!b) {
 				c = bintzero;
 				return;
 			}
 			Array_func::SlowMul(a.vec, b.vec, c.vec);
 			return;
 		}
+
 		int midlen = (_max + 1) >> 1;
 
 		bint B(a,0,midlen), D(b,0,midlen);
@@ -730,14 +731,16 @@ namespace Math{
 		c.positive = tmp;
 	}
 
-	bint bint::Factorial(const bint& L, const bint& R) {
+
+	bint bint::Factorial(int L, int R) {
 		if (R - L <= 2) {
 			bint ans(L);
-			for (bint i = L + 1; i <= R; ++i)
+			for (int i = L + 1; i <= R; ++i)
 				ans *= i;
 			return ans;
-		}
-		bint mid = (L + R) / 2;
+		} 
+		int mid = (L + R) >> 1;
+
 		return Factorial(L, mid) * Factorial(mid + 1, R);
 	}
 
@@ -892,8 +895,15 @@ namespace Math{
 	bool operator<=(const bint& lhs, const bint& rhs) {
 		return !(((lhs.positive == rhs.positive) && (lhs.vec > rhs.vec)) ^ (!lhs.positive));
 	}
-	bool operator<=(const bint& lhs, const int& rhs) {
-		return lhs <= bint(rhs);
+	bool operator<=(const bint& lhs, int rhs) {
+		if(lhs.positive!=(rhs>=0))return !lhs.positive;
+		bool tmp=!lhs.positive;
+		rhs=std::abs(rhs);
+		switch (lhs.size()) {
+		case 1:return (lhs[0]<=rhs)^tmp;
+		case 2:return (lhs[1]<=100&&(lhs[0]+lhs[1]*bintjw)<=rhs)^tmp;
+		default:return tmp;
+		}
 	}
 	bool operator<=(const int& lhs, const bint& rhs) {
 		return bint(lhs) <= rhs;
@@ -1076,8 +1086,8 @@ namespace Math{
 		return X.iszero();
 	}
 
-	bint Factorial(const bint& n) {
-		return bint::Factorial(bint(1),n);
+	bint Factorial(int n) {
+		return bint::Factorial(1,n);
 	}
 	bint operator+(const bint& a, const bint& b) {
 		bint ans(a);

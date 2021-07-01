@@ -1,4 +1,4 @@
-/* 同样分为了 Array 和 Array2 ，分别对应 bint 和 bint2
+/* 分为了 Array 和 Array2 ，分别对应 bint 和 bint2
 * 还有相应的一些功能性函数
 */
 #ifndef ARRAY_H
@@ -9,9 +9,7 @@
 #include "math_func.h"
 
 namespace Math {
-
 	//#define ARRAYDEBUG
-
 	using std::vector;
 
 	/*---友元函数声明---*/
@@ -113,7 +111,7 @@ namespace Math {
 
 	class Array_func {
 	private:
-		static const int jw = 100000000, kz = 8, maxi = jw - 1;//常规进位,10^8
+		static const int jw = 100000000;//常规进位,10^8
 	public:
 		static void QuickMul10k(Array&, const size_t& = 1);//快速乘以10^k
 		static void QuickDivide10k(Array& a, const size_t& = 1);//快速除以10^k

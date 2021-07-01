@@ -129,7 +129,7 @@ namespace Math{
 	void Array_func::QuickDivide10k(Array& a, const size_t& k) {//¿ìËÙ³ýÒÔ10^k
 		if (!k)return;
 		size_t Length = a.size();
-		size_t Mo = k % kz, py = k / kz, mul10 = 1;
+		size_t Mo = k & 7, py = k >> 3, mul10 = 1;
 		for (size_t i = 0; i < Mo; ++i)
 			mul10 *= 10;
 		size_t mod10 = bintjw / mul10;

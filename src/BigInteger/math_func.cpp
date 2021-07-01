@@ -1,6 +1,8 @@
 #include "math_func.h"
 #include <random>
 
+#include <iomanip>
+
 /*---测试用高精度计时器---*/
 #ifdef TEST
 int mode;
