@@ -460,7 +460,6 @@ void dfst(int n, double *a)
 /* -------- child routines -------- */
 
 
-#include <math.h>
 #ifndef M_PI_2
 #define M_PI_2      1.570796326794896619231321691639751442098584699687
 #endif

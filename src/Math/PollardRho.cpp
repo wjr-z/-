@@ -1,6 +1,7 @@
 #include "PollardRho.h"
-#include "bint.h"
-
+#include "../BigInteger/math_func.h"
+#include <vector>
+using std::vector;
 
 namespace Math{
 
