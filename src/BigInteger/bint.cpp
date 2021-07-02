@@ -1,7 +1,7 @@
 #include "bint.h"
 #include <random>
 
-namespace Math{
+namespace Math {
 
 	/*---bint类部分函数定义---*/
 
@@ -9,9 +9,9 @@ namespace Math{
 	/*------private------*/
 
 	void bint::assign(int val) {
-		positive=true;
+		positive = true;
 		if (val < 0)val = -val, positive ^= 1;
-		if(val >= bintjw) {
+		if (val >= bintjw) {
 			vec.resize(2);
 			vec.save_at(1) = val / bintjw;
 			vec.save_at(0) = val % bintjw;
@@ -22,32 +22,33 @@ namespace Math{
 		}
 	}
 	void bint::assign(long long val) {
-		positive=true;
+		positive = true;
 		if (val < 0)val = -val, positive ^= 1;
 
 		if (val >= 10000000000000000ll) {
 			vec.resize(3);
-			vec.save_at(0)=val%bintjw;
-			val/=bintjw;
-			vec.save_at(1)=val%bintjw;
-			vec.save_at(2)=val/bintjw;
-		}else if (val >= bintjw) {
+			vec.save_at(0) = val % bintjw;
+			val /= bintjw;
+			vec.save_at(1) = val % bintjw;
+			vec.save_at(2) = val / bintjw;
+		}
+		else if (val >= bintjw) {
 			vec.resize(2);
 			vec.save_at(1) = val / bintjw;
 			vec.save_at(0) = val % bintjw;
-		}else {
+		}
+		else {
 			vec.resize(1);
 			vec.save_at(0) = val;
 		}
 	}
 
 	void bint::assign(const char* s) {
-		int Length = strlen(s);
+		size_t Length = strlen(s);
 		if (!isrightint(s))return;
 		clear();
 		reserve(Length >> 3);
-		int i = Length - 1, head = 0, j = 0;
-		int fir = 0;
+		size_t i = Length - 1, head = 0, j = 0, fir = 0;
 		if (s[fir] == '-')positive ^= 1, ++fir;
 		while (i - fir >= 7) {//从后往前每8位一搞
 			for (j = i - 7; j <= i; ++j)
@@ -64,12 +65,12 @@ namespace Math{
 
 	//--------------------------------------//
 
-	void bint::quickadd(bint& a, const bint& b, const bool& _positive) {
+	void bint::quickadd(bint& a, const bint& b) {
 		if (!a) {
 			a = b;
 			return;
 		}
-		if(!b)return ;
+		if (!b)return;
 		size_t n = a.size(), m = b.size();
 		if (n < m) {//若a比b小，则优化失败，转为朴素加法
 			bint c(b);
@@ -77,63 +78,60 @@ namespace Math{
 				c.save_at(i) += a.save_at(i);
 				if (c.save_at(i) >= bintjw) {
 					c.save_at(i) -= bintjw;
-					++c.save_at(i+1);
+					++c.save_at(i + 1);
 				}
 			}
 			for (size_t tail = n; tail < m && c.save_at(tail) >= bintjw; ++tail) {//答案最多是m+1位
 				c.save_at(tail) -= bintjw;
 				++c[tail + 1];//当tail=m-1时进位则答案位数加1，且之后不会再进位
 			}
-			c.positive = _positive;
 			a = std::move(c);
 			return;
 		}//a比b大，则只用进行b的位数次加法
 
-		int*test=&a[0];
+		int* test = &a[0];
 		for (size_t i = 0; i < m - 1; ++i) {
 			test[i] += b[i];
 			if (test[i] >= bintjw) {
 				test[i] -= bintjw;
-				++test[i+1];
+				++test[i + 1];
 			}
 		}
-		test[m-1]+=b[m-1];
-		if (test[m-1]>= bintjw) {
-			test[m-1]-=bintjw;
+		test[m - 1] += b[m - 1];
+		if (test[m - 1] >= bintjw) {
+			test[m - 1] -= bintjw;
 			++a[m];
 		}
-		for (size_t tail = m; !(test[tail]^bintjw)&&tail < n; ++tail) {//如果n=m并且能进位，则上面就已经进位了
+		for (size_t tail = m; !(test[tail] ^ bintjw) && tail < n; ++tail) {//如果n=m并且能进位，则上面就已经进位了
 			test[tail] = 0;
 			++a[tail + 1];
 		}
-		a.positive = _positive;
 	}
 
-	void bint::quickadd(bint& a, bint&& b, const bool& _positive) {
+	void bint::quickadd(bint& a, bint&& b) {
 		if (!b)return;
 		if (!a) {
 			a = std::move(b);
 			return;
 		}
-		int n = a.size(), m = b.size();
+		size_t n = a.size(), m = b.size();
 		if (n < m) {//若a比b小，则优化失败，转为朴素加法
 			bint c(std::move(b));
-			for (int i = 0; i < n; ++i) {
+			for (size_t i = 0; i < n; ++i) {
 				c.save_at(i) += a.save_at(i);
 				if (c.save_at(i) >= bintjw) {
 					c.save_at(i) -= bintjw;
 					++c.save_at(i + 1);
 				}
 			}
-			for (int tail = n; tail < m && c.save_at(tail) >= bintjw; ++tail) {//答案最多是m+1位
+			for (size_t tail = n; tail < m && c.save_at(tail) >= bintjw; ++tail) {//答案最多是m+1位
 				c.save_at(tail) -= bintjw;
 				++c[tail + 1];//当tail=m-1时进位则答案位数加1，且之后不会再进位
 			}
-			c.positive = _positive;
 			a = std::move(c);
 			return;
 		}//a比b大，则只用进行b的位数次加法
-		for (int i = 0; i < m - 1; ++i) {
+		for (size_t i = 0; i < m - 1; ++i) {
 			a.save_at(i) += b[i];
 			if (a.save_at(i) >= bintjw) {
 				a.save_at(i) -= bintjw;
@@ -145,32 +143,32 @@ namespace Math{
 			a.save_at(m - 1) -= bintjw;
 			++a[m];
 		}
-		for (int tail = m; tail < n && a.save_at(tail) >= bintjw; ++tail) {//如果n=m并且能进位，则上面就已经进位了
+		for (size_t tail = m; tail < n && a.save_at(tail) >= bintjw; ++tail) {//如果n=m并且能进位，则上面就已经进位了
 			a.save_at(tail) -= bintjw;
 			++a[tail + 1];
 		}
-		a.positive = _positive;
 	}
 
-	void bint::addint(bint& a, int b, const bool& _positive) {
-		if (b >= bintjw - a.save_at(0)) {//可能会溢出，因此要用减法这样比较
-			long long val = a.save_at(0) + (long long)b;//防止溢出
+	void bint::addint(bint& a, int b) {
+		unsigned int copyb(b);
+		if (copyb +a.save_at(0)>= bintjw) {//可能会溢出，因此要用减法这样比较
+			uint val=a.save_at(0)+copyb;
 			a.save_at(0) = val % bintjw;
-			b = val / bintjw;
-			int head = 1;
-			while (a[head] + b >= bintjw) {
-				a[head] += b - bintjw;
-				b = 1;//考虑到b最大为2e9左右，第一次最多进位10，之后最多进位1
+			copyb = val / bintjw;
+			size_t head = 1,Size=a.size();
+			while (head<Size&&a.save_at(head) + copyb >= bintjw) {
+				a.save_at(head) += copyb - bintjw;
+				copyb = 1;//考虑到b最大为2e9左右，第一次最多进位10，之后最多进位1
 				++head;
 			}
-			a[head] += b;
+			a[head] += copyb;
 		}
 		else a.save_at(0) += b;//不会溢出，直接加即可
-		a.positive = _positive;
+		a.positive = !a.positive;
 	}
-	void bint::quickdel(bint& a, const bint& b, const bool& _positive) {
-		if (!b) 
-			return ;
+	void bint::quickdel(bint& a, const bint& b) {
+		if (!b)
+			return;
 		if (!a) {
 			a = b;
 			a.positive ^= 1;
@@ -178,61 +176,10 @@ namespace Math{
 		}
 		if (a.vec < b.vec) {//类似加法
 			bint c(b);
-			int n = a.size(), m = b.size();
-			for (int i = 0; i < n; ++i) {
-				if(c.save_at(i) < a.save_at(i)) {
-					int j=i+1;
-					c.save_at(i)+=bintjw-a.save_at(i);
-					while(!c.save_at(j))
-						c.save_at(j)=bintjw-1,++j;
-					--c.save_at(j);
-				}else c.save_at(i)-=a.save_at(i);
-			}
-
-			int Length = c.size();
-			while (Length > 1 && !c.save_at(Length - 1))
-				--Length;
-			if (Length != c.size())
-				c.resize(Length);
-			c.positive = !_positive;
-			if (!c)c.positive = true;
-			a = std::move(c);
-			return;
-		}
-		int n = a.size(), m = b.size();
-		for (int i = 0; i < m; ++i) {
-			if (a.save_at(i) < b[i]) {
-				int j=i+1;
-				a.save_at(i)+=bintjw-b[i];
-				while (!a.save_at(j)) {
-					a.save_at(j)=bintjw-1;
-					++j;
-				}
-				--a.save_at(j);
-			}else a.save_at(i)-=b[i];
-		}
-
-		int Length = a.size();
-		while (Length > 1 && !a.save_at(Length - 1))
-			--Length;
-		if (Length != a.size())
-			a.resize(Length);
-		a.positive=(!a?true:_positive);
-	}
-
-	void bint::quickdel(bint& a, bint&& b, const bool& _positive) {
-		if(!b)return ;
-		if (!a) {
-			a=std::move(b);
-			a.positive^=1;
-			return ;
-		}
-		if (a.vec < b.vec) {//类似加法
-			bint c(std::move(b));
-			int n = a.size(), m = b.size();
-			for (int i = 0; i < n; ++i) {
+			size_t n = a.size();
+			for (size_t i = 0, j; i < n; ++i) {
 				if (c.save_at(i) < a.save_at(i)) {
-					int j = i + 1;
+					j = i + 1;
 					c.save_at(i) += bintjw - a.save_at(i);
 					while (!c.save_at(j))
 						c.save_at(j) = bintjw - 1, ++j;
@@ -241,21 +188,20 @@ namespace Math{
 				else c.save_at(i) -= a.save_at(i);
 			}
 
-			int Length = c.size();
+			size_t Length = c.size();
 			while (Length > 1 && !c.save_at(Length - 1))
 				--Length;
 			if (Length != c.size())
 				c.resize(Length);
-			c.positive = !_positive;
-			if (c.iszero())
-				c.positive = true;
+			c.positive = !a.positive;
+			if (!c)c.positive = true;
 			a = std::move(c);
 			return;
 		}
-		int n = a.size(), m = b.size();
-		for (int i = 0; i < m; ++i) {
+		size_t m = b.size();
+		for (size_t i = 0, j; i < m; ++i) {
 			if (a.save_at(i) < b[i]) {
-				int j = i + 1;
+				j = i + 1;
 				a.save_at(i) += bintjw - b[i];
 				while (!a.save_at(j)) {
 					a.save_at(j) = bintjw - 1;
@@ -266,125 +212,114 @@ namespace Math{
 			else a.save_at(i) -= b[i];
 		}
 
-		int Length = a.size();
+		size_t Length = a.size();
 		while (Length > 1 && !a.save_at(Length - 1))
 			--Length;
 		if (Length != a.size())
 			a.resize(Length);
-		a.positive = (!a ? true : _positive);
+		if(!a)
+			a.positive=true;
 	}
 
-	void bint::delint(bint& a, int b, const bool& _positive) {
-		a.positive = _positive;
-		if (a.size() == 1) {
-			if (a.save_at(0) < b) {
-				a.save_at(0) = b - a.save_at(0);
-				a.positive ^= 1;
-			}
-			else {
-				a.save_at(0) -= b;
-				if(!a)a.positive=true;
-			}
+	void bint::quickdel(bint& a, bint&& b) {
+		if (!b)return;
+		if (!a) {
+			a = std::move(b);
+			a.positive ^= 1;
 			return;
 		}
-		if (a < b) {
-			int X=a.save_at(1)*bintjw+a.save_at(0);
-			int Y=b-X;
-			a.save_at(0)=Y%bintjw;
-			a.save_at(1)=Y/bintjw;
-			if(!a.save_at(1))
-				a.resize(1);
-			a.positive^=1;
-			return ;
+		if (a.vec < b.vec) {//类似加法
+			bint c(std::move(b));
+			size_t n = a.size();
+			for (size_t i = 0, j; i < n; ++i) {
+				if (c.save_at(i) < a.save_at(i)) {
+					j = i + 1;
+					c.save_at(i) += bintjw - a.save_at(i);
+					while (!c.save_at(j))
+						c.save_at(j) = bintjw - 1, ++j;
+					--c.save_at(j);
+				}
+				else c.save_at(i) -= a.save_at(i);
+			}
+
+			size_t Length = c.size();
+			while (Length > 1 && !c.save_at(Length - 1))
+				--Length;
+			if (Length != c.size())
+				c.resize(Length);
+			c.positive = !a.positive;
+			if (c.iszero())
+				c.positive = true;
+			a = std::move(c);
+			return;
+		}
+		size_t m = b.size();
+		for (size_t i = 0, j; i < m; ++i) {
+			if (a.save_at(i) < b[i]) {
+				j = i + 1;
+				a.save_at(i) += bintjw - b[i];
+				while (!a.save_at(j)) {
+					a.save_at(j) = bintjw - 1;
+					++j;
+				}
+				--a.save_at(j);
+			}
+			else a.save_at(i) -= b[i];
+		}
+
+		size_t Length = a.size();
+		while (Length > 1 && !a.save_at(Length - 1))
+			--Length;
+		if (Length != a.size())
+			a.resize(Length);
+		if(!a)a.positive=true;
+	}
+
+	void bint::delint(bint& a, int b) {
+		if (a.positive?a<b:a>-b) {
+			int Y;
+			switch (a.size()) {
+			case 1: {
+				Y = b - a.save_at(0);
+				a.save_at(0)=Y;
+				break;
+			}
+			case 2: {
+				Y=b-(a.save_at(0)+a.save_at(1)*bintjw);
+				if (Y >= bintjw) {
+					a.save_at(1)=Y/bintjw;
+					a.save_at(0)=Y%bintjw;
+				}else a.resize(1),a.save_at(0)=Y;
+				break;
+			}
+			}
+			a.positive =!a.positive;
+			return;
 		}
 		if (a.save_at(0) < b) {
-			uint p=b/bintjw,q=b%bintjw;
-			a.save_at(0)-=q;
+			uint p = b / bintjw, q = b % bintjw;
+			a.save_at(0) -= q;
 			if (a.save_at(0) < 0) {
-				a.save_at(0)+=bintjw;
-				int i=1;
-				while(!a.save_at(i))
-					a.save_at(i)=bintjw-1,++i;
-				--a.save_at(i);
-			}
-			a.save_at(1)-=p;
-			if (a.save_at(1) < 0) {
-				a.save_at(1)+=bintjw;
-				int i = 2;
+				a.save_at(0) += bintjw;
+				size_t i = 1;
 				while (!a.save_at(i))
 					a.save_at(i) = bintjw - 1, ++i;
 				--a.save_at(i);
 			}
-		}else a.save_at(0)-=b;
-	}
-
-	bint bint::randomdivide(const bint& A, const bint& B) {//弃置不用了
-		bint copyA(A), copyB(B);
-		copyA.abs(), copyB.abs();
-		if (copyA < copyB)return bintzero;//如果更小，返回0
-		bint copyB2(copyB + copyB), copyB4(copyB2 + copyB2), copyB8(copyB4 + copyB4);
-		bint ans;
-		ans.reserve(A.size() - B.size() + 1);//提前预留空间
-		int val, head = 0, step = 0;
-		val = 1;
-		step = A.length() - B.length();
-		Array_func::QuickDivide10k(copyA.vec, step);//快速除以10^step次方，将A和B的长度对齐
-		val = _10k[step & 7];
-		head = step >> 3;
-		while (~step) {
-			/*---均摊15/9次减法和4次判断---*/
-			/*---朴素算法需要均摊5次减法和5次判断---*/
-			if (copyA >= copyB8) {
-				ans[head] += val << 3;
-				quickdel(copyA, copyB8, true);
+			a.save_at(1) -= p;
+			if (a.save_at(1) < 0) {
+				a.save_at(1) += bintjw;
+				size_t i = 2;
+				while (!a.save_at(i))
+					a.save_at(i) = bintjw - 1, ++i;
+				--a.save_at(i);
 			}
-			if (copyA >= copyB4) {
-				ans[head] += val << 2;
-				quickdel(copyA, copyB4, true);
-			}
-			if (copyA >= copyB2) {
-				ans[head] += val << 1;
-				quickdel(copyA, copyB2, true);
-			}
-			if (copyA >= copyB) {
-				ans[head] += val;
-				quickdel(copyA, copyB, true);
-			}
-
-			--step;
-			if (step == -1)break;
-			val = _10k[step & 7];
-			head = step >> 3;
-			copyA.quick_mul_10();//下一位需要先乘10
-			copyA[0] += A.at(step);//再加上下一位
 		}
-		ans.positive = !(A.positive ^ B.positive);//符号
-		return ans;
-	}
-
-	bint bint::matchdivide(const bint& A, const bint& B) {
-		bint copyA(A), copyB(B);
-		copyA.abs(), copyB.abs();
-		int lim = copyA.length() + copyB.length();
-		bint ni = copyB.inv(lim);//得到逆元，这一步是该算法复杂度的瓶颈！(精度为lim)
-		bint test = ni * copyB;
-		Array_func::QuickDivide10k(test.vec, lim);
-		bint ans = copyA * ni;
-		Array_func::QuickDivide10k(ans.vec, lim);//因为将小数乘10^lim变成整数，现在要除回去并取整
-		bint mo = copyA - copyB * ans;
-		bint k = mo / copyB;//降低常数的做法，如果ni的精度足够则按理误差在1左右
-							//但是算法问题，只能通过得到近似的逆元，但误差也能
-							//降低很多，然后将误差递归下去直到得到准确解，之后会修改算法
-		ans += k;
-		mo -= k * copyB;
-		if (!mo.positive)
-			++ans;
-		ans.positive = !(A.positive ^ B.positive);
-		return ans;
+		else a.save_at(0) -= b;
 	}
 
 	bint bint::largedivide(const bint& A, const bint& B) {
-		int n = A.size(), m = B.size(), mid = 2 * m - n - 2;
+		size_t n = A.size(), m = B.size(), mid = 2 * m - n - 2;
 		bint copyA, copyB;
 		copyA.assign(A, mid, n);//舍去2m-n-2位
 		copyB.assign(B, mid, m);
@@ -393,12 +328,13 @@ namespace Math{
 
 		if (Math::abs(A) < Math::abs(B) * ans)//误差在1
 			--ans;
+
 		ans.positive = !(A.positive ^ B.positive);
 		return ans;
 	}
 
 	bint bint::smalldivide(const bint& A, const bint& B) {
-		int n = A.size(), m = B.size(), mid = (n - m) >> 1;
+		size_t n = A.size(), m = B.size(), mid = (n - m) >> 1;
 		bint copyA, copyB(Math::abs(B));
 		copyA.assign(A, mid, n);
 		bint ans = copyA / copyB;
@@ -409,10 +345,11 @@ namespace Math{
 		return ans;
 	}
 
-	bint bint::knuthdivide(const bint&A, const bint&B) {//比我那个优化的暴力略快一点
+	bint bint::knuthdivide(const bint& A, const bint& B) {//比我那个优化的暴力略快一点
 		bint r(A), copyB(B);
-		r.abs(),copyB.abs();
+		r.abs(), copyB.abs();
 		bint ans;
+
 		int BW = bintjw;
 
 		if (copyB[copyB.size() - 1] < (BW >> 1)) {
@@ -421,27 +358,37 @@ namespace Math{
 			r *= K, copyB *= K;
 		}
 
-		int n = copyB.size(), m = r.size() - copyB.size();
+		size_t n = copyB.size(), m = r.size() - copyB.size();
 		bint copyA(r);
 		r.quick_divide_10k(m << 3);
-		int i = n + m, j = m;
+		size_t i = n + m, j = m;
+
+		int tst = copyB.save_at(n - 1);
+
+		ans.resize(m + 1);
+		int* ql = &ans[0];
+
 		do {
 			int q;
 			if (r.size() > n)
-				q = min((long long)BW - 1, (r.save_at(n) * 1ll * BW + r.save_at(n-1)) / copyB.save_at(n-1));
+				q = min((long long)BW - 1, (r.save_at(n) * 1ll * BW + r.save_at(n - 1)) / tst);
 			else if (r.size() > n - 1)
-				q = min(BW - 1, r.save_at(n-1) / copyB.save_at(n-1));
+				q = min(BW - 1, r.save_at(n - 1) / tst);
 			else q = 0;
+
 			r -= copyB * q;
+
 			while (!r.ispositive())
 				--q, r += copyB;
 			r.quick_mul_10k(8);
-			if (j > 0)r.save_at(0) = copyA.save_at(j-1);
-			ans[j] = q;
+			if (j > 0)
+				r.save_at(0) = copyA.save_at(j - 1);
+			ql[j] = q;
 			--i, --j;
 		} while (i >= n);
-		int Size=ans.size();
-		while (Size>1&&!ans.save_at(Size-1))
+
+		size_t Size = ans.size();
+		while (Size > 1 && !ans.save_at(Size - 1))
 			--Size;
 		ans.resize(Size);
 		return ans;
@@ -450,9 +397,9 @@ namespace Math{
 
 	bint bint::quickdivide(const bint& A, const bint& B) {
 		if (A.vec < B.vec)return bintzero;
-		int n = A.size(), m = B.size();
+		size_t n = A.size(), m = B.size();
 		if (m == 1)return divideint(A, B[0] * (B.positive ? 1 : -1));//低精度除法
-		if (m <= (quicklog2(n)<<1) + 32) return knuthdivide(A, B);//m比较小直接用O(m*(n-m))算法
+		if (m <= (quicklog2(n) << 1) + 32) return knuthdivide(A, B);//m比较小直接用O(m*(n-m))算法
 		if (m * 3 >= 2 * n)return largedivide(A, B);
 		return smalldivide(A, B);
 	}
@@ -461,11 +408,11 @@ namespace Math{
 		bint ans;
 		size_t Size = A.size();
 		bool tmp = !(A.positive ^ (B >= 0));
-		B=std::abs(B);
+		B = std::abs(B);
 
-		uint mp=-1;
-		if (is_power_of_2(B)) 
-			mp=_minx(B);
+		uint mp = -1;
+		if (is_power_of_2(B))
+			mp = _minx(B);
 		if (~mp) {
 			switch (Size) {
 			case 1: {
@@ -539,15 +486,15 @@ namespace Math{
 		uint mp = -1;
 		if (is_power_of_2(B))
 			mp = _minx(B);
-		if(~mp){
+		if (~mp) {
 			switch (Size) {
 			case 1: {
-				A.save_at(0) = A.save_at(0) >>mp;
+				A.save_at(0) = A.save_at(0) >> mp;
 				A.positive = (!A ? true : tmp);
 				break;
 			}
 			case 2: {
-				ull val = (A.save_at(0) + 100000000ll * A.save_at(1)) >>mp;
+				ull val = (A.save_at(0) + 100000000ll * A.save_at(1)) >> mp;
 				if (val < bintjw)
 					A.resize(1), A.save_at(0) = val;
 				else A.save_at(1) = val / bintjw, A.save_at(0) = val % bintjw;
@@ -559,7 +506,7 @@ namespace Math{
 				for (size_t i = Size - 1; ~i; --i) {
 					copyA = copyA * bintjw + A.save_at(i);
 					A.save_at(i) = copyA >> mp;
-					copyA &=(B-1);
+					copyA &= (B - 1);
 				}
 				while (Size > 1 && !A.save_at(Size - 1))
 					--Size;
@@ -605,9 +552,9 @@ namespace Math{
 
 
 	void bint::Karatsuba(const bint& a, const bint& b, bint& c) {
-		int lena = a.size(), lenb = b.size(), _min = min(lena, lenb), _max = max(lena,lenb);
-		if (_max<=32) {
-			if (!a||!b) {
+		int lena = a.size(), lenb = b.size(), _max = max(lena, lenb);
+		if (_max <= 32) {
+			if (!a || !b) {
 				c = bintzero;
 				return;
 			}
@@ -617,7 +564,7 @@ namespace Math{
 
 		int midlen = (_max + 1) >> 1;
 
-		bint B(a,0,midlen), D(b,0,midlen);
+		bint B(a, 0, midlen), D(b, 0, midlen);
 		Karatsuba(B, D, c);
 		bint A(a, midlen, lena), C(b, midlen, lenb);
 		bint F;
@@ -626,21 +573,21 @@ namespace Math{
 		Karatsuba(A + B, C + D, G);
 		G -= c + F;
 		c.resize(lena + lenb);
-		for (int i = F.size() - 1; ~i; --i) 
+		for (int i = F.size() - 1; ~i; --i)
 			c.save_at(i + (midlen << 1)) += F.save_at(i);
 		for (int i = G.size() - 1; ~i; --i)
 			c.save_at(i + midlen) += G.save_at(i);
-		int Siz=c.size();
-		for (int i = midlen; i < Siz - 1 ; ++i) {
-			while(c.save_at(i)>=bintjw)
-				++c.save_at(i+1),c.save_at(i)-=bintjw;
+		int Siz = c.size();
+		for (int i = midlen; i < Siz - 1; ++i) {
+			while (c.save_at(i) >= bintjw)
+				++c.save_at(i + 1), c.save_at(i) -= bintjw;
 		}
-		while(c.save_at(Siz-1)>=bintjw)
-			++c[Siz],c.save_at(Siz-1)-=bintjw;
-		Siz=c.size();
-		while(Siz>1&&!c.save_at(Siz-1))
+		while (c.save_at(Siz - 1) >= bintjw)
+			++c[Siz], c.save_at(Siz - 1) -= bintjw;
+		Siz = c.size();
+		while (Siz > 1 && !c.save_at(Siz - 1))
 			--Siz;
-		if(c.size()!=Siz)
+		if (c.size() != Siz)
 			c.resize(Siz);
 	}
 
@@ -654,48 +601,48 @@ namespace Math{
 		/*---根据不同范围选择不同算法---*/
 
 		if (Min != 1) {
-			(Min<=32||(1ll<<min(60,max(0,Min-32>>1)))<=Max)?
-				Array_func::SlowMul(a.vec, b.vec, a.vec):
+			(Min <= 32 || (1ll << min(60, max(0, Min - 32 >> 1))) <= Max) ?
+				Array_func::SlowMul(a.vec, b.vec, a.vec) :
 				FFT_Array_func::FFTQuickMul(a.vec, b.vec, a.vec);
 			a.positive = !(a.positive ^ b.positive);
 		}
 		else {
-			if (n == 1)mulint(b, a.positive?a[0]:-a[0], a);
-			else mulint(a, b.positive?b[0]:-b[0], a);
+			if (n == 1)mulint(b, a.positive ? a[0] : -a[0], a);
+			else mulint(a, b.positive ? b[0] : -b[0], a);
 		}
 	}
 
 
 	void bint::mulint(const bint& a, const int& b, bint& c) {
 
-		if (!a||!b) {
+		if (!a || !b) {
 			c.clear();
 			return;
 		}
 		size_t n = a.size();
-		bool tmp=a.positive;
+		bool tmp = a.positive;
 		ull copyb;
-		if(b>=0)
-			copyb=b;
+		if (b >= 0)
+			copyb = b;
 		else
-			tmp^=1,copyb=-b;
+			tmp ^= 1, copyb = -b;
 
-		int mp=-1;
-		if(is_power_of_2(copyb))
-			mp=_minx(copyb);
+		int mp = -1;
+		if (is_power_of_2(copyb))
+			mp = _minx(copyb);
 
-		ull Val=0;
+		ull Val = 0;
 
 		c.resize(n);
 
 		if (~mp) {
 			for (size_t i = 0; i < n - 1; ++i) {
-				Val += (ull)a[i]<<mp;
+				Val += (ull)a[i] << mp;
 				c.save_at(i) = Val % bintjw;
 				Val /= bintjw;
 
 			}
-			Val += (ull)a[n - 1]<<mp;
+			Val += (ull)a[n - 1] << mp;
 
 			if (Val >= bintjw) {
 				c.save_at(n - 1) = Val % bintjw;
@@ -738,10 +685,12 @@ namespace Math{
 			for (int i = L + 1; i <= R; ++i)
 				ans *= i;
 			return ans;
-		} 
+		}
 		int mid = (L + R) >> 1;
 
-		return Factorial(L, mid) * Factorial(mid + 1, R);
+		bint l = Factorial(L, mid), r = Factorial(mid + 1, R);
+
+		return l * r;
 	}
 
 	bint bint::inv(int lim)const {//弃置不用
@@ -787,16 +736,16 @@ namespace Math{
 
 	/*------public------*/
 
-	void bint::assign(const bint& other, const int& L, const int& R) {
-		int Size = other.size();
-		int l = min(L, Size), r = min(R, Size);
+	void bint::assign(const bint& other, const size_t& L, const size_t& R) {
+		size_t Size = other.size();
+		size_t l = min(L, Size), r = min(R, Size);
 		if (l == r) {
 			clear();
 			return;
 		}
-	
-		vec.assign(other.vec,l,r);
-		int tail = r - l;
+
+		vec.assign(other.vec, l, r);
+		size_t tail = r - l;
 		while (tail > 1 && !this->save_at(tail - 1))--tail;
 		if (tail != size())resize(tail);
 	}
@@ -809,15 +758,15 @@ namespace Math{
 	}
 
 	bint& bint::operator=(const bint2& other)noexcept {
-		*this=other.to10bit();
+		*this = other.to10bit();
 		return*this;
 	}
 
 	const size_t bint::length() const { return vec.length(); }
 	void bint::relength(const size_t& index) { vec.relength(index); }
-	void bint::reverse(int Length) {
+	void bint::reverse(size_t Length) {
 		if (Length == -1)Length = length();
-		for (int i = 0; (i << 1) < Length; ++i) {
+		for (size_t i = 0; (i << 1) < Length; ++i) {
 			int u = at(i), v = at(Length - 1 - i);
 			set(i, v);
 			set(Length - 1 - i, u);
@@ -832,10 +781,10 @@ namespace Math{
 	}
 
 	void bint::randdata(const bint& other) {
-		int Size = other.size();
+		size_t Size = other.size();
 		resize(Size);
 		bool tmp = true;
-		for (int i = Size - 1; i >= 0; --i) {
+		for (size_t i = Size - 1; ~i; --i) {
 			int HEAD;
 			if (tmp)
 				HEAD = Math::randint(0, other[i]);
@@ -851,7 +800,7 @@ namespace Math{
 	ostream& operator<<(ostream& out, const bint& x) {
 		if (!x.positive)out << "-";
 		out << x[x.size() - 1];
-		for (int i = x.size() - 2; i >= 0; --i)
+		for (size_t i = x.size() - 2; ~i; --i)
 			out << std::setw(8) << std::setfill('0') << x[i];
 		return out;
 	}
@@ -866,73 +815,80 @@ namespace Math{
 	bool operator<(const bint& lhs, const bint& rhs) {
 		return ((lhs.ispositive() == rhs.ispositive()) && (lhs.vec < rhs.vec)) ^ (!lhs.positive);
 	}
-	bool operator<(const bint& lhs, const int& rhs) {
-		return lhs < bint(rhs);//经典偷懒 
+	bool operator<(const bint& lhs, int rhs) {
+		if (lhs.positive != (rhs >= 0))return !lhs.positive;
+		bool tmp = !lhs.positive;
+		rhs = std::abs(rhs);
+		switch (lhs.size()) {
+		case 1:return (lhs[0] < rhs) ^ tmp;
+		case 2:return (lhs[1] <= 100 && lhs[0] + lhs[1] * bintjw < rhs) ^ tmp;
+		default:return tmp;
+		}
 	}
 	bool operator<(const int& lhs, const bint& rhs) {
-		return bint(lhs) < rhs;
+		return rhs < lhs;
 	}
 
 	bool operator==(const bint& lhs, const bint& rhs) {
 		return ((lhs.positive == rhs.positive) && lhs.vec == rhs.vec);
 	}
 	bool operator==(const bint& lhs, int rhs) {
-		if(lhs.positive!=(rhs>=0))return false;
-		rhs=std::abs(rhs);
+		if (lhs.positive != (rhs >= 0))return false;
+		rhs = std::abs(rhs);
 		switch (lhs.size()) {
-		case 1: 
-			return lhs[0]==rhs;
-		case 2: 
-			return (lhs[1]<100)&& (lhs[0] + lhs[1] * bintjw) == rhs;
+		case 1:
+			return lhs[0] == rhs;
+		case 2:
+			return (lhs[1] < 100) && (lhs[0] + lhs[1] * bintjw) == rhs;
 		default:
 			return false;
 		}
 	}
 	bool operator==(const int& lhs, const bint& rhs) {
-		return rhs==lhs;
+		return rhs == lhs;
 	}
 
 	bool operator<=(const bint& lhs, const bint& rhs) {
 		return !(((lhs.positive == rhs.positive) && (lhs.vec > rhs.vec)) ^ (!lhs.positive));
 	}
 	bool operator<=(const bint& lhs, int rhs) {
-		if(lhs.positive!=(rhs>=0))return !lhs.positive;
-		bool tmp=!lhs.positive;
-		rhs=std::abs(rhs);
+		if (lhs.positive != (rhs >= 0))return !lhs.positive;
+		bool tmp = !lhs.positive;
+		rhs = std::abs(rhs);
 		switch (lhs.size()) {
-		case 1:return (lhs[0]<=rhs)^tmp;
-		case 2:return (lhs[1]<=100&&(lhs[0]+lhs[1]*bintjw)<=rhs)^tmp;
+		case 1:return (lhs[0] <= rhs) ^ tmp;
+		case 2:return (lhs[1] <= 100 && (lhs[0] + lhs[1] * bintjw) <= rhs) ^ tmp;
 		default:return tmp;
 		}
 	}
 	bool operator<=(const int& lhs, const bint& rhs) {
-		return bint(lhs) <= rhs;
+		return rhs <= lhs;
 	}
 
 	bool operator>(const bint& lhs, const bint& rhs) { return !(lhs <= rhs); }
-	bool operator>(const bint& lhs, const int& rhs) { return lhs > bint(rhs); }
-	bool operator>(const int& lhs, const bint& rhs) { return bint(lhs) > bint(rhs); }
+	bool operator>(const bint& lhs, const int& rhs) { return !(lhs <= rhs); }
+	bool operator>(const int& lhs, const bint& rhs) { return !(lhs <= rhs); }
 
 	bool operator>=(const bint& lhs, const bint& rhs) { return !(lhs < rhs); }
-	bool operator>=(const bint& lhs, const int& rhs) { return lhs >= bint(rhs); }
-	bool operator>=(const int& lhs, const bint& rhs) { return bint(lhs) >= rhs; }
+	bool operator>=(const bint& lhs, const int& rhs) { return !(lhs < rhs); }
+	bool operator>=(const int& lhs, const bint& rhs) { return !(lhs < rhs); }
 
 	bool operator!=(const bint& lhs, const bint& rhs) { return !(lhs == rhs); }
-	bool operator!=(const bint& lhs, const int& rhs) { return lhs != bint(rhs); }
-	bool operator!=(const int& lhs, const bint& rhs) { return bint(lhs) != rhs; }
+	bool operator!=(const bint& lhs, const int& rhs) { return !(lhs == rhs); }
+	bool operator!=(const int& lhs, const bint& rhs) { return !(lhs == rhs); }
 
 
 	bint& bint::operator+=(const bint& b) {
 		(positive == b.positive) ?
-			quickadd(*this, b, positive)
-			: quickdel(*this, b, positive);
+			quickadd(*this, b)
+			: quickdel(*this, b);
 		return*this;
 	}
 
 	bint& bint::operator+=(bint&& b) {
 		(positive == b.positive) ?
-			quickadd(*this, std::move(b), positive)
-			: quickdel(*this, std::move(b), positive);
+			quickadd(*this, std::move(b))
+			: quickdel(*this, std::move(b));
 		return*this;
 	}
 
@@ -940,38 +896,38 @@ namespace Math{
 	bint& bint::operator+=(const int& b) {
 		bool f = b >= 0;
 		(positive == f) ?
-			(positive ? addint(*this, b, true)
-				: addint(*this, -b, false))
-			: (positive ? delint(*this, -b, true)
-				: delint(*this, b, false));
+			(positive ? addint(*this, b)
+				: addint(*this, -b))
+			: (positive ? delint(*this, -b)
+				: delint(*this, b));
 		return*this;
 	}
 
 	bint& bint::operator-=(const bint& b) {
 		(positive == b.positive) ?
-			(positive ? quickdel(*this, b, true)
-				: quickdel(*this, b, false))
-			: (positive ? quickadd(*this, b, true)
-				: quickadd(*this, b, false));
+			(positive ? quickdel(*this, b)
+				: quickdel(*this, b))
+			: (positive ? quickadd(*this, b)
+				: quickadd(*this, b));
 		return*this;
 	}
 
 	bint& bint::operator-=(bint&& b) {
 		(positive == b.positive) ?
-			(positive ? quickdel(*this, std::move(b), true)
-				: quickdel(*this, std::move(b), false))
-			: (positive ? quickadd(*this, std::move(b), true)
-				: quickadd(*this, std::move(b), false));
+			(positive ? quickdel(*this, std::move(b))
+				: quickdel(*this, std::move(b)))
+			: (positive ? quickadd(*this, std::move(b))
+				: quickadd(*this, std::move(b)));
 		return*this;
 	}
 
 	bint& bint::operator-=(const int& b) {
 		bool f = b >= 0;
 		(positive == f) ?
-			(positive ? delint(*this, b, true)
-				: delint(*this, -b, false))
-			: (positive ? addint(*this, -b, true)
-				: addint(*this, b, false));
+			(positive ? delint(*this, b)
+				: delint(*this, -b))
+			: (positive ? addint(*this, -b)
+				: addint(*this, b));
 		return*this;
 	}
 
@@ -990,12 +946,12 @@ namespace Math{
 	}
 
 	bint& bint::operator/=(const int& b) {
-		divideint(std::move(*this),b);
+		divideint(std::move(*this), b);
 		return*this;
 	}
 
 	bint& bint::operator%=(const bint& b) {
-		if(*this<b)return*this;
+		if (*this < b)return*this;
 		(*this) -= b * ((*this) / b);
 		return*this;
 	}
@@ -1031,10 +987,6 @@ namespace Math{
 
 	bint& bint::operator>>=(const int& index) {
 		if (index < 31) {
-			int n=size();
-			for(int i=n-1;i>=0;--i)
-
-
 			(*this) /= (1 << index);
 			return*this;
 		}
@@ -1075,7 +1027,7 @@ namespace Math{
 
 	bint operator-(bint X) {
 		if (!X)return bintzero;
-		return bint(std::move(X),X.positive^1);
+		return bint(std::move(X), X.ispositive() ^ 1);
 	}
 
 	bool operator!(const bint& X) {
@@ -1087,94 +1039,93 @@ namespace Math{
 	}
 
 	bint Factorial(int n) {
-		return bint::Factorial(1,n);
+		return bint::Factorial(1, n);
 	}
 	bint operator+(const bint& a, const bint& b) {
 		bint ans(a);
-		ans+=b;
+		ans += b;
 		return ans;
 	}
-	bint operator+(bint&&a, const bint& b) {
-		a+=b;
-		return a;
+	bint operator+(bint&& a, const bint& b) {
+		a += b;
+		return std::move(a);
 	}
 	bint operator+(const bint& a, bint&& b) {
-		b+=a;
-		return b;
+		b += a;
+		return std::move(b);
 	}
 	bint operator+(bint&& a, bint&& b) {
-		a+=std::move(b);
-		return a;
+		a += std::move(b);
+		return std::move(a);
 	}
 
 	bint operator+(bint a, const int& b) {
-		a+=b;
+		a += b;
 		return a;
 	}
 
 	bint operator+(const int& a, bint b) {
-		b+=a;
+		b += a;
 		return b;
 	}
 
 	bint operator-(const bint& a, const bint& b) {
 		bint ans(a);
-		ans-=b;
+		ans -= b;
 		return ans;
 	}
 	bint operator-(bint&& a, const bint& b) {
-		a-=b;
+		a -= b;
 		return std::move(a);
 	}
 	bint operator-(const bint& a, bint&& b) {
-		b-=a;
-		b.positive^=1;
-		if(!b)b.positive=true;
+		b -= a;
+		b.positive=(!b?true:!b.positive);
 		return std::move(b);
 	}
 	bint operator-(bint&& a, bint&& b) {
-		a-=std::move(b);
+		a -= std::move(b);
 		return std::move(a);
 	}
 
 	bint operator-(bint a, const int& b) {
-		a-=b;
+		a -= b;
 		return a;
 	}
 
 	bint operator-(const int& a, bint b) {
-		b-=a;
-		b.positive^=1;
-		if(!b)b.positive=true;
+		b -= a;
+		b.positive ^= 1;
+		if (!b)b.positive = true;
 		return b;
 	}
 
-	bint operator*(const bint&a,const bint&b){
+	bint operator*(const bint& a, const bint& b) {
 		bint ans(a);
-		ans*=b;
+		ans *= b;
 		return ans;
 	}
 
 	bint operator*(bint&& a, const bint& b) {
-		a*=b;
+		a *= b;
 		return std::move(a);
 	}
 	bint operator*(const bint& a, bint&& b) {
-		b*=a;
+		b *= a;
 		return std::move(b);
 	}
-	bint operator*(bint&&a, bint&&b) {
-		a*=std::move(b);
+	bint operator*(bint&& a, bint&& b) {
+		a *= std::move(b);
 		return std::move(a);
 	}
 
 	bint operator*(bint a, int b) {
-		bint::mulint(a,b,a);
+		bint::mulint(a, b, a);
 		return a;
 	}
 
 	bint operator*(const int& a, bint b) {
-		bint::mulint(b,a,b);
+		bint::mulint(b, a, b);
 		return b;
 	}
 
@@ -1187,13 +1138,17 @@ namespace Math{
 	}
 
 	bint operator/(bint&& a, const int& b) {
-		bint::divideint(std::move(a),b);
+		bint::divideint(std::move(a), b);
 		return std::move(a);
 	}
 
-	bint operator/(const int& a, const bint& b) {
+	bint operator/(int a, const bint& b) {
+		bool tmp=!(b.positive^(a>=0));
+		a=std::abs(a);
 		if (b.size() == 1 && b[0] <= a)
-			return bint(a / b[0]);
+			return bint(tmp ? (a / b[0]) : -(a / b[0]));
+		if (b.size() == 2 && (b[1] <= 100 && b[0] + b[1] * bintjw <= a))
+			return bint(tmp ? (a / (b[0] + b[1] * bintjw)) : -(a / (b[0] + b[1] * bintjw)));
 		return bintzero;
 	}
 
@@ -1233,11 +1188,11 @@ namespace Math{
 
 
 	void bint::quick_mul_10() {
-		int Length = size();
+		size_t Length = size();
 		vec.reserve(Length + 1);
 		if (vec.save_at(Length - 1) >= 10000000)
 			vec[Length] = vec.save_at(Length - 1) / 10000000;
-		for (int i = Length - 1; i; --i)
+		for (size_t i = Length - 1; ~i; --i)
 			vec[i] = (vec.save_at(i) % 10000000) * 10 + vec.save_at(i - 1) / 10000000;
 		vec[0] = (vec.save_at(0) % 10000000) * 10;
 	}
@@ -1257,26 +1212,26 @@ namespace Math{
 	}
 
 	bint abs(bint x) {
-		if(x.positive)return x;
+		if (x.positive)return x;
 		return -std::move(x);
 	}
 	bint gcd(const bint& a, const bint& b) {
-		return !b?a:gcd(b,a%b);
+		return !b ? a : gcd(b, a % b);
 	}
 	bint randdata(const bint& L, const bint& R) {
 		bint X;
-		X.randdata(R-L);
-		X+=L;
+		X.randdata(R - L);
+		X += L;
 		return X;
 	}
-	bint randdata(int n) {
+	bint randdata(size_t n) {
 		bint ans(0);
-		int Size=n-1>>3;
-		for(int i=0;i<Size;++i)
-			ans[i]=randint(0,bintjw-1);
-		for (int i = Size<<3 ; i < n-1; ++i)
-			ans.set(i, randint(0,9));
-		ans.set(n-1,randint(1,9));
+		size_t Size = n - 1 >> 3;
+		for (size_t i = 0; i < Size; ++i)
+			ans[i] = randint(0, bintjw - 1);
+		for (size_t i = Size << 3; i < n - 1; ++i)
+			ans.set(i, randint(0, 9));
+		ans.set(n - 1, randint(1, 9));
 		return ans;
 	}
 	void swap(bint& lhs, bint& rhs) {
@@ -1284,34 +1239,37 @@ namespace Math{
 	}
 
 	void bint::swap(bint& other) {
-		Math::swap(vec,other.vec);
-		std::swap(positive,other.positive);
+		Math::swap(vec, other.vec);
+		std::swap(positive, other.positive);
 	}
 
 	int bint::toint()const {
-		if(size()==1)return vec[0];
-		return vec[1]*bintjw+vec[0];
+		switch (size()) {
+		case 1:return positive?vec[0]:-vec[0];
+		case 2:return positive?(vec[0]+vec[0]*bintjw):-(vec[0] + vec[0] * bintjw);
+		default:return 0;
+		}
 	}
 	long long bint::toll()const {
-		int Length = size();
 		switch (size()) {
-		case 1:return vec[0];
-		case 2:return vec[1]*1ll*bintjw+vec[0];
-		case 3:return vec[2]*10000000000000000ll+vec[1]*1ll*bintjw+vec[0];
+		case 1:return positive?vec[0]:-vec[0];
+		case 2:return positive?(vec[1] * 1ll * bintjw + vec[0]):-(vec[1] * 1ll * bintjw + vec[0]);
+		case 3:return positive?(vec[2] * 10000000000000000ll + vec[1] * 1ll * bintjw + vec[0])
+			:-(vec[2] * 10000000000000000ll + vec[1] * 1ll * bintjw + vec[0]);
 		default:return 0;
 		}
 	}
 
 	std::string bint::tostr()const {
 		std::string str;
-		int Size = size();
+		size_t Size = size();
 		int x = (*this)[Size - 1];
 		while (x) {
 			str.push_back(x % 10 + '0');
 			x /= 10;
 		}
 		std::reverse(str.begin(), str.end());
-		for (int i = Size - 2; ~i; --i) {
+		for (size_t i = Size - 2; ~i; --i) {
 			x = (*this)[i];
 			for (int j = 7; ~j; --j)
 				str.push_back((x / _10k[j]) % 10 + '0');
@@ -1349,7 +1307,7 @@ namespace Math{
 	}
 
 	bint2 bint::to2bit()const {
-		return bint2(get2bit(),positive);
+		return bint2(get2bit(), positive);
 	}
 
 
@@ -1359,22 +1317,22 @@ namespace Math{
 	/*---bint2类部分函数定义---*/
 
 	void bint2::assign(int val) {
-		positive=true;
+		positive = true;
 		if (val < 0)val = -val, positive ^= 1;
 		resize(1);
 		vec.save_at(0) = val;
 	}
 	void bint2::assign(long long val) {
-		positive=true;
+		positive = true;
 		if (val < 0)val = -val, positive ^= 1;
 		if (val <= maxuint) {
 			resize(1);
-			vec.save_at(0)=val;
+			vec.save_at(0) = val;
 		}
 		else {
 			resize(2);
-			vec.save_at(1)=val>>32;
-			vec.save_at(0)=uint(val);
+			vec.save_at(1) = val >> 32;
+			vec.save_at(0) = (uint)val;
 		}
 	}
 
@@ -1401,10 +1359,10 @@ namespace Math{
 	void bint2::assign(const std::string& s) { assign(s.c_str()); }
 
 	void bint2::saveadd(int index) {//index位加1
-		int Size=size();
-		for(;index<Size&&(vec.save_at(index)==maxuint);++index)
-			vec.save_at(index)=0;
-		if(index==Size)
+		int Size = size();
+		for (; index < Size && (vec.save_at(index) == maxuint); ++index)
+			vec.save_at(index) = 0;
+		if (index == Size)
 			vec.resize(index);
 		++vec.save_at(index);
 	}
@@ -1423,16 +1381,16 @@ namespace Math{
 	void bint2::quickadd(bint2& a, const bint2& b, bool  _positive) {
 		if (!b)return;
 		if (!a) {
-			a = std::move(b);
+			a = b;
 			return;
 		}
 		int n = a.size(), m = b.size();
 		if (n < m) {//若a比b小，则优化失败，转为朴素加法
-			bint2 c(std::move(b));
+			bint2 c(b);
 			for (int i = 0; i < n; ++i) {
-				if(a.save_at(i)>(c.save_at(i)^maxuint))
-					c.saveadd(i+1);
-				c.save_at(i)+=a.save_at(i);
+				if (a.save_at(i) > (c.save_at(i) ^ maxuint))
+					c.saveadd(i + 1);
+				c.save_at(i) += a.save_at(i);
 			}
 			c.positive = _positive;
 			a = std::move(c);
@@ -1443,7 +1401,7 @@ namespace Math{
 				a.saveadd(i + 1);//a[i+1]可能会溢出
 			a.save_at(i) += b[i];
 		}
-		a.positive=(!a?true:_positive);
+		a.positive = (!a ? true : _positive);
 	}
 
 	void bint2::addint(bint2& a, int b, bool _positive) {
@@ -1484,7 +1442,7 @@ namespace Math{
 		bint2 r(A), copyB(B);
 		r.abs(), copyB.abs();
 		bint2 ans;
-		ull BW=(ull)maxuint+1;
+		ull BW = (ull)maxuint + 1;
 
 		if (copyB[copyB.size() - 1] < (BW >> 1)) {
 			uint a = BW >> 1, b = copyB[copyB.size() - 1];
@@ -1528,7 +1486,7 @@ namespace Math{
 	}
 
 
-	bint2 bint2::del(const bint2& a, const bint2& b,bool _positive) {
+	bint2 bint2::del(const bint2& a, const bint2& b, bool _positive) {
 		int n = a.size(), m = b.size();
 		bint2 c;
 		c.reserve(n + 1);
@@ -1558,7 +1516,7 @@ namespace Math{
 			a = del(b, a, !_positive);
 			return;
 		}
-		int n = a.size(), m = b.size();
+		size_t m = b.size();
 		for (int i = m - 1; i >= head; --i) {
 			if (a[i] < b[i])
 				a.savedel(i + 1);
@@ -1582,7 +1540,7 @@ namespace Math{
 			return;
 		}
 		a.savedel(1);
-		a[0] += maxuint-b + 1;
+		a[0] += maxuint - b + 1;
 
 		int tail = a.size();
 		while (!a.save_at(tail - 1))
@@ -1592,8 +1550,8 @@ namespace Math{
 	}
 
 	void bint2::quickmul(bint2& a, const bint2& b) {
-		if (!a||!b) {
-			a=bint2zero;
+		if (!a || !b) {
+			a = bint2zero;
 			return;
 		}
 		int n = a.size(), m = b.size(), _min = min(n, m), _max = max(n, m);
@@ -1614,7 +1572,7 @@ namespace Math{
 		c = a * bint2(b);
 	}
 
-	void bint2::clear(){vec.clear();positive=true;}
+	void bint2::clear() { vec.clear(); positive = true; }
 
 	const bool bint2::ispositive()const {
 		return positive;
@@ -1633,7 +1591,7 @@ namespace Math{
 		return*this;
 	}
 
-	const uint& bint2::operator[](const int& index)const { return vec[index]; }
+	const uint bint2::operator[](const int& index)const { return vec[index]; }
 	uint& bint2::operator[](const int& index) { return vec[index]; }
 	uint& bint2::save_at(const int& index) { return vec.save_at(index); }
 
@@ -1650,8 +1608,8 @@ namespace Math{
 	bool bint2::at(const int& index)const {
 		return vec.at(index);
 	}
-	void bint2::set(const int&index, const bool&val) {
-		vec.set(index,val);
+	void bint2::set(const int& index, const bool& val) {
+		vec.set(index, val);
 	}
 
 	void bint2::randdata(const bint2& other) {
@@ -1661,8 +1619,8 @@ namespace Math{
 		for (int i = Size - 1; i >= 0; --i) {
 			int HEAD;
 			if (tmp)
-				HEAD = Math::randll(0,other[i]);
-			else HEAD = Math::randll(0,maxuint);
+				HEAD = Math::randll(0, other[i]);
+			else HEAD = Math::randll(0, maxuint);
 			if (HEAD != other[i])tmp = false;
 			(*this)[i] = HEAD;
 		}
@@ -1727,10 +1685,10 @@ namespace Math{
 			out << x.at(i);
 		return out;
 	}
-	istream& operator>>(istream& in,bint2& x) {
+	istream& operator>>(istream& in, bint2& x) {
 		std::string str;
-		cin>>str;
-		x=str;
+		cin >> str;
+		x = str;
 		return in;
 	}
 
@@ -1774,25 +1732,25 @@ namespace Math{
 		return*this;
 	}
 	bint2& bint2::operator*=(int k) {
-		*this*=bint2(k);
+		*this *= bint2(k);
 		return*this;
 	}
 
-	bint2& bint2::operator/=(const bint2&b) {
+	bint2& bint2::operator/=(const bint2& b) {
 		return (*this) = (*this) / b;
 	}
 	bint2& bint2::operator/=(int b) {
 		return (*this) = (*this) / b;
 	}
-	bint2& bint2::operator%=(const bint2&b) {
-		return (*this)=(*this)%b;
+	bint2& bint2::operator%=(const bint2& b) {
+		return (*this) = (*this) % b;
 	}
 	bint2& bint2::operator%=(int b) {
-		return (*this) = (*this)%b;
+		return (*this) = (*this) % b;
 	}
 
 	bint2& bint2::operator++() {
-		(*this)+=1;
+		(*this) += 1;
 		return *this;
 	}
 
@@ -1803,7 +1761,7 @@ namespace Math{
 	}
 
 	bint2& bint2::operator--() {
-		(*this)-=1;
+		(*this) -= 1;
 		return*this;
 	}
 
@@ -1840,15 +1798,15 @@ namespace Math{
 	}
 	bint2 operator+(bint2&& a, const bint2& b) {
 		a += b;
-		return a;
+		return std::move(a);
 	}
 	bint2 operator+(const bint2& a, bint2&& b) {
 		b += a;
-		return b;
+		return std::move(b);
 	}
 	bint2 operator+(bint2&& a, bint2&& b) {
 		a += std::move(b);
-		return a;
+		return std::move(a);
 	}
 
 	bint2 operator+(bint2 a, const int& b) {
@@ -1868,17 +1826,17 @@ namespace Math{
 	}
 	bint2 operator-(bint2&& a, const bint2& b) {
 		a -= b;
-		return a;
+		return std::move(a);
 	}
 	bint2 operator-(const bint2& a, bint2&& b) {
 		b -= a;
 		b.positive ^= 1;
 		if (b.iszero())b.positive = true;
-		return b;
+		return std::move(b);
 	}
 	bint2 operator-(bint2&& a, bint2&& b) {
 		a -= std::move(b);
-		return a;
+		return std::move(a);
 	}
 
 	bint2 operator-(bint2 a, const int& b) {
@@ -1901,40 +1859,40 @@ namespace Math{
 
 	bint2 operator*(bint2&& a, const bint2& b) {
 		a *= b;
-		return a;
+		return std::move(a);
 	}
 	bint2 operator*(const bint2& a, bint2&& b) {
 		b *= a;
-		return b;
+		return std::move(b);
 	}
 	bint2 operator*(bint2&& a, bint2&& b) {
 		a *= std::move(b);
-		return a;
+		return std::move(a);
 	}
 	bint2 operator*(bint2 a, const int& b) {
-		return a*bint2(b);
+		return a * bint2(b);
 	}
 	bint2 operator*(const int& a, bint2 b) {
-		return bint2(a)*b;
+		return bint2(a) * b;
 	}
 	bint2 operator/(const bint2& a, const bint2& b) {
 		return bint2::quickdivide(a, b);
 	}
 	bint2 operator/(const bint2& a, const int& b) {
-		return bint2::quickdivide(a,bint2(b));
+		return bint2::quickdivide(a, bint2(b));
 	}
 	bint2 operator/(const int& a, const bint2& b) {
-		return bint2::quickdivide(bint2(a),b);
+		return bint2::quickdivide(bint2(a), b);
 	}
 
 	bint2 operator%(const bint2& a, const bint2& b) {
-		return a-(a/b)*b;
+		return a - (a / b) * b;
 	}
-	bint2 operator%(const bint2&a,const int &b){
-		return a-(a/b)*b;
+	bint2 operator%(const bint2& a, const int& b) {
+		return a - (a / b) * b;
 	}
 	bint2 operator%(const int& a, const bint2& b) {
-		return a-(a/b)*b;
+		return a - (a / b) * b;
 	}
 
 
@@ -1954,21 +1912,21 @@ namespace Math{
 	}
 
 	bint2& bint2::quick_mul_2k(int k) {
-		Array2_func::QuickMul2k(vec,k);
+		Array2_func::QuickMul2k(vec, k);
 		return*this;
 	}
 
 	bint2& bint2::quick_divide_2k(int k) {
-		Array2_func::QuickDivide2k(vec,k);
+		Array2_func::QuickDivide2k(vec, k);
 		return*this;
 	}
 
 	void bint2::abs() {
-		positive=true;
+		positive = true;
 	}
 
 	bint2 abs(bint2 x) {
-		if(x.positive)return x;
+		if (x.positive)return x;
 		return -std::move(x);
 	}
 
@@ -2011,15 +1969,15 @@ namespace Math{
 	}
 
 	bint bint2::to10bit()const {
-		return bint(get10bit(),positive);
+		return bint(get10bit(), positive);
 	}
 
 	bool operator==(const bint& lhs, const bint2& rhs) {
-		return lhs==rhs.to10bit();
+		return lhs == rhs.to10bit();
 	}
 
 	bool operator==(const bint2& lhs, const bint& rhs) {
-		return lhs.to10bit()==rhs;
+		return lhs.to10bit() == rhs;
 	}
 
 	std::string bit10_to_bit2(const std::string& str) {
@@ -2037,7 +1995,6 @@ namespace Math{
 		ans[1] = A;
 		ans[1].quick_divide_10k(A.length() >> 1);
 		bint one(1);
-		double s = currTime();
 		while (abs(ans[0] - ans[1]) > one) {
 			now ^= 1;
 			ans[now] = (ans[now ^ 1] + A / ans[now ^ 1]) / 2;
@@ -2053,7 +2010,6 @@ namespace Math{
 		ans[1] = A;
 		ans[1].quick_divide_2k(A.length() >> 1);
 		bint2 one(1);
-		double s = currTime();
 		while (abs(ans[0] - ans[1]) > one) {
 			now ^= 1;
 			ans[now] = (ans[now ^ 1] + A / ans[now ^ 1]) / 2;
@@ -2076,7 +2032,7 @@ namespace Math{
 	}
 
 	bool witness(const bint& n, const bint& S, bint seed, const bint& d, int r) {
-		seed = std::move(modpow(seed, d, n));
+		seed = modpow(seed, d, n);
 		if (seed == 1)return true;
 		for (int i = 0; i < r; ++i) {
 			if (seed == S)return true;

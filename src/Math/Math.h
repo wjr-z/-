@@ -1,5 +1,6 @@
 #ifndef MATH_H
 #define MATH_H
+
 #include "PollardRho.h"
 #include "../BigInteger/bfloat.h"
 #include "../DataStructure/Matrix.h"

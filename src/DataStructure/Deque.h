@@ -32,16 +32,16 @@ namespace Math {
 		bool empty() { return !head.size() && !tail.size(); }
 		size_t size() { return head.size() + tail.size(); }
 		void clear() { head.clear(); tail.clear(); }
-		void erase(const int& index) {
-			if (index < head.size()) 
+		void erase(const size_t& index) {
+			if (index < head.size())
 				head.erase(head.end() - (index + 1));
-			else 
+			else
 				tail.erase(tail.begin() + (index - head.size()));
 		}
-		void insert(const int& index, const Ty& _Val) {
-			if (index < head.size()) 
+		void insert(const size_t& index, const Ty& _Val) {
+			if (index < head.size())
 				head.insert(head.begin() + (head.size() - index), _Val);
-			else 
+			else
 				tail.insert(tail.begin() + (index - head.size()), _Val);
 		}
 	};
@@ -60,7 +60,7 @@ namespace Math {
 			tail.pop_back();
 			return;
 		}
-		int MidSize = (head.size() + 1) >> 1;
+		size_t MidSize = (head.size() + 1) >> 1;
 		tail.assign(head.begin(), head.begin() + MidSize);
 		head.assign(head.begin() + MidSize, head.end());
 		std::reverse(tail.begin(), tail.end());
@@ -72,7 +72,7 @@ namespace Math {
 			head.pop_back();
 			return;
 		}
-		int MidSize = (tail.size() + 1) >> 1;
+		size_t MidSize = (tail.size() + 1) >> 1;
 		head.assign(tail.begin(), tail.begin() + MidSize);
 		tail.assign(tail.begin() + MidSize, tail.end());
 		std::reverse(head.begin(), head.end());

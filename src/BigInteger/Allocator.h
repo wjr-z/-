@@ -10,18 +10,18 @@ namespace Math {
     template <int inst>
     class __malloc_alloc_template {
     private:
-        static void* oom_malloc(size_t);
+        static void* oom_malloc(const size_t&);
         static void* oom_realloc(void*, size_t);
         static void (*__malloc_alloc_oom_handler)();
 
     public:
-        static void* allocate(size_t n) {
-            return malloc(n); 
+        static void* allocate(const size_t& n) {
+            return malloc(n);
         }
-        static void deallocate(void* p, size_t /* n */) {
+        static void deallocate(void* p, const size_t& /* n */) {
             free(p);                    //直接使用 free()
         }
-        static void* reallocate(void* p, size_t /* old_sz */, size_t new_sz) {
+        static void* reallocate(void* p, const size_t& /* old_sz */, const size_t& new_sz) {
             return realloc(p, new_sz);
         }
         static void (*set_malloc_handler(void (*f)()))()
@@ -36,7 +36,7 @@ namespace Math {
     void (*__malloc_alloc_template<inst>::__malloc_alloc_oom_handler)() = 0;
 
     template <int inst>
-    void* __malloc_alloc_template<inst>::oom_malloc(size_t n) {
+    void* __malloc_alloc_template<inst>::oom_malloc(const size_t& n) {
         void (*my_malloc_handler)();
         void* result;
 
@@ -78,7 +78,7 @@ namespace Math {
         //實際上應使用 static const int x = N
         //取代 enum { x = N }, 但目前支援該性質的編譯器不多
 
-        static size_t ROUND_UP(size_t bytes) {
+        static size_t ROUND_UP(const size_t& bytes) {
             return (((bytes)+__ALIGN - 1) & ~(__ALIGN - 1));
         }
 
@@ -89,16 +89,16 @@ namespace Math {
 
     private:
         static obj* volatile free_list[__NFREELISTS];
-        static size_t FREELIST_INDEX(size_t bytes) {
+        static size_t FREELIST_INDEX(const size_t& bytes) {
             return (((bytes)+__ALIGN - 1) / __ALIGN - 1);
         }
 
         // Returns an object of size n, and optionally adds to size n free list.
-        static void* refill(size_t n);
+        static void* refill(const size_t& n);
 
         // Allocates a chunk for nobjs of size "size".  nobjs may be reduced
         // if it is inconvenient to allocate the requested number.
-        static char* chunk_alloc(size_t size, int& nobjs);
+        static char* chunk_alloc(const size_t& size, int& nobjs);
 
         // Chunk allocation state.
         static char* start_free;
@@ -107,7 +107,7 @@ namespace Math {
 
     public:
 
-        static void* allocate(size_t n)  //n must be > 0
+        static void* allocate(const size_t& n)  //n must be > 0
         {
             obj* volatile* my_free_list;    //obj** my_free_list;
             obj* result;
@@ -119,15 +119,14 @@ namespace Math {
             my_free_list = free_list + FREELIST_INDEX(n);
             result = *my_free_list;
             if (result == 0) {
-                void* r = refill(ROUND_UP(n));
-                return r;
+                return refill(ROUND_UP(n));
             }
 
             *my_free_list = result->free_list_link;
             return (result);
         }
 
-        static void deallocate(void* p, size_t n)  //p may not be 0
+        static void deallocate(void* p, const size_t& n)  //p may not be 0
         {
             obj* q = (obj*)p;
             obj* volatile* my_free_list;   //obj** my_free_list;
@@ -152,7 +151,7 @@ namespace Math {
     template <bool threads, int inst>
     char*
         __default_alloc_template<threads, inst>::
-        chunk_alloc(size_t size, int& nobjs) {
+        chunk_alloc(const size_t& size, int& nobjs) {
         char* result;
         size_t total_bytes = size * nobjs;
         size_t bytes_left = end_free - start_free;
@@ -218,7 +217,7 @@ namespace Math {
     //----------------------------------------------
     template <bool threads, int inst>
     void* __default_alloc_template<threads, inst>::
-        refill(size_t n) {
+        refill(const size_t& n) {
         int nobjs = 20;
         char* chunk = chunk_alloc(n, nobjs);
         obj* volatile* my_free_list;   //obj** my_free_list;
@@ -274,20 +273,24 @@ namespace Math {
         typedef const _Ty& const_reference;
         typedef size_t        size_type;
         typedef ptrdiff_t    difference_type;
+        static const size_t& getSize() {
+            static const size_t TySize = sizeof(_Ty);
+            return TySize;
+        }
     public:
         static _Ty* allocate() {
-            return static_cast<_Ty*>(alloc::allocate(sizeof(_Ty)));
+            return static_cast<_Ty*>(alloc::allocate(getSize()));
         }
-        static _Ty* allocate(size_t n) {
+        static _Ty* allocate(const size_t& n) {
             if (n == 0) return 0;
-            return static_cast<_Ty*>(alloc::allocate(sizeof(_Ty) * n));
+            return static_cast<_Ty*>(alloc::allocate(getSize() * n));
         }
         static void deallocate(_Ty* ptr) {
-            alloc::deallocate(static_cast<void*>(ptr), sizeof(_Ty));
+            alloc::deallocate(static_cast<void*>(ptr), getSize());
         }
-        static void deallocate(_Ty* ptr, size_t n) {
+        static void deallocate(_Ty* ptr, const size_t& n) {
             if (n == 0) return;
-            alloc::deallocate(static_cast<void*>(ptr), sizeof(_Ty) * n);
+            alloc::deallocate(static_cast<void*>(ptr), getSize() * n);
         }
 
         static void construct(_Ty* ptr) {

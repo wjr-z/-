@@ -1,7 +1,7 @@
 #ifndef SPLAY_H
 #define SPLAY_H
 
-namespace Math{
+namespace Math {
 
 	//注意，非线程安全
 
@@ -117,7 +117,7 @@ namespace Math{
 		friend class Splay;
 
 	public:
-		MyIterator(Ty* p = nullptr, Ty** _rt = nullptr):_ptr(p),rt(_rt){
+		MyIterator(Ty* p = nullptr, Ty** _rt = nullptr) :_ptr(p), rt(_rt) {
 		}
 		//赋值
 		MyIterator& operator = (const MyIterator& iter) {
@@ -169,41 +169,41 @@ namespace Math{
 		}
 
 		MyIterator operator+(int kth) {
-			if(!kth)return *this;
-			if(kth<0)return (*this)-(-kth);
+			if (!kth)return *this;
+			if (kth < 0)return (*this) - (-kth);
 			_ptr->splay(*rt);
-			Ty*Nxt=_ptr;
-			Nxt=Nxt->ch[1];
+			Ty* Nxt = _ptr;
+			Nxt = Nxt->ch[1];
 			while (kth) {
 				if (Nxt->ch[0] == nullptr) {
 					--kth;
 					if (!kth) {
 						Nxt->splay(*rt);
-						return MyIterator(Nxt,rt);
+						return MyIterator(Nxt, rt);
 					}
-					Nxt=Nxt->ch[1];
+					Nxt = Nxt->ch[1];
 				}
 				else {
-					if(kth<=Nxt->ch[0]->size)
-						Nxt=Nxt->ch[0];
+					if (kth <= Nxt->ch[0]->size)
+						Nxt = Nxt->ch[0];
 					else {
-						kth-=Nxt->ch[0]->size+1;
+						kth -= Nxt->ch[0]->size + 1;
 						if (!kth) {
 							Nxt->splay(*rt);
-							return MyIterator(Nxt,rt);
+							return MyIterator(Nxt, rt);
 						}
-						Nxt=Nxt->ch[1];
+						Nxt = Nxt->ch[1];
 					}
 				}
 			}
 			return *this;
 		}
 		MyIterator operator-(int kth) {
-			if(!kth)return *this;
-			if(kth<0)return (*this)+(-kth);
+			if (!kth)return *this;
+			if (kth < 0)return (*this) + (-kth);
 			_ptr->splay(*rt);
-			Ty*Nxt=_ptr;
-			Nxt=Nxt->ch[0];
+			Ty* Nxt = _ptr;
+			Nxt = Nxt->ch[0];
 			while (kth) {
 				if (Nxt->ch[1] == nullptr) {
 					--kth;
@@ -228,14 +228,14 @@ namespace Math{
 			}
 		}
 
-		int operator-(const MyIterator&other) {
-			if(*this==other)return 0;
-			Ty*Nxt=_ptr,*Pre=other._ptr;
+		int operator-(const MyIterator& other) {
+			if (*this == other)return 0;
+			Ty* Nxt = _ptr, * Pre = other._ptr;
 			Pre->splay(*rt);
-			Nxt->splay(*rt,Pre);
-			if (Pre->ch[1] == Nxt) 
-				return (Nxt->ch[0]!=nullptr?Nxt->ch[0]->size:0)+1;
-			else return -((Nxt->ch[1]!=nullptr?Nxt->ch[1]->size:0)+1);
+			Nxt->splay(*rt, Pre);
+			if (Pre->ch[1] == Nxt)
+				return (Nxt->ch[0] != nullptr ? Nxt->ch[0]->size : 0) + 1;
+			else return -((Nxt->ch[1] != nullptr ? Nxt->ch[1]->size : 0) + 1);
 		}
 
 		Pr& operator * () {
@@ -320,7 +320,7 @@ namespace Math{
 		}
 		Splay(Splay& other) {
 			initial();
-			insert(begin(),other.begin(),other.end());
+			insert(begin(), other.begin(), other.end());
 		}
 		~Splay() {
 			delete rt;
@@ -345,7 +345,7 @@ namespace Math{
 		void insert(iterator _Pos, const Ty& val) {
 			//在_pos迭代器位置加入val
 			//insert(begin(),val)等价于insert(0,val)
-			tree_node*x=(_Pos -1)._ptr,*y= _Pos._ptr;
+			tree_node* x = (_Pos - 1)._ptr, * y = _Pos._ptr;
 			splay(x);
 			splay(y, x);
 			tree_node* ins = new tree_node(val);
@@ -364,7 +364,7 @@ namespace Math{
 			splay(z);
 		}
 		void insert(iterator _Pos, const Ty* valarr, const int& n) {
-			tree_node* x = (_Pos -1)._ptr;
+			tree_node* x = (_Pos - 1)._ptr;
 			splay(x);
 			tree_node* y = _Pos._ptr;
 			splay(y, x);
@@ -375,31 +375,31 @@ namespace Math{
 		}
 		void insert(iterator _Pos, iterator Val) {
 			Val._ptr->splay(rt);
-			insert(_Pos,Val->getval());
+			insert(_Pos, Val->getval());
 		}
 		void insert(iterator _Ins, iterator _Begin, iterator _End) {
-			if(_Begin==_End)return ;
-			int Length=_End-_Begin;
-			Ty*valarr=new Ty[Length];
-			int i=0;
-			for(iterator it = _Begin;it!=_End;++it,++i)
-				valarr[i]=it->getval();
-			insert(_Ins,valarr,Length);
+			if (_Begin == _End)return;
+			int Length = _End - _Begin;
+			Ty* valarr = new Ty[Length];
+			int i = 0;
+			for (iterator it = _Begin; it != _End; ++it, ++i)
+				valarr[i] = it->getval();
+			insert(_Ins, valarr, Length);
 		}
 		void swap(Splay<Ty, Pr>& other) {
 			//O(1)交换两个Splay
-			std::swap(rt,other.rt);
-			std::swap(End,other.End);
+			std::swap(rt, other.rt);
+			std::swap(End, other.End);
 		}
-		void insert(iterator _Ins,Splay<Ty, Pr>& other) {
-			if ((size()<<1) < other.size()) {
-				Splay<Ty,Pr>mid=other;
-				mid.insert(mid.begin(),begin(),_Ins);
-				mid.insert(mid.end(),_Ins,end());
-				*this=mid;
+		void insert(iterator _Ins, Splay<Ty, Pr>& other) {
+			if ((size() << 1) < other.size()) {
+				Splay<Ty, Pr>mid = other;
+				mid.insert(mid.begin(), begin(), _Ins);
+				mid.insert(mid.end(), _Ins, end());
+				*this = mid;
 			}
 			else {
-				insert(_Ins,other.begin(),other.end());
+				insert(_Ins, other.begin(), other.end());
 			}
 		}
 
@@ -410,15 +410,15 @@ namespace Math{
 			delete x;
 		}
 		void erase(iterator _Pos) {
-			iterator Pre,Nxt;
-			Pre=Nxt=_Pos;
+			iterator Pre, Nxt;
+			Pre = Nxt = _Pos;
 			--Pre;
 			++Nxt;
-			tree_node*x=Pre._ptr,*y=Nxt._ptr;
+			tree_node* x = Pre._ptr, * y = Nxt._ptr;
 			x->splay(rt);
-			y->splay(rt,x);
+			y->splay(rt, x);
 			delete y->ch[0];
-			y->ch[0]=nullptr;
+			y->ch[0] = nullptr;
 			y->splay(rt);
 		}
 		void erase(const int& L, const int& R) {
@@ -462,27 +462,27 @@ namespace Math{
 	/*---以下为例子---*/
 	/*---支持区间求和，区间加---*/
 
-	class TESTSplayNode : public SplayNode<int>{
+	class TESTSplayNode : public SplayNode<int> {
 	private:
 		int val;
 		long long sum;
-		int tag,size;
+		int tag, size;
 		friend int getSize(TESTSplayNode* x) {
-			return (x!=nullptr)?x->size:0;
+			return (x != nullptr) ? x->size : 0;
 		}
 		friend long long getSum(TESTSplayNode* x) {
-			return (x!=nullptr)?x->sum:0;
+			return (x != nullptr) ? x->sum : 0;
 		}
 	public:
-		TESTSplayNode(const int& _val = 0) :val(_val),sum(_val),tag(0),size(1) {
+		TESTSplayNode(const int& _val = 0) :val(_val), sum(_val), tag(0), size(1) {
 
 		}
-		int getval(){return val;}
-		long long getsum(){return sum;}
+		int getval() { return val; }
+		long long getsum() { return sum; }
 
 		void pushup(TESTSplayNode* l, TESTSplayNode* r) {
-			size=getSize(l)+getSize(r)+1;
-			sum=getSum(l)+getSum(r)+val;
+			size = getSize(l) + getSize(r) + 1;
+			sum = getSum(l) + getSum(r) + val;
 		}
 
 		void pushrev(TESTSplayNode* l, TESTSplayNode* r) {
@@ -490,11 +490,11 @@ namespace Math{
 		}
 		void pushdown(TESTSplayNode* l, TESTSplayNode* r) {
 			if (tag) {
-				if(l!=nullptr)
+				if (l != nullptr)
 					l->pushtag(tag);
-				if(r!=nullptr)
+				if (r != nullptr)
 					r->pushtag(tag);
-				tag=0;
+				tag = 0;
 			}
 		}
 		void pushtag(int S) {

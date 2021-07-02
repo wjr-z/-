@@ -84,7 +84,7 @@ namespace Math {
 	istream& operator>>(istream&, bint&);
 
 	bool operator<(const bint&, const bint&);
-	bool operator<(const bint&, const int&);
+	bool operator<(const bint&, int);
 	bool operator<(const int&, const bint&);
 	bool operator==(const bint&, const bint&);
 	bool operator==(const bint&, int);
@@ -133,8 +133,8 @@ namespace Math {
 	bint operator*(const int&, bint);
 	bint operator/(const bint&, const bint&);
 	bint operator/(const bint&, const int&);
-	bint operator/(bint&&,const int&);
-	bint operator/(const int&, const bint&);
+	bint operator/(bint&&, const int&);
+	bint operator/(int, const bint&);
 	bint operator%(const bint&, const bint&);
 	bint operator%(const bint&, const int&);
 	bint operator%(const int&, const bint&);
@@ -146,8 +146,8 @@ namespace Math {
 	bint abs(bint);
 	bint gcd(const bint&, const bint&);
 	bint randdata(const bint& L, const bint& R);
-	bint randdata(int);
-	void swap(bint&,bint&);
+	bint randdata(size_t);
+	void swap(bint&, bint&);
 
 	ostream& operator<<(ostream& out, const bint2& x);
 	istream& operator>>(istream& in, bint2& x);
@@ -227,6 +227,7 @@ namespace Math {
 	private:
 		Array vec;//每一位存一个int
 		bool positive;//positive为true表示为正数，否则为负数
+		//size_t powk;//vec*10^powk,改起来会很麻烦的吧qwq
 		/*---从不同数据类型初始化---*/
 		void assign(int);
 		void assign(long long);
@@ -235,20 +236,15 @@ namespace Math {
 
 		/*---快速加法，但不完全快速---*/
 		/*---有待改进---*/
-		static void quickadd(bint&, const bint&, const bool&);
-		static void quickadd(bint&, bint&&, const bool&);
+		static void quickadd(bint&, const bint&);
+		static void quickadd(bint&, bint&&);
 		/*---对于低精度的优化，即降低了常数---*/
-		static void addint(bint&, int, const bool&);
+		static void addint(bint&, int);
 		/*---快速减法，但实际上就是朴素的压位减法，只是加了个特判---*/
-		static void quickdel(bint&, const bint&, const bool&);
-		static void quickdel(bint&, bint&&, const bool&);
+		static void quickdel(bint&, const bint&);
+		static void quickdel(bint&, bint&&);
 		/*---低精度特判---*/
-		static void delint(bint&, int, const bool&);
-		/*---时间复杂度是O(m*(n-m))---*/
-		/*---进行了部分优化，使得常数略小---*/
-		static bint randomdivide(const bint&, const bint&);//与答案的有效位数以及B的长度有关
-		/*---大约是O(nlog^2n)，但是常数非常大，估计是我算法选错了---*/
-		static bint matchdivide(const bint&, const bint&);//稳定的除法，复杂度在O(A*nlogn)左右，常数很大
+		static void delint(bint&, int);
 		/*---当B的长度大于A的长度的2/3时只有1的误差---*/
 		static bint largedivide(const bint&, const bint&);
 		static bint smalldivide(const bint&, const bint&);
@@ -256,7 +252,7 @@ namespace Math {
 		static bint quickdivide(const bint&, const bint&);
 		/*---低精度除法---*/
 		static bint divideint(const bint&, int);
-		static void divideint(bint&&,int);
+		static void divideint(bint&&, int);
 		/*---Karatsuba算法---*/
 		/*---复杂度为O(n*m^0.517)---*/
 		/*---当m<=64时使用暴力乘法---*/
@@ -265,11 +261,10 @@ namespace Math {
 		static void quickmul(bint&, const bint&);
 		/*---低精度乘法---*/
 		static void mulint(const bint&, const int&, bint&);
-		static bint Factorial(int,int);
+		static bint Factorial(int, int);
 
 		bint2 get2bit()const;
 
-		bint inv(int = -1)const;//求精度为lim的逆元，很慢！
 		void clear();
 
 		void resize(const size_t&);
@@ -282,7 +277,7 @@ namespace Math {
 		}
 	public:
 		/*---初始化为other的[L,R]元素---*/
-		void assign(const bint& other, const int& L, const int& R);
+		void assign(const bint& other, const size_t& L, const size_t& R);
 		const bool iszero()const;
 		const bool ispositive()const;
 		bint()noexcept :positive(true) {
@@ -400,7 +395,7 @@ namespace Math {
 
 		const size_t length()const;
 		void relength(const size_t&);
-		void reverse(int = -1);
+		void reverse(size_t = -1);
 
 		const int operator[](const size_t&)const;//下标的const 访问，略快于非const动态扩展访问
 		int& operator[](const size_t&);//非const 的动态扩展访问
@@ -413,28 +408,15 @@ namespace Math {
 		friend ostream& operator<<(ostream&, const bint&);
 		friend istream& operator>>(istream&, bint&);
 
-
 		/*
 		* 防止int强制转换，同时后期可以针对int进行特别优化
 		*/
 		friend bool operator<(const bint&, const bint&);
-		friend bool operator<(const bint&, const int&);
-		friend bool operator<(const int&, const bint&);
+		friend bool operator<(const bint&, int);
 		friend bool operator==(const bint&, const bint&);
 		friend bool operator==(const bint&, int);
-		friend bool operator==(const int&, const bint&);
 		friend bool operator<=(const bint&, const bint&);
 		friend bool operator<=(const bint&, int);
-		friend bool operator<=(const int&, const bint&);
-		friend bool operator>(const bint&, const bint&);
-		friend bool operator>(const bint&, const int&);
-		friend bool operator>(const int&, const bint&);
-		friend bool operator>=(const bint&, const bint&);
-		friend bool operator>=(const bint&, const int&);
-		friend bool operator>=(const int&, const bint&);
-		friend bool operator!=(const bint&, const bint&);
-		friend bool operator!=(const bint&, const int&);
-		friend bool operator!=(const int&, const bint&);
 
 		bint& operator+=(const bint&);
 		bint& operator+=(bint&&);
@@ -456,46 +438,19 @@ namespace Math {
 
 		bint& operator<<=(const int&);
 		bint& operator>>=(const int&);
-		friend bint operator>>(bint, const int&);
-		friend bint operator<<(bint, const int&);
 
-		friend bint operator+(bint);
-		friend bint operator-(bint);
-		friend bool operator!(const bint&);
-		friend bool operator!(bint&&);
 		friend bint Factorial(int);
 
-
-		friend bint operator+(const bint&, const bint&);
-		friend bint operator+(bint&&, const bint&);
-		friend bint operator+(const bint&, bint&&);
-		friend bint operator+(bint&&, bint&&);
-		friend bint operator+(bint, const int&);
-		friend bint operator+(const int&, bint);
-		friend bint operator-(const bint&, const bint&);
-		friend bint operator-(bint&&, const bint&);
 		friend bint operator-(const bint&, bint&&);
-		friend bint operator-(bint&&, bint&&);
-		friend bint operator-(bint, const int&);
 		friend bint operator-(const int&, bint);
 
-		friend bint operator*(const bint&, const bint&);
-		friend bint operator*(bint&&, const bint&);
-		friend bint operator*(const bint&, bint&&);
 		friend bint operator*(bint&&, bint&&);
 		friend bint operator*(bint, int);
 		friend bint operator*(const int&, bint);
 		friend bint operator/(const bint&, const bint&);
 		friend bint operator/(const bint&, const int&);
 		friend bint operator/(bint&&, const int&);
-		friend bint operator/(const int&, const bint&);
-		friend bint operator%(const bint&, const bint&);
-		friend bint operator%(const bint&, const int&);
-		friend bint operator%(const int&, const bint&);
-
-		friend bint qpow(bint, bint);
-		friend bint qpow(bint, int);
-		friend bint qpow(int, bint);
+		friend bint operator/(int, const bint&);
 
 		void quick_mul_10();//O(n)乘10，但省去了部分运算
 		bint& quick_mul_10k(const int& = 1);//O(n)乘10^k
@@ -508,6 +463,7 @@ namespace Math {
 		long long toll()const;//转为long long
 		std::string tostr()const;//转为字符串
 
+		bint inv(int = -1)const;//求精度为lim的逆元，很慢！
 		bint2 to2bit()const;//转为2进制bint
 		//用于测试三种乘法
 	#ifdef TEST
@@ -556,14 +512,14 @@ namespace Math {
 			}
 			int n = a.size(), m = b.size(), _min = min(n, m), _max = max(n, m);
 
-			if(((1 << min(30, max(0, _min - 32 >> 1))) <= _max))
-				Array_func::SlowMul(a.vec, b.vec, c.vec) ;
+			if (((1 << min(30, max(0, _min - 32 >> 1))) <= _max))
+				Array_func::SlowMul(a.vec, b.vec, c.vec);
 			else FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
 
 
-			if (((1 << min(30, max(0, _min- 32 >> 1))) <= _max))
+			if (((1 << min(30, max(0, _min - 32 >> 1))) <= _max))
 				mode = 1;
-			else mode=3;
+			else mode = 3;
 
 			c.positive = !(a.positive ^ b.positive);
 			if (c.iszero())c.positive = true;
@@ -682,7 +638,7 @@ namespace Math {
 		bint2& operator=(const bint& other)noexcept;
 
 
-		const uint& operator[](const int&)const;
+		const uint operator[](const int&)const;
 		uint& operator[](const int&);
 		uint& save_at(const int&);
 

@@ -1,6 +1,6 @@
 #include "bfloat.h"
 #include <string>
-namespace Math{
+namespace Math {
 
 	//-----------------------------------------------//
 
@@ -310,7 +310,7 @@ namespace Math{
 		return*this;
 	}
 	bfloat& bfloat::operator+=(const int& other) {
-		(*this)+=bfloat(other);
+		(*this) += bfloat(other);
 		return*this;
 	}
 	bfloat& bfloat::operator+=(const double& other) {
@@ -479,11 +479,11 @@ namespace Math{
 	bool approximate(const bfloat& lhs, const bfloat& rhs) {
 		if (std::abs(lhs.length() + lhs.getexp() - rhs.length() - rhs.getexp()) > 1)
 			return false;
-		int tmp=0;
-		if(max(lhs.length(),rhs.length())>=bfloat::floatlim)tmp=5;
-		bfloat delta=lhs-rhs;
-		if(delta.getexp()>0)return false;
-		return delta.getbase()<=tmp;
+		int tmp = 0;
+		if (max(lhs.length(), rhs.length()) >= bfloat::floatlim)tmp = 5;
+		bfloat delta = lhs - rhs;
+		if (delta.getexp() > 0)return false;
+		return delta.getbase() <= tmp;
 	}
 
 	bfloat qpow(bfloat lhs, int rhs) {
@@ -529,10 +529,10 @@ namespace Math{
 	}
 
 	bint floor(const bfloat& x) {
-		bint ans=x.getbase();
-		if(x.getexp()>=0)
+		bint ans = x.getbase();
+		if (x.getexp() >= 0)
 			ans.quick_mul_10k(x.getexp());
-		if(x.getexp()<0)
+		if (x.getexp() < 0)
 			ans.quick_divide_10k(-x.getexp());
 		return ans;
 	}

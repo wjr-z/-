@@ -43,8 +43,12 @@ namespace Math {
 #define _ALLOCATOR_DEBUG
 #endif
 
+	class Array_func;
+
 	class Array {
 	private:
+		friend Array_func;
+
 	#ifdef _ALLOCATOR_DEBUG //DEBUG版本
 		vector<int>vec;
 	#endif
@@ -82,19 +86,18 @@ namespace Math {
 		#ifdef ARRAYDEBUG
 			cout << "Array右值复制\n";
 		#endif ARRAYDEBUG
-			vec=std::move(other.vec);
+			vec = std::move(other.vec);
 			Size = other.Size;
 			return*this;
 		}
 		const bool iszero()const;
-		const size_t&size() const;
+		const size_t& size() const;
 		const size_t capacity()const;
 		const size_t length()const;
 		void resize(const size_t& index);
 		void reserve(const size_t& index);
 		void clear();
 		void relength(const size_t& index);
-		void reverse();
 		void assign(const Array& other, const size_t& L, const size_t& R);
 
 		int& save_at(const size_t& index);
@@ -113,8 +116,8 @@ namespace Math {
 	private:
 		static const int jw = 100000000;//常规进位,10^8
 	public:
-		static void QuickMul10k(Array&, const size_t& = 1);//快速乘以10^k
-		static void QuickDivide10k(Array& a, const size_t& = 1);//快速除以10^k
+		static void QuickMul10k(Array&, const size_t & = 1);//快速乘以10^k
+		static void QuickDivide10k(Array& a, const size_t & = 1);//快速除以10^k
 		static void SlowMul(const Array&, const Array&, Array&);//暴力乘法
 		static Array SlowMul(const Array&, const Array&);
 	};

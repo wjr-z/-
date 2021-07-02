@@ -27,14 +27,14 @@ extern double tot, sta, en;
 #endif
 
 
-namespace Math{
+namespace Math {
 
 #define bintjw 100000000
 #define uint unsigned int
 #define ull unsigned long long
 
-	static const uint maxuint = (uint)- 1;//最大的unsigned int
-	static const ull maxull=(ull)-1;
+	static const uint maxuint = (uint)-1;//最大的unsigned int
+	static const ull maxull = (ull)-1;
 
 	ull double_to_ull(double);
 
@@ -48,7 +48,7 @@ namespace Math{
 	uint quicklog10(long long x);
 	uint quicklog10(ull x);
 
-	uint _minx(uint x) ;//最小的1所在位置
+	uint _minx(uint x);//最小的1所在位置
 
 	bool is_power_of_2(uint x);
 
@@ -69,10 +69,10 @@ namespace Math{
 	bool isrightint(const char*);
 	bool isrightdouble(const char*);
 
-	int randint(int,int);
-	long long randll(long long ,long long);
-	int gcd(int,int);
-	long long gcd(long long,long long);
+	int randint(int, int);
+	long long randll(long long, long long);
+	int gcd(int, int);
+	long long gcd(long long, long long);
 
 }
 

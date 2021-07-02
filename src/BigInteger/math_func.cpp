@@ -10,13 +10,12 @@ double currTime() //使用高精度计时器
 {
 	LARGE_INTEGER performanceCount;
 	double time;
-	BOOL result;
 	if (freq.QuadPart == 0) {
 		BOOL bRet = initFreq();
 		if (!bRet)
 			return 0;
 	}
-	result = QueryPerformanceCounter(&performanceCount);
+	QueryPerformanceCounter(&performanceCount);
 	time = performanceCount.HighPart * 4294967296.0 + performanceCount.LowPart;
 	time = time / (freq.HighPart * 4294967296.0 + freq.LowPart);
 	return time;
@@ -36,11 +35,11 @@ union DOUBLE_TO_LONGLONG {
 	ull q;
 }tran;
 
-namespace Math{
+namespace Math {
 
 	ull double_to_ull(double x) {
-		tran.p=x;
-		return ((tran.q & ((1ll << 52) - 1)) | (1ll << 52))>>((1075)- ((tran.q >> 52) & ((1ll << 11) - 1)));
+		tran.p = x;
+		return ((tran.q & ((1ll << 52) - 1)) | (1ll << 52)) >> ((1075) - ((tran.q >> 52) & ((1ll << 11) - 1)));
 	}
 
 	uint quicklog2(int x) {
@@ -70,7 +69,7 @@ namespace Math{
 
 	uint quicklog2(ull x) {
 		uint ans = 0;
-		if(x>>32){ans+=32;x>>=32;}
+		if (x >> 32) { ans += 32; x >>= 32; }
 		if (x >> 16) { ans += 16; x >>= 16; }
 		if (x >> 8) { ans += 8; x >>= 8; }
 		if (x >> 4) { ans += 4; x >>= 4; }
@@ -106,22 +105,22 @@ namespace Math{
 	}
 
 	uint quicklog10(ull x) {
-		uint ans=0;
-		if(x>=10000000000000000ll){ans+=16;x/=10000000000000000ll;}
-		if(x>=bintjw){ans+=8;x/=bintjw;}
-		if(x>=10000){ans+=4;x/=10000;}
-		if(x>=100){ans+=2;x/=100;}
-		if(x>=10)++ans;
+		uint ans = 0;
+		if (x >= 10000000000000000ll) { ans += 16; x /= 10000000000000000ll; }
+		if (x >= bintjw) { ans += 8; x /= bintjw; }
+		if (x >= 10000) { ans += 4; x /= 10000; }
+		if (x >= 100) { ans += 2; x /= 100; }
+		if (x >= 10)++ans;
 		return ans;
 	}
 
 
 	uint _minx(uint x) { return debruijn[(uint)((x & -x) * 0x077CB531U) >> 27]; }
 
-	bool is_power_of_2(uint x){ return !(x & x - 1); }
+	bool is_power_of_2(uint x) { return !(x & x - 1); }
 
-	int lowbit(int x){return x&-x;}
-	long long lowbit(long long x){return x&-x;}
+	int lowbit(int x) { return x & -x; }
+	long long lowbit(long long x) { return x & -x; }
 
 	bool isrightint(const char* s) {
 		int Length = strlen(s);
@@ -164,15 +163,15 @@ namespace Math{
 
 	int randint(int L, int R) {
 		static std::mt19937 mt_rand(time(NULL));
-		if(L>R)std::swap(L,R);
-		return mt_rand()%(R-L+1)+L;
+		if (L > R)std::swap(L, R);
+		return mt_rand() % (R - L + 1) + L;
 	}
 	long long randll(long long L, long long R) {
 		static std::mt19937 mt_rand(time(NULL));
 		if (L > R)std::swap(L, R);
 		return mt_rand() % (R - L + 1) + L;
 	}
-	int gcd(int x,int y){
+	int gcd(int x, int y) {
 		if (x == 0) return y;
 		if (y == 0) return x;
 		int i, j;
@@ -185,7 +184,7 @@ namespace Math{
 			while (!(x & 1))x >>= 1;
 		}
 	}
-	long long gcd(long long x,long long y){
+	long long gcd(long long x, long long y) {
 		if (x == 0) return y;
 		if (y == 0) return x;
 		long long i, j;

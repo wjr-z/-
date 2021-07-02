@@ -1,6 +1,4 @@
-Why don't I have an introduction in English?
-
-Because my English is very poor
+最近正在学习java，所以暂不更新。
 
 # Math
 

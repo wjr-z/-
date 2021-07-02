@@ -223,8 +223,6 @@ namespace Math {
 	#endif TEST
 	};
 
-
-
 }
 
 #endif BFLOAT_H

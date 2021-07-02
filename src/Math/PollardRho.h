@@ -4,13 +4,15 @@
 
 #include <vector>
 
-namespace Math{
+namespace Math {
 
 	bool isprime(int);//int判别质数，已验证
 	std::vector<int>pollard_rho(int);
+	int max_prime(int);
 
 	bool isprime(long long);
 	std::vector<long long>pollard_rho(long long);
+	long long max_prime(long long);
 
 }
 
