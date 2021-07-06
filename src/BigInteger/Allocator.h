@@ -273,21 +273,27 @@ namespace Math {
         typedef const _Ty& const_reference;
         typedef size_t        size_type;
         typedef ptrdiff_t    difference_type;
+
         static const size_t& getSize() {
             static const size_t TySize = sizeof(_Ty);
             return TySize;
         }
+
     public:
+
         static _Ty* allocate() {
             return static_cast<_Ty*>(alloc::allocate(getSize()));
         }
+
         static _Ty* allocate(const size_t& n) {
             if (n == 0) return 0;
             return static_cast<_Ty*>(alloc::allocate(getSize() * n));
         }
+
         static void deallocate(_Ty* ptr) {
             alloc::deallocate(static_cast<void*>(ptr), getSize());
         }
+
         static void deallocate(_Ty* ptr, const size_t& n) {
             if (n == 0) return;
             alloc::deallocate(static_cast<void*>(ptr), getSize() * n);
@@ -296,17 +302,21 @@ namespace Math {
         static void construct(_Ty* ptr) {
             new(ptr)_Ty();
         }
+
         static void construct(_Ty* ptr, const _Ty& value) {
             new(ptr)_Ty(value);
         }
+
         static void destroy(_Ty* ptr) {
             ptr->~_Ty();
         }
+
         static void destroy(_Ty* first, _Ty* last) {
             for (; first != last; ++first) {
                 first->~_Ty();
             }
         }
+
     };
 }
 

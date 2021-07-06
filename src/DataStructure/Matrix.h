@@ -1,7 +1,6 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-
 /*---ÓĞ´ıÍêÉÆ---*/
 
 namespace Math {

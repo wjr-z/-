@@ -1,6 +1,13 @@
 #include "bint.h"
 #include <random>
 
+namespace Huffman {
+	std::string encode(const std::string&);
+	std::string decode(const std::string&);
+	std::string encode(const char*, unsigned int = 0);
+	std::string decode(const char*, unsigned int = 0);
+}
+
 namespace Math {
 
 	/*---bint类部分函数定义---*/
@@ -47,14 +54,22 @@ namespace Math {
 		size_t Length = strlen(s);
 		if (!isrightint(s))return;
 		clear();
-		reserve(Length >> 3);
+		reserve((Length>>3)+1);
 		size_t i = Length - 1, head = 0, j = 0, fir = 0;
 		if (s[fir] == '-')positive ^= 1, ++fir;
-		while (i - fir >= 7) {//从后往前每8位一搞
+		while(s[fir]=='0'&&fir<Length-1)
+			++fir;
+		while (true) {//从后往前每8位一搞
 			for (j = i - 7; j <= i; ++j)
 				vec[head] = vec[head] * 10 + s[j] - '0';
 			++head;
-			i -= 8;
+			if(i>=15+fir)
+				i -= 8;
+			else {
+				if(i==7)return ;
+				i-=8;
+				break;
+			}
 		}
 		for (j = fir; j <= i; ++j)
 			vec[head] = vec[head] * 10 + s[j] - '0';
@@ -601,7 +616,7 @@ namespace Math {
 		/*---根据不同范围选择不同算法---*/
 
 		if (Min != 1) {
-			(Min <= 32 || (1ll << min(60, max(0, Min - 32 >> 1))) <= Max) ?
+			(Min <= 32 || (1ll << min(60,  Min - 32 >> 1)) <= Max) ?
 				Array_func::SlowMul(a.vec, b.vec, a.vec) :
 				FFT_Array_func::FFTQuickMul(a.vec, b.vec, a.vec);
 			a.positive = !(a.positive ^ b.positive);
@@ -1269,6 +1284,8 @@ namespace Math {
 			x /= 10;
 		}
 		std::reverse(str.begin(), str.end());
+		if(!positive)
+			str="-"+str;
 		for (size_t i = Size - 2; ~i; --i) {
 			x = (*this)[i];
 			for (int j = 7; ~j; --j)
@@ -1283,21 +1300,21 @@ namespace Math {
 	* 分为 l 和 r ，并分治得到 l 和 r 转换为的 bint2 ，即转化成的 2 进制
 	* 然后对于 l.to2bit() 乘以 10^mid再加上 r.to2bit() 即为 当前的 to2bit()
 	* 本质就是对于每一位 a_i 乘以 10 ^ i ，然后采用分治来做
-	* 期望复杂度是 O( n*log n )，常数带一个 0.67 ，但实际上因为我还没有预处理出 10 ^ mid
+	* 期望复杂度是 O( n*log^2 n )，常数带一个 0.67 ，但实际上因为我还没有预处理出 10 ^ mid
 	* 导致会额外进行一倍以上的运算，且递归常数较大，所以实际常数较大
 	*/
 
 
 	bint2 bint::get2bit()const {
-		int Size = size();
-		if (Size <= 16) {
-			bint2 x;
+		size_t Size = size();
+		if (Size <= 32) {
+			bint2 x,az(bintjw);
 			x = vec[Size - 1];
-			for (int i = Size - 2; ~i; --i)
-				x = x * bint2(bintjw) + vec[i];
+			for (size_t i = Size - 2; ~i; --i)
+				x = x * az + vec[i];
 			return x;
 		}
-		int mid = (Size + 1) >> 1;
+		size_t mid = Size >> 1;
 		bint l, r;
 		r.assign(*this, 0, mid);
 		l.assign(*this, mid, Size);
@@ -1309,6 +1326,17 @@ namespace Math {
 	bint2 bint::to2bit()const {
 		return bint2(get2bit(), positive);
 	}
+
+	std::string bint::compress(){
+		return Huffman::encode(tostr());
+	}
+	std::string compress(const bint& arr) {
+		return Huffman::encode(arr.tostr());
+	}
+	bint decompress(const std::string& str) {
+		return bint(Huffman::decode(str));
+	}
+	
 
 
 	//------------------------------------------------------------------//
@@ -1551,19 +1579,14 @@ namespace Math {
 
 	void bint2::quickmul(bint2& a, const bint2& b) {
 		if (!a || !b) {
-			a = bint2zero;
+			a.clear();
 			return;
 		}
-		int n = a.size(), m = b.size(), _min = min(n, m), _max = max(n, m);
+		size_t n = a.size(), m = b.size(), _min = min(n, m), _max = max(n, m);
 
-		if (_max <= 32) {
+		if((_min<=32)||(1ll<<min(60,_min-32>>1))<=_max)
 			Array2_func::SlowMul(a.vec, b.vec, a.vec);
-		}
-		else {
-			(_min <= (quicklog2(_max) << 1) + 32) ?
-				Array2_func::SlowMul(a.vec, b.vec, a.vec) :
-				FFT_Array2_func::FFTQuickMul(a.vec, b.vec, a.vec);
-		}
+		else FFT_Array2_func::FFTQuickMul(a.vec,b.vec,a.vec);
 
 		a.positive = !(a.positive ^ b.positive);
 	}

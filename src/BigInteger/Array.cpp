@@ -77,6 +77,7 @@ namespace Math {
 				return _left[i] < _right[i];
 		return false;
 	}
+
 	bool operator==(const Array& _left, const Array& _right) {
 		if (_left.size() != _right.size())return false;
 		for (size_t i = _left.size() - 1; ~i; --i)
@@ -84,6 +85,7 @@ namespace Math {
 				return false;
 		return true;
 	}
+
 	bool operator<=(const Array& _left, const Array& _right) {
 		if (_left.size() < _right.size())return true;
 		if (_left.size() > _right.size())return false;
@@ -92,6 +94,7 @@ namespace Math {
 				return _left[i] < _right[i];
 		return true;
 	}
+
 	bool operator>(const Array& _left, const Array& _right) {
 		return !(_left <= _right);
 	}
@@ -152,39 +155,43 @@ namespace Math {
 			--aftsize;
 		a.resize(aftsize);
 	}
+
 	void Array_func::SlowMul(const Array& A, const Array& B, Array& c) {
 		size_t n = A.size(), m = B.size();
 		static Allocator<uint>test;
 		uint* mid = test.allocate(n + m);
 
 		memset(mid, 0, sizeof(uint) * (n + m));
+
 		size_t Length = n + m - 1;
 
 		Array* pl, * ql;
 		pl = const_cast<Array*>(&A);
 		ql = const_cast<Array*>(&B);
-		int* test1 = &(*pl)[0], * test2 = &(*ql)[0];
-		for (size_t i = 0, j; i < n; ++i) {
-			ull AA = static_cast<ull>(test1[i]);
-			for (j = 0; j < m; ++j) {
-				ull val = AA * test2[j] + mid[i + j];
+		int* test1 = &((*pl)[0]), * test2 = &((*ql)[0]);
 
-				mid[i + j + 1] += val / bintjw;
-				mid[i + j] = val % bintjw;
+		for (size_t i = 0, j; i < n; ++i) {
+			ull AA = static_cast<ull>(test1[i]),Val;
+			for (j = 0; j < m; ++j) {
+				Val = mid[i+j] + AA * test2[j];
+
+				mid[i + j + 1] += Val / bintjw;
+				mid[i + j] = Val % bintjw;
 			}
 		}
+
 		if (mid[Length])
 			c.resize(Length + 1), c.save_at(Length) = mid[Length];
 		else c.resize(Length);
 		memcpy(&c[0], mid, sizeof(int) * Length);
 		test.deallocate(mid, n + m);
 	}
+
 	Array Array_func::SlowMul(const Array& A, const Array& B) {
 		Array c;
 		SlowMul(A, B, c);
 		return c;
 	}
-
 
 	/*---FFT相关,根据范围选择对应函数---*/
 
@@ -331,7 +338,6 @@ namespace Math {
 		delete[]a;
 	}
 
-
 	void FFT_Array_func::FFTQuickMul4(const Array& A, const Array& B, Array& c) {
 		size_t n = A.size() << 1, m = B.size() << 1;
 		size_t len = n + m - 1;
@@ -342,7 +348,7 @@ namespace Math {
 		Array* pl, * ql;
 		pl = const_cast<Array*>(&A);
 		ql = const_cast<Array*>(&B);
-		int* test1 = &(*pl)[0], * test2 = &(*ql)[0];
+		int* test1 = &((*pl)[0]), * test2 = &((*ql)[0]);
 
 		for (size_t i = 0; i < n; i += 2) {
 			uint q = test1[i >> 1] / 10000, p = test1[i >> 1] - q * 10000;
@@ -369,6 +375,7 @@ namespace Math {
 		double invs = 1.0 / s;
 		for (size_t i = 0; i < s; ++i)
 			a[i << 1] *= invs;
+
 		c.resize((len >> 1) + 1);
 
 		int* arr = &c[0];
@@ -385,8 +392,7 @@ namespace Math {
 		while (Size > 1 && !c.save_at(Size - 1))
 			--Size;
 		if (Size != c.size())c.resize(Size);
-		if (c.iszero())
-			c.clear();
+
 		delete[]a;
 	}
 
@@ -473,6 +479,7 @@ namespace Math {
 				return false;
 		return true;
 	}
+
 	bool operator<=(const Array2& lhs, const Array2& rhs) {
 		if (lhs.size() < rhs.size())return true;
 		if (lhs.size() > rhs.size())return false;
@@ -481,6 +488,7 @@ namespace Math {
 				return lhs[i] < rhs[i];
 		return true;
 	}
+
 	bool operator>(const Array2& lhs, const Array2& rhs) {
 		return !(lhs <= rhs);
 	}
@@ -516,8 +524,6 @@ namespace Math {
 			a[i] = 0;
 	}
 
-
-
 	void Array2_func::QuickDivide2k(Array2& a, const int& k) {//快速除以2^k，即快速右移k位
 		if (!k)return;
 		uint py = k >> 5, Size = a.size();
@@ -550,7 +556,6 @@ namespace Math {
 
 	}
 
-
 	void Array2_func::SlowMul(const Array2& A, const Array2& B, Array2& c) {
 		int n = A.size(), m = B.size();
 		static std::allocator<ull>test;
@@ -580,9 +585,7 @@ namespace Math {
 		return c;
 	}
 
-
 	/*---FFT相关,根据范围选择对应函数---*/
-
 
 	void FFT_Array2_func::FFTQuickMul2(const Array2& A, const Array2& B, Array2& c) {
 		int n, m;
@@ -725,53 +728,57 @@ namespace Math {
 			c.clear();
 		delete[]a;
 	}
+
 	void FFT_Array2_func::FFTQuickMul4(const Array2& A, const Array2& B, Array2& c) {
-		int n, m;
-		n = A.size() << 1, m = B.size() << 1;
-		int len = n + m - 1, bit = 1, s = 2;
-		bit = quicklog2(len - 1) + 1, s = 1 << bit;
+		size_t n = A.size() << 1, m = B.size() << 1;
+		size_t len = n + m - 1;
+		uint bit=quicklog2(len-1)+1;
+		size_t s=1ll<<bit;
 
 		double* a = new double[s << 1];
-		for (int i = 0; i < n; i += 2) {
+		for (size_t i = 0; i < n; i += 2) {
 			uint q = A[i >> 1] >> 16, p = A[i >> 1] & 65535;
 			a[i << 1] = a[i << 1 | 1] = p * 0.5;
 			a[i + 1 << 1] = a[i + 1 << 1 | 1] = q * 0.5;
 		}
-		for (int i = (n << 1); i < (s << 1); ++i)
+		for (size_t i = (n << 1); i < (s << 1); ++i)
 			a[i] = 0;
-		for (int i = 0; i < m; i += 2) {
+		for (size_t i = 0; i < m; i += 2) {
 			uint q = B[i >> 1] >> 16, p = B[i >> 1] & 65535;
 			a[i << 1] += p * 0.5, a[i << 1 | 1] -= p * 0.5;
 			a[i + 1 << 1] += q * 0.5, a[i + 1 << 1 | 1] -= q * 0.5;
 		}
 
 		cdft(s << 1, 1, a);
-		for (int i = 0; i < s; ++i) {
+		for (size_t i = 0; i < s; ++i) {
 			double sa = a[i << 1], sb = a[i << 1 | 1];
 			a[i << 1] = sa * sa - sb * sb, a[i << 1 | 1] = 2 * sa * sb;
 		}
 		cdft(s << 1, -1, a);
 		double invs = 1.0 / s;
-		for (int i = 0; i < s; ++i)
+		for (size_t i = 0; i < s; ++i)
 			a[i << 1] *= invs;
+
 		c.resize((len >> 1) + 1);
-		c[0] = 0;
-		for (int i = 0; i < len - 1; i += 2) {
+		uint*arr=&c[0];
+		arr[0]=0;
+
+		for (size_t i = 0; i < len - 1; i += 2) {
 			ull now = double_to_ull(a[i << 1] + 0.5) + (double_to_ull(a[i + 1 << 1] + 0.5) << 16) + c[i >> 1];
-			c[i >> 1] = now & maxuint;
-			c[(i >> 1) + 1] = now >> 32;
+			arr[i>>1] = (uint)now;
+			arr[(i >> 1) + 1] = now >> 32;
 		}
-		c[len >> 1] += double_to_ull(a[len - 1 << 1] + 0.5);
+		arr[len >> 1] += double_to_ull(a[len - 1 << 1] + 0.5);
 		size_t Size = c.size();
 		while (Size > 1 && !c.save_at(Size - 1))
 			--Size;
 		if (Size != c.size())c.resize(Size);
-		if (c.iszero())
-			c.clear();
+
 		delete[]a;
 	}
+
 	void FFT_Array2_func::FFTQuickMul(const Array2& A, const Array2& B, Array2& c) {
-		int Size = A.size() + B.size();
+		size_t Size = A.size() + B.size();
 		if (Size <= 1e4)FFTQuickMul4(A, B, c);
 		else if (Size <= 1e7)FFTQuickMul3(A, B, c);
 		else FFTQuickMul2(A, B, c);

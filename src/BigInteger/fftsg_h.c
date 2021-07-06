@@ -46,15 +46,15 @@ macro definitions
                         n >= 1, n = power of 2
         a[0...2*n-1]   :input/output data (double *)
                         input data
-                            a[2*j] = Re(x[j]), 
+                            a[2*j] = Re(x[j]),
                             a[2*j+1] = Im(x[j]), 0<=j<n
                         output data
-                            a[2*k] = Re(X[k]), 
+                            a[2*k] = Re(X[k]),
                             a[2*k+1] = Im(X[k]), 0<=k<n
     [remark]
-        Inverse of 
+        Inverse of
             cdft(2*n, -1, a);
-        is 
+        is
             cdft(2*n, 1, a);
             for (j = 0; j <= 2 * n - 1; j++) {
                 a[j] *= 1.0 / n;
@@ -68,8 +68,8 @@ macro definitions
             R[k] = sum_j=0^n-1 a[j]*cos(2*pi*j*k/n), 0<=k<=n/2
             I[k] = sum_j=0^n-1 a[j]*sin(2*pi*j*k/n), 0<k<n/2
         <case2> IRDFT (excluding scale)
-            a[k] = (R[0] + R[n/2]*cos(pi*k))/2 + 
-                   sum_j=1^n/2-1 R[j]*cos(2*pi*j*k/n) + 
+            a[k] = (R[0] + R[n/2]*cos(pi*k))/2 +
+                   sum_j=1^n/2-1 R[j]*cos(2*pi*j*k/n) +
                    sum_j=1^n/2-1 I[j]*sin(2*pi*j*k/n), 0<=k<n
     [usage]
         <case1>
@@ -91,9 +91,9 @@ macro definitions
                                 a[2*j+1] = I[j], 0<j<n/2
                                 a[1] = R[n/2]
     [remark]
-        Inverse of 
+        Inverse of
             rdft(n, 1, a);
-        is 
+        is
             rdft(n, -1, a);
             for (j = 0; j <= n - 1; j++) {
                 a[j] *= 2.0 / n;
@@ -119,9 +119,9 @@ macro definitions
                         output data
                             a[k] = C[k], 0<=k<n
     [remark]
-        Inverse of 
+        Inverse of
             ddct(n, -1, a);
-        is 
+        is
             a[0] *= 0.5;
             ddct(n, 1, a);
             for (j = 0; j <= n - 1; j++) {
@@ -156,9 +156,9 @@ macro definitions
                                 a[k] = S[k], 0<k<n
                                 a[0] = S[n]
     [remark]
-        Inverse of 
+        Inverse of
             ddst(n, -1, a);
-        is 
+        is
             a[0] *= 0.5;
             ddst(n, 1, a);
             for (j = 0; j <= n - 1; j++) {
@@ -179,11 +179,11 @@ macro definitions
                         output data
                             a[k] = C[k], 0<=k<=n
     [remark]
-        Inverse of 
+        Inverse of
             a[0] *= 0.5;
             a[n] *= 0.5;
             dfct(n, a);
-        is 
+        is
             a[0] *= 0.5;
             a[n] *= 0.5;
             dfct(n, a);
@@ -206,74 +206,73 @@ macro definitions
                             a[k] = S[k], 0<k<n
                         (a[0] is used for work area)
     [remark]
-        Inverse of 
+        Inverse of
             dfst(n, a);
-        is 
+        is
             dfst(n, a);
             for (j = 1; j <= n - 1; j++) {
                 a[j] *= 2.0 / n;
             }
         .
 */
-#define USE_CDFT_WINTHREADS
 
 
-void cdft(int n, int isgn, double *a)
-{
-    void cftfsub(int n, double *a);
-    void cftbsub(int n, double *a);
-    
+void cdft(int n, int isgn, double* a) {
+    void cftfsub(int n, double* a);
+    void cftbsub(int n, double* a);
+
     if (isgn >= 0) {
         cftfsub(n, a);
-    } else {
+    }
+    else {
         cftbsub(n, a);
     }
 }
 
 
-
-void rdft(int n, int isgn, double *a)
-{
-    void cftfsub(int n, double *a);
-    void cftbsub(int n, double *a);
-    void rftfsub(int n, double *a);
-    void rftbsub(int n, double *a);
+void rdft(int n, int isgn, double* a) {
+    void cftfsub(int n, double* a);
+    void cftbsub(int n, double* a);
+    void rftfsub(int n, double* a);
+    void rftbsub(int n, double* a);
     double xi;
-    
+
     if (isgn >= 0) {
         if (n > 4) {
             cftfsub(n, a);
             rftfsub(n, a);
-        } else if (n == 4) {
+        }
+        else if (n == 4) {
             cftfsub(n, a);
         }
         xi = a[0] - a[1];
         a[0] += a[1];
         a[1] = xi;
-    } else {
+    }
+    else {
         a[1] = 0.5 * (a[0] - a[1]);
         a[0] -= a[1];
         if (n > 4) {
             rftbsub(n, a);
             cftbsub(n, a);
-        } else if (n == 4) {
+        }
+        else if (n == 4) {
             cftbsub(n, a);
         }
     }
 }
 
 
-void ddct(int n, int isgn, double *a)
-{
-    void cftfsub(int n, double *a);
-    void cftbsub(int n, double *a);
-    void rftfsub(int n, double *a);
-    void rftbsub(int n, double *a);
-    void dctsub(int n, double *a);
-    void dctsub4(int n, double *a);
+void ddct(int n, int isgn, double* a) {
+    void cftfsub(int n, double* a);
+    void cftbsub(int n, double* a);
+    void rftfsub(int n, double* a);
+    void rftbsub(int n, double* a);
+    void dctsub(int n, double* a);
+    void dctsub4(int n, double* a);
     int j;
     double xr;
-    
+
     if (isgn < 0) {
         xr = a[n - 1];
         for (j = n - 2; j >= 2; j -= 2) {
@@ -285,20 +284,23 @@ void ddct(int n, int isgn, double *a)
         if (n > 4) {
             rftbsub(n, a);
             cftbsub(n, a);
-        } else if (n == 4) {
+        }
+        else if (n == 4) {
             cftbsub(n, a);
         }
     }
     if (n > 4) {
         dctsub(n, a);
-    } else {
+    }
+    else {
         dctsub4(n, a);
     }
     if (isgn >= 0) {
         if (n > 4) {
             cftfsub(n, a);
             rftfsub(n, a);
-        } else if (n == 4) {
+        }
+        else if (n == 4) {
             cftfsub(n, a);
         }
         xr = a[0] - a[1];
@@ -312,17 +314,16 @@ void ddct(int n, int isgn, double *a)
 }
 
 
-void ddst(int n, int isgn, double *a)
-{
-    void cftfsub(int n, double *a);
-    void cftbsub(int n, double *a);
-    void rftfsub(int n, double *a);
-    void rftbsub(int n, double *a);
-    void dstsub(int n, double *a);
-    void dstsub4(int n, double *a);
+void ddst(int n, int isgn, double* a) {
+    void cftfsub(int n, double* a);
+    void cftbsub(int n, double* a);
+    void rftfsub(int n, double* a);
+    void rftbsub(int n, double* a);
+    void dstsub(int n, double* a);
+    void dstsub4(int n, double* a);
     int j;
     double xr;
-    
+
     if (isgn < 0) {
         xr = a[n - 1];
         for (j = n - 2; j >= 2; j -= 2) {
@@ -334,20 +335,23 @@ void ddst(int n, int isgn, double *a)
         if (n > 4) {
             rftbsub(n, a);
             cftbsub(n, a);
-        } else if (n == 4) {
+        }
+        else if (n == 4) {
             cftbsub(n, a);
         }
     }
     if (n > 4) {
         dstsub(n, a);
-    } else {
+    }
+    else {
         dstsub4(n, a);
     }
     if (isgn >= 0) {
         if (n > 4) {
             cftfsub(n, a);
             rftfsub(n, a);
-        } else if (n == 4) {
+        }
+        else if (n == 4) {
             cftfsub(n, a);
         }
         xr = a[0] - a[1];
@@ -361,13 +365,12 @@ void ddst(int n, int isgn, double *a)
 }
 
 
-void dfct(int n, double *a)
-{
-    void ddct(int n, int isgn, double *a);
-    void bitrv1(int n, double *a);
+void dfct(int n, double* a) {
+    void ddct(int n, int isgn, double* a);
+    void bitrv1(int n, double* a);
     int j, k, m, mh;
     double xr, xi, yr, yi, an;
-    
+
     m = n >> 1;
     for (j = 0; j < m; j++) {
         k = n - j;
@@ -412,13 +415,12 @@ void dfct(int n, double *a)
 }
 
 
-void dfst(int n, double *a)
-{
-    void ddst(int n, int isgn, double *a);
-    void bitrv1(int n, double *a);
+void dfst(int n, double* a) {
+    void ddst(int n, int isgn, double* a);
+    void bitrv1(int n, double* a);
     int j, k, m, mh;
     double xr, xi, yr, yi;
-    
+
     m = n >> 1;
     for (j = 1; j < m; j++) {
         k = n - j;
@@ -460,6 +462,7 @@ void dfst(int n, double *a)
 /* -------- child routines -------- */
 
 
+#include <math.h>
 #ifndef M_PI_2
 #define M_PI_2      1.570796326794896619231321691639751442098584699687
 #endif
@@ -524,7 +527,6 @@ void dfst(int n, double *a)
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
-//#include "..\..\source\repos\Math\bint.h"
 #define cdft_thread_t HANDLE
 #define cdft_thread_create(thp,func,argp) { \
     DWORD thid; \
@@ -554,107 +556,118 @@ void dfst(int n, double *a)
 #endif
 
 
-void cftfsub(int n, double *a)
-{
-    void bitrv2(int n, double *a);
-    void bitrv216(double *a);
-    void bitrv208(double *a);
-    void cftmdl1(int n, double *a);
-    void cftrec4(int n, double *a);
-    void cftleaf(int n, int isplt, double *a);
-    void cftfx41(int n, double *a);
-    void cftf161(double *a);
-    void cftf081(double *a);
-    void cftf040(double *a);
-    void cftx020(double *a);
+void cftfsub(int n, double* a) {
+    void bitrv2(int n, double* a);
+    void bitrv216(double* a);
+    void bitrv208(double* a);
+    void cftmdl1(int n, double* a);
+    void cftrec4(int n, double* a);
+    void cftleaf(int n, int isplt, double* a);
+    void cftfx41(int n, double* a);
+    void cftf161(double* a);
+    void cftf081(double* a);
+    void cftf040(double* a);
+    void cftx020(double* a);
 #ifdef USE_CDFT_THREADS
-    void cftrec4_th(int n, double *a);
+    void cftrec4_th(int n, double* a);
 #endif /* USE_CDFT_THREADS */
-    
+
     if (n > 8) {
         if (n > 32) {
             cftmdl1(n, a);
-#ifdef USE_CDFT_THREADS
+        #ifdef USE_CDFT_THREADS
             if (n > CDFT_THREADS_BEGIN_N) {
                 cftrec4_th(n, a);
-            } else 
-#endif /* USE_CDFT_THREADS */
-            if (n > 512) {
-                cftrec4(n, a);
-            } else if (n > 128) {
-                cftleaf(n, 1, a);
-            } else {
-                cftfx41(n, a);
             }
+            else
+            #endif /* USE_CDFT_THREADS */
+                if (n > 512) {
+                    cftrec4(n, a);
+                }
+                else if (n > 128) {
+                    cftleaf(n, 1, a);
+                }
+                else {
+                    cftfx41(n, a);
+                }
             bitrv2(n, a);
-        } else if (n == 32) {
+        }
+        else if (n == 32) {
             cftf161(a);
             bitrv216(a);
-        } else {
+        }
+        else {
             cftf081(a);
             bitrv208(a);
         }
-    } else if (n == 8) {
+    }
+    else if (n == 8) {
         cftf040(a);
-    } else if (n == 4) {
+    }
+    else if (n == 4) {
         cftx020(a);
     }
 }
 
 
-void cftbsub(int n, double *a)
-{
-    void bitrv2conj(int n, double *a);
-    void bitrv216neg(double *a);
-    void bitrv208neg(double *a);
-    void cftb1st(int n, double *a);
-    void cftrec4(int n, double *a);
-    void cftleaf(int n, int isplt, double *a);
-    void cftfx41(int n, double *a);
-    void cftf161(double *a);
-    void cftf081(double *a);
-    void cftb040(double *a);
-    void cftx020(double *a);
+void cftbsub(int n, double* a) {
+    void bitrv2conj(int n, double* a);
+    void bitrv216neg(double* a);
+    void bitrv208neg(double* a);
+    void cftb1st(int n, double* a);
+    void cftrec4(int n, double* a);
+    void cftleaf(int n, int isplt, double* a);
+    void cftfx41(int n, double* a);
+    void cftf161(double* a);
+    void cftf081(double* a);
+    void cftb040(double* a);
+    void cftx020(double* a);
 #ifdef USE_CDFT_THREADS
-    void cftrec4_th(int n, double *a);
+    void cftrec4_th(int n, double* a);
 #endif /* USE_CDFT_THREADS */
-    
+
     if (n > 8) {
         if (n > 32) {
             cftb1st(n, a);
-#ifdef USE_CDFT_THREADS
+        #ifdef USE_CDFT_THREADS
             if (n > CDFT_THREADS_BEGIN_N) {
                 cftrec4_th(n, a);
-            } else 
-#endif /* USE_CDFT_THREADS */
-            if (n > 512) {
-                cftrec4(n, a);
-            } else if (n > 128) {
-                cftleaf(n, 1, a);
-            } else {
-                cftfx41(n, a);
             }
+            else
+            #endif /* USE_CDFT_THREADS */
+                if (n > 512) {
+                    cftrec4(n, a);
+                }
+                else if (n > 128) {
+                    cftleaf(n, 1, a);
+                }
+                else {
+                    cftfx41(n, a);
+                }
             bitrv2conj(n, a);
-        } else if (n == 32) {
+        }
+        else if (n == 32) {
             cftf161(a);
             bitrv216neg(a);
-        } else {
+        }
+        else {
             cftf081(a);
             bitrv208neg(a);
         }
-    } else if (n == 8) {
+    }
+    else if (n == 8) {
         cftb040(a);
-    } else if (n == 4) {
+    }
+    else if (n == 4) {
         cftx020(a);
     }
 }
 
 
-void bitrv2(int n, double *a)
-{
+void bitrv2(int n, double* a) {
     int j0, k0, j1, k1, l, m, i, j, k, nh;
     double xr, xi, yr, yi;
-    
+
     m = 4;
     for (l = n >> 2; l > 8; l >>= 2) {
         m <<= 1;
@@ -888,7 +901,8 @@ void bitrv2(int n, double *a)
             a[k1 + 1] = xi;
             for (i = nh >> 1; i > (j0 ^= i); i >>= 1);
         }
-    } else {
+    }
+    else {
         j0 = 0;
         for (k0 = 0; k0 < m; k0 += 4) {
             k = k0;
@@ -1000,11 +1014,10 @@ void bitrv2(int n, double *a)
 }
 
 
-void bitrv2conj(int n, double *a)
-{
+void bitrv2conj(int n, double* a) {
     int j0, k0, j1, k1, l, m, i, j, k, nh;
     double xr, xi, yr, yi;
-    
+
     m = 4;
     for (l = n >> 2; l > 8; l >>= 2) {
         m <<= 1;
@@ -1242,7 +1255,8 @@ void bitrv2conj(int n, double *a)
             a[k1 + 3] = -a[k1 + 3];
             for (i = nh >> 1; i > (j0 ^= i); i >>= 1);
         }
-    } else {
+    }
+    else {
         j0 = 0;
         for (k0 = 0; k0 < m; k0 += 4) {
             k = k0;
@@ -1358,12 +1372,11 @@ void bitrv2conj(int n, double *a)
 }
 
 
-void bitrv216(double *a)
-{
-    double x1r, x1i, x2r, x2i, x3r, x3i, x4r, x4i, 
-        x5r, x5i, x7r, x7i, x8r, x8i, x10r, x10i, 
+void bitrv216(double* a) {
+    double x1r, x1i, x2r, x2i, x3r, x3i, x4r, x4i,
+        x5r, x5i, x7r, x7i, x8r, x8i, x10r, x10i,
         x11r, x11i, x12r, x12i, x13r, x13i, x14r, x14i;
-    
+
     x1r = a[2];
     x1i = a[3];
     x2r = a[4];
@@ -1415,13 +1428,12 @@ void bitrv216(double *a)
 }
 
 
-void bitrv216neg(double *a)
-{
-    double x1r, x1i, x2r, x2i, x3r, x3i, x4r, x4i, 
-        x5r, x5i, x6r, x6i, x7r, x7i, x8r, x8i, 
-        x9r, x9i, x10r, x10i, x11r, x11i, x12r, x12i, 
+void bitrv216neg(double* a) {
+    double x1r, x1i, x2r, x2i, x3r, x3i, x4r, x4i,
+        x5r, x5i, x6r, x6i, x7r, x7i, x8r, x8i,
+        x9r, x9i, x10r, x10i, x11r, x11i, x12r, x12i,
         x13r, x13i, x14r, x14i, x15r, x15i;
-    
+
     x1r = a[2];
     x1i = a[3];
     x2r = a[4];
@@ -1485,10 +1497,9 @@ void bitrv216neg(double *a)
 }
 
 
-void bitrv208(double *a)
-{
+void bitrv208(double* a) {
     double x1r, x1i, x3r, x3i, x4r, x4i, x6r, x6i;
-    
+
     x1r = a[2];
     x1i = a[3];
     x3r = a[6];
@@ -1508,11 +1519,10 @@ void bitrv208(double *a)
 }
 
 
-void bitrv208neg(double *a)
-{
-    double x1r, x1i, x2r, x2i, x3r, x3i, x4r, x4i, 
+void bitrv208neg(double* a) {
+    double x1r, x1i, x2r, x2i, x3r, x3i, x4r, x4i,
         x5r, x5i, x6r, x6i, x7r, x7i;
-    
+
     x1r = a[2];
     x1i = a[3];
     x2r = a[4];
@@ -1544,11 +1554,10 @@ void bitrv208neg(double *a)
 }
 
 
-void bitrv1(int n, double *a)
-{
+void bitrv1(int n, double* a) {
     int j0, k0, j1, k1, l, m, i, j, k, nh;
     double x;
-    
+
     nh = n >> 1;
     x = a[1];
     a[1] = a[nh];
@@ -1620,7 +1629,8 @@ void bitrv1(int n, double *a)
             a[j1] = a[k1];
             a[k1] = x;
         }
-    } else {
+    }
+    else {
         j0 = 0;
         for (k0 = 2; k0 < m; k0 += 2) {
             for (i = nh >> 1; i > (j0 ^= i); i >>= 1);
@@ -1657,13 +1667,12 @@ void bitrv1(int n, double *a)
 }
 
 
-void cftb1st(int n, double *a)
-{
+void cftb1st(int n, double* a) {
     int i, i0, j, j0, j1, j2, j3, m, mh;
-    double ew, w1r, w1i, wk1r, wk1i, wk3r, wk3i, 
+    double ew, w1r, w1i, wk1r, wk1i, wk3r, wk3i,
         wd1r, wd1i, wd3r, wd3i, ss1, ss3;
     double x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i;
-    
+
     mh = n >> 3;
     m = 2 * mh;
     j1 = m;
@@ -1889,19 +1898,18 @@ void cftb1st(int n, double *a)
 struct cdft_arg_st {
     int n0;
     int n;
-    double *a;
+    double* a;
 };
 typedef struct cdft_arg_st cdft_arg_t;
 
 
-void cftrec4_th(int n, double *a)
-{
-    void *cftrec1_th(void *p);
-    void *cftrec2_th(void *p);
+void cftrec4_th(int n, double* a) {
+    void* cftrec1_th(void* p);
+    void* cftrec2_th(void* p);
     int i, idiv4, m, nthread;
     cdft_thread_t th[4];
     cdft_arg_t ag[4];
-    
+
     nthread = 2;
     idiv4 = 0;
     m = n >> 1;
@@ -1916,7 +1924,8 @@ void cftrec4_th(int n, double *a)
         ag[i].a = &a[i * m];
         if (i != idiv4) {
             cdft_thread_create(&th[i], cftrec1_th, &ag[i]);
-        } else {
+        }
+        else {
             cdft_thread_create(&th[i], cftrec2_th, &ag[i]);
         }
     }
@@ -1926,17 +1935,16 @@ void cftrec4_th(int n, double *a)
 }
 
 
-void *cftrec1_th(void *p)
-{
-    int cfttree(int n, int j, int k, double *a);
-    void cftleaf(int n, int isplt, double *a);
-    void cftmdl1(int n, double *a);
+void* cftrec1_th(void* p) {
+    int cfttree(int n, int j, int k, double* a);
+    void cftleaf(int n, int isplt, double* a);
+    void cftmdl1(int n, double* a);
     int isplt, j, k, m, n, n0;
-    double *a;
-    
-    n0 = ((cdft_arg_t *) p)->n0;
-    n = ((cdft_arg_t *) p)->n;
-    a = ((cdft_arg_t *) p)->a;
+    double* a;
+
+    n0 = ((cdft_arg_t*)p)->n0;
+    n = ((cdft_arg_t*)p)->n;
+    a = ((cdft_arg_t*)p)->a;
     m = n0;
     while (m > 512) {
         m >>= 2;
@@ -1949,21 +1957,20 @@ void *cftrec1_th(void *p)
         isplt = cfttree(m, j, k, a);
         cftleaf(m, isplt, &a[j - m]);
     }
-    return (void *) 0;
+    return (void*)0;
 }
 
 
-void *cftrec2_th(void *p)
-{
-    int cfttree(int n, int j, int k, double *a);
-    void cftleaf(int n, int isplt, double *a);
-    void cftmdl2(int n, double *a);
+void* cftrec2_th(void* p) {
+    int cfttree(int n, int j, int k, double* a);
+    void cftleaf(int n, int isplt, double* a);
+    void cftmdl2(int n, double* a);
     int isplt, j, k, m, n, n0;
-    double *a;
-    
-    n0 = ((cdft_arg_t *) p)->n0;
-    n = ((cdft_arg_t *) p)->n;
-    a = ((cdft_arg_t *) p)->a;
+    double* a;
+
+    n0 = ((cdft_arg_t*)p)->n0;
+    n = ((cdft_arg_t*)p)->n;
+    a = ((cdft_arg_t*)p)->a;
     k = 1;
     m = n0;
     while (m > 512) {
@@ -1978,18 +1985,17 @@ void *cftrec2_th(void *p)
         isplt = cfttree(m, j, k, a);
         cftleaf(m, isplt, &a[j - m]);
     }
-    return (void *) 0;
+    return (void*)0;
 }
 #endif /* USE_CDFT_THREADS */
 
 
-void cftrec4(int n, double *a)
-{
-    int cfttree(int n, int j, int k, double *a);
-    void cftleaf(int n, int isplt, double *a);
-    void cftmdl1(int n, double *a);
+void cftrec4(int n, double* a) {
+    int cfttree(int n, int j, int k, double* a);
+    void cftleaf(int n, int isplt, double* a);
+    void cftmdl1(int n, double* a);
     int isplt, j, k, m;
-    
+
     m = n;
     while (m > 512) {
         m >>= 2;
@@ -1998,27 +2004,28 @@ void cftrec4(int n, double *a)
     cftleaf(m, 1, &a[n - m]);
     k = 0;
     for (j = n - m; j > 0; j -= m) {
-        ++k;
+        k++;
         isplt = cfttree(m, j, k, a);
         cftleaf(m, isplt, &a[j - m]);
     }
 }
 
 
-int cfttree(int n, int j, int k, double *a)
-{
-    void cftmdl1(int n, double *a);
-    void cftmdl2(int n, double *a);
+int cfttree(int n, int j, int k, double* a) {
+    void cftmdl1(int n, double* a);
+    void cftmdl2(int n, double* a);
     int i, isplt, m;
-    
+
     if ((k & 3) != 0) {
         isplt = k & 1;
         if (isplt != 0) {
             cftmdl1(n, &a[j - n]);
-        } else {
+        }
+        else {
             cftmdl2(n, &a[j - n]);
         }
-    } else {
+    }
+    else {
         m = n;
         for (i = k; (i & 3) == 0; i >>= 2) {
             m <<= 2;
@@ -2029,7 +2036,8 @@ int cfttree(int n, int j, int k, double *a)
                 cftmdl1(m, &a[j - m]);
                 m >>= 2;
             }
-        } else {
+        }
+        else {
             while (m > 128) {
                 cftmdl2(m, &a[j - m]);
                 m >>= 2;
@@ -2040,15 +2048,14 @@ int cfttree(int n, int j, int k, double *a)
 }
 
 
-void cftleaf(int n, int isplt, double *a)
-{
-    void cftmdl1(int n, double *a);
-    void cftmdl2(int n, double *a);
-    void cftf161(double *a);
-    void cftf162(double *a);
-    void cftf081(double *a);
-    void cftf082(double *a);
-    
+void cftleaf(int n, int isplt, double* a) {
+    void cftmdl1(int n, double* a);
+    void cftmdl2(int n, double* a);
+    void cftf161(double* a);
+    void cftf162(double* a);
+    void cftf081(double* a);
+    void cftf082(double* a);
+
     if (n == 512) {
         cftmdl1(128, a);
         cftf161(a);
@@ -2068,14 +2075,16 @@ void cftleaf(int n, int isplt, double *a)
         if (isplt != 0) {
             cftmdl1(128, &a[384]);
             cftf161(&a[480]);
-        } else {
+        }
+        else {
             cftmdl2(128, &a[384]);
             cftf162(&a[480]);
         }
         cftf161(&a[384]);
         cftf162(&a[416]);
         cftf161(&a[448]);
-    } else {
+    }
+    else {
         cftmdl1(64, a);
         cftf081(a);
         cftf082(&a[16]);
@@ -2094,7 +2103,8 @@ void cftleaf(int n, int isplt, double *a)
         if (isplt != 0) {
             cftmdl1(64, &a[192]);
             cftf081(&a[240]);
-        } else {
+        }
+        else {
             cftmdl2(64, &a[192]);
             cftf082(&a[240]);
         }
@@ -2105,15 +2115,14 @@ void cftleaf(int n, int isplt, double *a)
 }
 
 
-void cftmdl1(int n, double *a)
-{
+void cftmdl1(int n, double* a) {
     int i, i0, j, j0, j1, j2, j3, m, mh;
-    double ew, w1r, w1i, wk1r, wk1i, wk3r, wk3i, 
+    double ew, w1r, w1i, wk1r, wk1i, wk3r, wk3i,
         wd1r, wd1i, wd3r, wd3i, ss1, ss3;
     double x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i;
-    
+
     mh = n >> 3;
-    m =  mh << 1;
+    m = 2 * mh;
     j1 = m;
     j2 = j1 + m;
     j3 = j2 + m;
@@ -2149,7 +2158,7 @@ void cftmdl1(int n, double *a)
     ss3 = 2 * wk3i;
     i = 0;
     for (;;) {
-        i0 = i + 128 ;
+        i0 = i + 4 * CDFT_LOOP_DIV;
         if (i0 > mh - 4) {
             i0 = mh - 4;
         }
@@ -2333,16 +2342,15 @@ void cftmdl1(int n, double *a)
 }
 
 
-void cftmdl2(int n, double *a)
-{
+void cftmdl2(int n, double* a) {
     int i, i0, j, j0, j1, j2, j3, m, mh;
-    double ew, w1r, w1i, wn4r, wk1r, wk1i, wk3r, wk3i, 
-        wl1r, wl1i, wl3r, wl3i, wd1r, wd1i, wd3r, wd3i, 
+    double ew, w1r, w1i, wn4r, wk1r, wk1i, wk3r, wk3i,
+        wl1r, wl1i, wl3r, wl3i, wd1r, wd1i, wd3r, wd3i,
         we1r, we1i, we3r, we3i, ss1, ss3;
     double x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i, y0r, y0i, y2r, y2i;
-    
+
     mh = n >> 3;
-    m =  mh << 1;
+    m = 2 * mh;
     wn4r = WR5000;
     j1 = m;
     j2 = j1 + m;
@@ -2391,7 +2399,7 @@ void cftmdl2(int n, double *a)
     wd3i = -wn4r * (wk3i + wk3r);
     i = 0;
     for (;;) {
-        i0 = i + 128 ;
+        i0 = i + 4 * CDFT_LOOP_DIV;
         if (i0 > mh - 4) {
             i0 = mh - 4;
         }
@@ -2620,19 +2628,19 @@ void cftmdl2(int n, double *a)
 }
 
 
-void cftfx41(int n, double *a)
-{
-    void cftf161(double *a);
-    void cftf162(double *a);
-    void cftf081(double *a);
-    void cftf082(double *a);
-    
+void cftfx41(int n, double* a) {
+    void cftf161(double* a);
+    void cftf162(double* a);
+    void cftf081(double* a);
+    void cftf082(double* a);
+
     if (n == 128) {
         cftf161(a);
         cftf162(&a[32]);
         cftf161(&a[64]);
         cftf161(&a[96]);
-    } else {
+    }
+    else {
         cftf081(a);
         cftf082(&a[16]);
         cftf081(&a[32]);
@@ -2641,15 +2649,14 @@ void cftfx41(int n, double *a)
 }
 
 
-void cftf161(double *a)
-{
-    double wn4r, wk1r, wk1i, 
-        x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i, 
-        y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i, 
-        y4r, y4i, y5r, y5i, y6r, y6i, y7r, y7i, 
-        y8r, y8i, y9r, y9i, y10r, y10i, y11r, y11i, 
+void cftf161(double* a) {
+    double wn4r, wk1r, wk1i,
+        x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i,
+        y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i,
+        y4r, y4i, y5r, y5i, y6r, y6i, y7r, y7i,
+        y8r, y8i, y9r, y9i, y10r, y10i, y11r, y11i,
         y12r, y12i, y13r, y13i, y14r, y14i, y15r, y15i;
-    
+
     wn4r = WR5000;
     wk1r = WR2500;
     wk1i = WI2500;
@@ -2800,15 +2807,14 @@ void cftf161(double *a)
 }
 
 
-void cftf162(double *a)
-{
-    double wn4r, wk1r, wk1i, wk2r, wk2i, wk3r, wk3i, 
-        x0r, x0i, x1r, x1i, x2r, x2i, 
-        y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i, 
-        y4r, y4i, y5r, y5i, y6r, y6i, y7r, y7i, 
-        y8r, y8i, y9r, y9i, y10r, y10i, y11r, y11i, 
+void cftf162(double* a) {
+    double wn4r, wk1r, wk1i, wk2r, wk2i, wk3r, wk3i,
+        x0r, x0i, x1r, x1i, x2r, x2i,
+        y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i,
+        y4r, y4i, y5r, y5i, y6r, y6i, y7r, y7i,
+        y8r, y8i, y9r, y9i, y10r, y10i, y11r, y11i,
         y12r, y12i, y13r, y13i, y14r, y14i, y15r, y15i;
-    
+
     wn4r = WR5000;
     wk1r = WR1250;
     wk1i = WI1250;
@@ -2983,12 +2989,11 @@ void cftf162(double *a)
 }
 
 
-void cftf081(double *a)
-{
-    double wn4r, x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i, 
-        y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i, 
+void cftf081(double* a) {
+    double wn4r, x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i,
+        y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i,
         y4r, y4i, y5r, y5i, y6r, y6i, y7r, y7i;
-    
+
     wn4r = WR5000;
     x0r = a[0] + a[8];
     x0i = a[1] + a[9];
@@ -3045,12 +3050,11 @@ void cftf081(double *a)
 }
 
 
-void cftf082(double *a)
-{
-    double wn4r, wk1r, wk1i, x0r, x0i, x1r, x1i, 
-        y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i, 
+void cftf082(double* a) {
+    double wn4r, wk1r, wk1i, x0r, x0i, x1r, x1i,
+        y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i,
         y4r, y4i, y5r, y5i, y6r, y6i, y7r, y7i;
-    
+
     wn4r = WR5000;
     wk1r = WR2500;
     wk1i = WI2500;
@@ -3117,10 +3121,9 @@ void cftf082(double *a)
 }
 
 
-void cftf040(double *a)
-{
+void cftf040(double* a) {
     double x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i;
-    
+
     x0r = a[0] + a[4];
     x0i = a[1] + a[5];
     x1r = a[0] - a[4];
@@ -3140,10 +3143,9 @@ void cftf040(double *a)
 }
 
 
-void cftb040(double *a)
-{
+void cftb040(double* a) {
     double x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i;
-    
+
     x0r = a[0] + a[4];
     x0i = a[1] + a[5];
     x1r = a[0] - a[4];
@@ -3163,10 +3165,9 @@ void cftb040(double *a)
 }
 
 
-void cftx020(double *a)
-{
+void cftx020(double* a) {
     double x0r, x0i;
-    
+
     x0r = a[0] - a[2];
     x0i = a[1] - a[3];
     a[0] += a[2];
@@ -3176,11 +3177,10 @@ void cftx020(double *a)
 }
 
 
-void rftfsub(int n, double *a)
-{
+void rftfsub(int n, double* a) {
     int i, i0, j, k;
     double ec, w1r, w1i, wkr, wki, wdr, wdi, ss, xr, xi, yr, yi;
-    
+
     ec = 2 * M_PI_2 / n;
     wkr = 0;
     wki = 0;
@@ -3241,11 +3241,10 @@ void rftfsub(int n, double *a)
 }
 
 
-void rftbsub(int n, double *a)
-{
+void rftbsub(int n, double* a) {
     int i, i0, j, k;
     double ec, w1r, w1i, wkr, wki, wdr, wdi, ss, xr, xi, yr, yi;
-    
+
     ec = 2 * M_PI_2 / n;
     wkr = 0;
     wki = 0;
@@ -3306,11 +3305,10 @@ void rftbsub(int n, double *a)
 }
 
 
-void dctsub(int n, double *a)
-{
+void dctsub(int n, double* a) {
     int i, i0, j, k, m;
     double ec, w1r, w1i, wkr, wki, wdr, wdi, ss, xr, xi, yr, yi;
-    
+
     ec = M_PI_2 / n;
     wkr = 0.5;
     wki = 0.5;
@@ -3359,11 +3357,10 @@ void dctsub(int n, double *a)
 }
 
 
-void dstsub(int n, double *a)
-{
+void dstsub(int n, double* a) {
     int i, i0, j, k, m;
     double ec, w1r, w1i, wkr, wki, wdr, wdi, ss, xr, xi, yr, yi;
-    
+
     ec = M_PI_2 / n;
     wkr = 0.5;
     wki = 0.5;
@@ -3412,11 +3409,10 @@ void dstsub(int n, double *a)
 }
 
 
-void dctsub4(int n, double *a)
-{
+void dctsub4(int n, double* a) {
     int m;
     double wki, wdr, wdi, xr;
-    
+
     wki = WR5000;
     m = n >> 1;
     if (m == 2) {
@@ -3430,11 +3426,10 @@ void dctsub4(int n, double *a)
 }
 
 
-void dstsub4(int n, double *a)
-{
+void dstsub4(int n, double* a) {
     int m;
     double wki, wdr, wdi, xr;
-    
+
     wki = WR5000;
     m = n >> 1;
     if (m == 2) {

@@ -149,6 +149,9 @@ namespace Math {
 	bint randdata(size_t);
 	void swap(bint&, bint&);
 
+	std::string compress(const bint&);
+	bint decompress(const std::string&);
+
 	ostream& operator<<(ostream& out, const bint2& x);
 	istream& operator>>(istream& in, bint2& x);
 
@@ -210,8 +213,10 @@ namespace Math {
 	bool operator==(const bint&, const bint2&);
 	bool operator==(const bint2&, const bint&);
 
+
 	std::string bit10_to_bit2(const std::string&);//10进制字符串转化为2进制字符串
 	std::string bit2_to_bit10(const std::string&);//2进制字符串转化为10进制字符串
+
 
 	bint sqrt(const bint&);
 	bint2 sqrt(const bint2&);
@@ -465,6 +470,9 @@ namespace Math {
 
 		bint inv(int = -1)const;//求精度为lim的逆元，很慢！
 		bint2 to2bit()const;//转为2进制bint
+		std::string compress();
+		friend std::string compress(const bint&);
+		friend bint decompress(const std::string&);
 		//用于测试三种乘法
 	#ifdef TEST
 		friend bint test1(const bint& a, const bint& b) {
