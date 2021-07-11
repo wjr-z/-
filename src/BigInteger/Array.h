@@ -5,7 +5,7 @@
 #define ARRAY_H
 
 #include <vector>
-#include "Allocator.h"
+#include "../Math/Allocator.h"
 #include "math_func.h"
 
 namespace Math {

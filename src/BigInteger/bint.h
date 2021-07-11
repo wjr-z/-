@@ -470,9 +470,6 @@ namespace Math {
 
 		bint inv(int = -1)const;//求精度为lim的逆元，很慢！
 		bint2 to2bit()const;//转为2进制bint
-		std::string compress();
-		friend std::string compress(const bint&);
-		friend bint decompress(const std::string&);
 		//用于测试三种乘法
 	#ifdef TEST
 		friend bint test1(const bint& a, const bint& b) {

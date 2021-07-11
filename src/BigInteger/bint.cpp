@@ -1327,15 +1327,6 @@ namespace Math {
 		return bint2(get2bit(), positive);
 	}
 
-	std::string bint::compress(){
-		return Huffman::encode(tostr());
-	}
-	std::string compress(const bint& arr) {
-		return Huffman::encode(arr.tostr());
-	}
-	bint decompress(const std::string& str) {
-		return bint(Huffman::decode(str));
-	}
 	
 
 

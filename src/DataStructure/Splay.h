@@ -2,7 +2,6 @@
 #define SPLAY_H
 
 namespace Math {
-
 	//注意，非线程安全
 
 	/*---SplayNode---*/
@@ -458,53 +457,6 @@ namespace Math {
 			return iterator(End, &rt);
 		}
 	};
-
-	/*---以下为例子---*/
-	/*---支持区间求和，区间加---*/
-
-	class TESTSplayNode : public SplayNode<int> {
-	private:
-		int val;
-		long long sum;
-		int tag, size;
-		friend int getSize(TESTSplayNode* x) {
-			return (x != nullptr) ? x->size : 0;
-		}
-		friend long long getSum(TESTSplayNode* x) {
-			return (x != nullptr) ? x->sum : 0;
-		}
-	public:
-		TESTSplayNode(const int& _val = 0) :val(_val), sum(_val), tag(0), size(1) {
-
-		}
-		int getval() { return val; }
-		long long getsum() { return sum; }
-
-		void pushup(TESTSplayNode* l, TESTSplayNode* r) {
-			size = getSize(l) + getSize(r) + 1;
-			sum = getSum(l) + getSum(r) + val;
-		}
-
-		void pushrev(TESTSplayNode* l, TESTSplayNode* r) {
-
-		}
-		void pushdown(TESTSplayNode* l, TESTSplayNode* r) {
-			if (tag) {
-				if (l != nullptr)
-					l->pushtag(tag);
-				if (r != nullptr)
-					r->pushtag(tag);
-				tag = 0;
-			}
-		}
-		void pushtag(int S) {
-			sum += S * 1ll * size;
-			val += S;
-			tag += S;
-		}
-
-	};
-
 
 }
 
