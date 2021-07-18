@@ -2,8 +2,7 @@
 namespace Math {
 
 	const bool Array::iszero()const {
-		if ((Size == 1 && this->operator[](0) == 0) || !Size)return true;
-		return false;
+		return ((Size==1&&this->operator[](0)==0)||!Size)?true:false;
 	}
 
 	const size_t& Array::size()const {
@@ -111,6 +110,7 @@ namespace Math {
 
 	void Array_func::QuickMul10k(Array& a, const size_t& k) {//快速乘10^k
 		if (!k || a.iszero())return;
+		/*
 		if (!(k & 7)) {
 			a.vec.insert(a.vec.begin(), k >> 3, 0);
 			a.Size += k >> 3;
@@ -127,10 +127,28 @@ namespace Math {
 		a[py] = (a.save_at(0) % mod10) * mul10;
 		for (size_t i = py - 1; ~i; --i)
 			a[i] = 0;
+		*/
+		size_t Length = a.size();
+		a.reserve(Length+(k>>3)+1);
+		if (k & 7) {
+			int mul10 = _10k[k & 7], mod10 = bintjw / mul10;
+			if (a.save_at(Length - 1) >= mod10) {
+				a.resize(Length+1);
+				a.save_at(Length) = a.save_at(Length - 1) / mod10;
+			}
+			for (size_t i = Length - 1; i; --i)
+				a.save_at(i) = (a.save_at(i) % mod10) * mul10 + a.save_at(i - 1) / mod10;
+			a.save_at(0) = (a.save_at(0) % mod10) * mul10;
+		}
+		if (k >> 3) {
+			a.vec.insert(a.vec.begin(), k >> 3, 0);
+			a.Size+=k>>3;
+		}
 	}
 
 	void Array_func::QuickDivide10k(Array& a, const size_t& k) {//快速除以10^k
 		if (!k)return;
+		/*
 		size_t Length = a.size();
 		size_t Mo = k & 7, py = k >> 3, mul10 = 1;
 		for (size_t i = 0; i < Mo; ++i)
@@ -154,6 +172,32 @@ namespace Math {
 		while (aftsize > 1 && !a[aftsize - 1])
 			--aftsize;
 		a.resize(aftsize);
+		*/
+		size_t Length = a.size();
+		if (k & 7) {
+			size_t Mo = k & 7, mul10 = 1;
+			for (size_t i = 0; i < Mo; ++i)
+				mul10 *= 10;
+			size_t mod10 = bintjw / mul10;
+			size_t befLength = a.length();
+			for (size_t i = 0; i < Length; ++i) {
+				a[i] = a[i] / mul10 + (i + 1 == Length ? 0 : (a[i + 1] % mul10) * mod10);
+			}
+			size_t aftLength = a.length();
+			for (size_t i = max(0, befLength - k); i < aftLength; ++i)
+				a.set(i, 0);
+			while (Length > 1 && !a.save_at(Length - 1))
+				--Length;
+			a.resize(Length);
+		}
+		if (k >> 3) {
+			if ((k >> 3) >= Length) {
+				a.clear();
+				return ;
+			}
+			a.vec.erase(a.vec.begin(),a.vec.begin()+(k>>3));
+			a.Size-=(k>>3);
+		}
 	}
 
 	void Array_func::SlowMul(const Array& A, const Array& B, Array& c) {
@@ -399,8 +443,8 @@ namespace Math {
 	void FFT_Array_func::FFTQuickMul(const Array& A, const Array& B, Array& c) {
 		//保证 k*k*n <= 1e11 k 为 每个元素的最大大小
 		size_t Size = A.size() + B.size();
-		if (Size <= 1e5)FFTQuickMul4(A, B, c);
-		else if (Size <= 1e9)FFTQuickMul2(A, B, c);
+		if (Size <= 100000)FFTQuickMul4(A, B, c);
+		else if (Size <= 1000000000)FFTQuickMul2(A, B, c);
 		else FFTQuickMul1(A, B, c);
 	}
 

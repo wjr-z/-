@@ -9,5 +9,4 @@ namespace Math {
 
 	};
 }
-#endif MATRIX_H
-
+#endif

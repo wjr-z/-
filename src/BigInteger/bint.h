@@ -83,6 +83,8 @@ namespace Math {
 	ostream& operator<<(ostream&, const bint&);
 	istream& operator>>(istream&, bint&);
 
+	/*使用了左值引用和右值引用，以最优化速度*/
+
 	bool operator<(const bint&, const bint&);
 	bool operator<(const bint&, int);
 	bool operator<(const int&, const bint&);
@@ -110,7 +112,6 @@ namespace Math {
 	bool operator!(const bint&);
 	bool operator!(bint&&);
 	bint Factorial(int);
-
 
 	bint operator+(const bint&, const bint&);
 	bint operator+(bint&&, const bint&);
@@ -140,7 +141,7 @@ namespace Math {
 	bint operator%(const int&, const bint&);
 
 	bint qpow(bint, bint);
-	bint qpow(bint, int);
+	bint qpow(const bint&, int);
 	bint qpow(int, bint);
 
 	bint abs(bint);
@@ -148,9 +149,6 @@ namespace Math {
 	bint randdata(const bint& L, const bint& R);
 	bint randdata(size_t);
 	void swap(bint&, bint&);
-
-	std::string compress(const bint&);
-	bint decompress(const std::string&);
 
 	ostream& operator<<(ostream& out, const bint2& x);
 	istream& operator>>(istream& in, bint2& x);
@@ -206,7 +204,7 @@ namespace Math {
 	bint2 operator%(const bint2&, const int&);
 	bint2 operator%(const int&, const bint2&);
 
-	bint2 qpow(bint2, int);
+	bint2 qpow(const bint2&, int);
 
 	bint2 abs(bint2);
 
@@ -222,6 +220,7 @@ namespace Math {
 	bint2 sqrt(const bint2&);
 	bool isprime(const bint&);//大数判别质数
 	std::vector<bint>pollard_rho(bint);
+	bint max_prime(const bint& x);
 
 	//------------------------------------------------------------------//
 
@@ -727,7 +726,7 @@ namespace Math {
 		void reserve(const uint&);
 		void relength(const uint&);
 
-		friend bint2 qpow(bint2, int);
+		friend bint2 qpow(const bint2&, int);
 
 		void quick_mul_2();//O(n)乘10，但省去了部分运算
 		bint2& quick_mul_2k(int = 1);//O(n)乘10^k

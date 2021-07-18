@@ -1,13 +1,6 @@
 #include "bint.h"
 #include <random>
 
-namespace Huffman {
-	std::string encode(const std::string&);
-	std::string decode(const std::string&);
-	std::string encode(const char*, unsigned int = 0);
-	std::string decode(const char*, unsigned int = 0);
-}
-
 namespace Math {
 
 	/*---bint类部分函数定义---*/
@@ -59,17 +52,12 @@ namespace Math {
 		if (s[fir] == '-')positive ^= 1, ++fir;
 		while(s[fir]=='0'&&fir<Length-1)
 			++fir;
-		while (true) {//从后往前每8位一搞
+		while (i>=7+fir) {//从后往前每8位一搞
 			for (j = i - 7; j <= i; ++j)
 				vec[head] = vec[head] * 10 + s[j] - '0';
 			++head;
-			if(i>=15+fir)
-				i -= 8;
-			else {
-				if(i==7)return ;
-				i-=8;
-				break;
-			}
+			i-=8;
+			if(i+1==fir)return ;
 		}
 		for (j = fir; j <= i; ++j)
 			vec[head] = vec[head] * 10 + s[j] - '0';
@@ -165,7 +153,7 @@ namespace Math {
 	}
 
 	void bint::addint(bint& a, int b) {
-		unsigned int copyb(b);
+		uint32_t copyb(b);
 		if (copyb +a.save_at(0)>= bintjw) {//可能会溢出，因此要用减法这样比较
 			uint val=a.save_at(0)+copyb;
 			a.save_at(0) = val % bintjw;
@@ -406,6 +394,7 @@ namespace Math {
 		while (Size > 1 && !ans.save_at(Size - 1))
 			--Size;
 		ans.resize(Size);
+		ans.positive=!(A.positive^B.positive);
 		return ans;
 	}
 
@@ -701,11 +690,8 @@ namespace Math {
 				ans *= i;
 			return ans;
 		}
-		int mid = (L + R) >> 1;
-
-		bint l = Factorial(L, mid), r = Factorial(mid + 1, R);
-
-		return l * r;
+		int mid=L+R>>1;
+		return Factorial(L, mid) * Factorial(mid+1, R);
 	}
 
 	bint bint::inv(int lim)const {//弃置不用
@@ -1188,13 +1174,10 @@ namespace Math {
 			b /= 2;
 		}return ans;
 	}
-	bint qpow(bint a, int b) {
-		bint ans(1);
-		while (b) {
-			if (b & 1)ans *= a;
-			a *= a;
-			b >>= 1;
-		}return ans;
+	bint qpow(const bint&a, int b) {
+		if(b==1)return a;
+		bint mid=qpow(a,b>>1);
+		return b&1?(mid*a)*mid:mid*mid;
 	}
 	bint qpow(int a, bint b) {
 		return qpow(bint(a), b);
@@ -1237,7 +1220,7 @@ namespace Math {
 		bint X;
 		X.randdata(R - L);
 		X += L;
-		return X;
+		return std::move(X);
 	}
 	bint randdata(size_t n) {
 		bint ans(0);
@@ -1911,14 +1894,10 @@ namespace Math {
 
 
 
-	bint2 qpow(bint2 a, int b) {
-		bint2 s(1);
-		while (b) {
-			if (b & 1)
-				s *= a;
-			a *= a;
-			b >>= 1;
-		}return s;
+	bint2 qpow(const bint2&a, int b) {
+		if(b==1)return a;
+		bint2 mid=qpow(a,b>>1);
+		return b&1?(mid*a)*mid:mid*mid;
 	}
 
 	void bint2::quick_mul_2() {
@@ -2057,6 +2036,7 @@ namespace Math {
 	}
 
 	bool MillerRobin(const bint& n, int k = 5) {
+		if(n==2)return true;
 		if (n[0] % 2 == 0)return false;
 		bint d(n - 1);
 		int r = 0;
@@ -2123,5 +2103,20 @@ namespace Math {
 		pollard_rho(x, ans);
 		return ans;
 	}
-
+	void max_pollard_rho(bint x, bint& Max) {
+		if (x < 2 || x <= Max)return;
+		if (isprime(x)) {
+			Max = Max >= x ? Max : x;
+			return;
+		}
+		bint pri = rho(x);
+		while (x % pri == 0)x /= pri;
+		max_pollard_rho(pri, Max);
+		max_pollard_rho(x, Max);
+	}
+	bint max_prime(const bint&x) {
+		bint ans;
+		max_pollard_rho(x, ans);
+		return ans;
+	}
 }

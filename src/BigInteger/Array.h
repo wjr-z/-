@@ -60,24 +60,24 @@ namespace Math {
 		Array(const size_t& index = 1)noexcept :vec(index) {
 		#ifdef ARRAYDEBUG
 			cout << "Array构造函数\n";
-		#endif ARRAYDEBUG
+		#endif
 			resize(1);
 		}
 		Array(const Array& other)noexcept :vec(other.vec), Size(other.Size) {
 		#ifdef ARRAYDEBUG
 			cout << "Array左值拷贝构造\n";
-		#endif ARRAYDEBUG
+		#endif
 		}
 		Array(Array&& other)noexcept
 			:vec(std::move(other.vec)), Size(other.Size) {
 		#ifdef ARRAYDEBUG
 			cout << "Array右值拷贝构造\n";
-		#endif ARRAYDEBUG
+		#endif
 		}
 		Array& operator=(const Array& other)noexcept {
 		#ifdef ARRAYDEBUG
 			cout << "Array左值复制\n";
-		#endif ARRAYDEBUG
+		#endif
 			vec = other.vec;
 			Size = other.Size;
 			return*this;
@@ -85,7 +85,7 @@ namespace Math {
 		Array& operator=(Array&& other)noexcept {
 		#ifdef ARRAYDEBUG
 			cout << "Array右值复制\n";
-		#endif ARRAYDEBUG
+		#endif
 			vec = std::move(other.vec);
 			Size = other.Size;
 			return*this;

@@ -62,6 +62,7 @@ namespace Math {
 
 	int log2(const bint&);
 
+	/*暂时使用的最简单的算法*/
 	bfloat ln(bfloat);
 	bfloat exp(const bfloat&);
 
