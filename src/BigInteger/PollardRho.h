@@ -16,4 +16,4 @@ namespace Math {
 
 }
 
-#endif POLLARDRHO_H
+#endif

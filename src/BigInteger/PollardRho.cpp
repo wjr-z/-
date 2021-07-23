@@ -1,11 +1,11 @@
 #include "PollardRho.h"
-#include "../BigInteger/math_func.h"
+#include "math_func.h"
 #include <vector>
 using std::vector;
 
 namespace Math {
 
-	int modpow(int a, int b, int mod) {
+	static int modpow(int a, int b, int mod) {
 		int ans = 1;
 		while (b) {
 			if (b & 1)ans = a * 1ll * ans % mod;
@@ -14,7 +14,7 @@ namespace Math {
 		}return ans;
 	}
 
-	bool witness(int n, int seed, int d, int r) {
+	static bool witness(int n, int seed, int d, int r) {
 		seed = modpow(seed, d, n);
 		if (seed == 1)return true;
 		for (int i = 0; i < r; ++i) {
@@ -24,7 +24,7 @@ namespace Math {
 		}return false;
 	}
 
-	bool MillerRobin(int n, const int k = 5) {
+	static bool MillerRobin(int n, const int k = 5) {
 		if (n == 2 || n == 3 || n == 5)return true;
 		if (n == 1 || !(n & 1) || n == 27509653 || n == 74927161)return false;
 		int d = n - 1;
@@ -51,7 +51,7 @@ namespace Math {
 		return MillerRobin(n);
 	}
 
-	int rho(int x) {
+	static int rho(int x) {
 		if (x == 4)
 			return 2;
 		while (true) {
@@ -67,15 +67,16 @@ namespace Math {
 				if (!(i & 127) || i == j) {//我们不仅在等127次之后gcd我们还会倍增的来gcd
 					d = Math::gcd(p, x);
 					if (d > 1)return d;
-					if (i == j)t = r, j <<= 1;//维护倍增正确性，并判环（一箭双雕）
+					if (i == j) {
+						t = r; j <<= 1;
+					}
 				}
 			}
 
 		}
-		return x;
 	}
 
-	void pollard_rho(int x, vector<int>& ans) {
+	static void pollard_rho(int x, vector<int>& ans) {
 		if (x < 2)return;
 		if (isprime(x)) {
 			ans.push_back(x);
@@ -91,7 +92,7 @@ namespace Math {
 		pollard_rho(x, ans);
 		return ans;
 	}
-	void max_pollard_rho(int x, int& Max) {
+	static void max_pollard_rho(int x, int& Max) {
 		if (x < 2 || x <= Max)return;
 		if (isprime(x)) {
 			Max = Max >= x ? Max : x;
@@ -109,12 +110,12 @@ namespace Math {
 		return ans;
 	}
 
-	long long LLMul(long long a, long long b, long long p) {
+	static long long LLMul(long long a, long long b, long long p) {
 		long long Val = a * b - (long long)((long double)a * b / p) * p;
 		return (Val % p + p) % p;
 	}
 
-	long long modpow(long long a, long long b, long long mod) {
+	static long long modpow(long long a, long long b, long long mod) {
 		long long ans = 1;
 		while (b) {
 			if (b & 1)ans = LLMul(ans, a, mod);
@@ -123,7 +124,7 @@ namespace Math {
 		}return ans;
 	}
 
-	bool witness(long long n, long long seed, long long d, int r) {
+	static bool witness(long long n, long long seed, long long d, int r) {
 		seed = modpow(seed, d, n);
 		if (seed == 1)return true;
 		for (int i = 0; i < r; ++i) {
@@ -133,7 +134,7 @@ namespace Math {
 		}return false;
 	}
 
-	bool MillerRobin(long long n, const int k = 5) {
+	static bool MillerRobin(long long n, const int k = 5) {
 		if (n == 2 || n == 3 || n == 5)return true;
 		if (n == 1 || !(n & 1))return false;
 		long long d = n - 1;
@@ -154,11 +155,11 @@ namespace Math {
 	}
 
 	bool isprime(long long n) {
-		if (n <= MAXINT)return isprime((int)n);
+		if (!(n>>32))return isprime((int)n);
 		return MillerRobin(n);
 	}
 
-	long long rho(long long x) {
+	static long long rho(long long x) {
 		if (x == 4)
 			return 2;
 		while (true) {
@@ -174,15 +175,17 @@ namespace Math {
 				if (!(i & 127) || i == j) {//我们不仅在等127次之后gcd我们还会倍增的来gcd
 					d = Math::gcd(p, x);
 					if (d > 1)return d;
-					if (i == j)t = r, j <<= 1;//维护倍增正确性，并判环（一箭双雕）
+					if (i == j) {
+						t = r;
+						j <<= 1;
+					}
 				}
 			}
 
 		}
-		return x;
 	}
 
-	void pollard_rho(long long x, vector<long long>& ans) {
+	static void pollard_rho(long long x, vector<long long>& ans) {
 		if (x < 2)return;
 		if (isprime(x)) {
 			ans.push_back(x);
@@ -199,7 +202,7 @@ namespace Math {
 		return ans;
 	}
 
-	void max_pollard_rho(long long x, long long& Max) {
+	static void max_pollard_rho(long long x, long long& Max) {
 		if (x < 2 || x <= Max)return;
 		if (isprime(x)) {
 			Max = Max >= x ? Max : x;
@@ -216,5 +219,4 @@ namespace Math {
 		max_pollard_rho(x, ans);
 		return ans;
 	}
-
 }

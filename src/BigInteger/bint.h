@@ -148,6 +148,8 @@ namespace Math {
 	bint gcd(const bint&, const bint&);
 	bint randdata(const bint& L, const bint& R);
 	bint randdata(size_t);
+	bint randprime(const bint&L,const bint&R);//获取一个[L,R]的随机素数
+	bint randprime(size_t);//获取一个长度为n的随机素数
 	void swap(bint&, bint&);
 
 	ostream& operator<<(ostream& out, const bint2& x);
@@ -203,6 +205,13 @@ namespace Math {
 	bint2 operator%(const bint2&, const bint2&);
 	bint2 operator%(const bint2&, const int&);
 	bint2 operator%(const int&, const bint2&);
+
+	bint2 operator<<(const bint2&,int);
+	bint2 operator>>(const bint2&, int);
+	bint2 operator&(const bint2&,const bint2&);
+	bint2 operator|(const bint2&, const bint2&);
+	bint2 operator^(const bint2&, const bint2&);
+
 
 	bint2 qpow(const bint2&, int);
 
@@ -272,141 +281,45 @@ namespace Math {
 		void clear();
 
 		void resize(const size_t&);
-		const size_t size()const;
+		size_t size()const;
 		void reserve(const size_t&);
-		bint(const int& len, int) :vec(len), positive(true) {
-		#ifdef BINTDEBUG
-			cout << "bint构造函数\n";
-		#endif
-		}
+		bint(const size_t&,int);
 	public:
 		/*---初始化为other的[L,R]元素---*/
 		void assign(const bint& other, const size_t& L, const size_t& R);
-		const bool iszero()const;
-		const bool ispositive()const;
-		bint()noexcept :positive(true) {
-		#ifdef BINTDEBUG
-			cout << "bint构造函数\n";
-		#endif BINTDEBUG
-		}
-		~bint() {
-		#ifdef BINTDEBUG
-			cout << "bint析构函数\n";
-		#endif
-		}
-		explicit bint(const int& val)noexcept {
-		#ifdef BINTDEBUG
-			cout << "bint构造函数\n";
-		#endif 
-			assign(val);
-		}
-		explicit bint(const long long& val)noexcept :positive(true) {
-		#ifdef BINTDEBUG
-			cout << "bint构造函数\n";
-		#endif 
-			assign(val);
-		}
-		explicit bint(const char* s)noexcept :positive(true) {
-		#ifdef BINTDEBUG
-			cout << "bint构造函数\n";
-		#endif
-			assign(s);
-		}
-		explicit bint(const std::string& s)noexcept :positive(true) {
-		#ifdef BINTDEBUG
-			cout << "bint构造函数\n";
-		#endif
-			assign(s);
-		}
-		bint(const bint& other)noexcept :vec(other.vec), positive(other.positive) {
-		#ifdef BINTDEBUG
-			cout << "bint拷贝构造函数\n";
-		#endif
-		}
-		bint(bint&& other)noexcept : vec(std::move(other.vec)), positive(other.positive) {
-		#ifdef BINTDEBUG
-			cout << "bint右值拷贝构造函数\n";
-		#endif
-		}
-		bint(const bint& other, const bool& _positive)noexcept :vec(other.vec), positive(_positive) {
-		#ifdef BINTDEBUG
-			cout << "bint拷贝构造函数\n";
-		#endif 
-		}
-		bint(bint&& other, const bool& _positive)noexcept :vec(std::move(other.vec)), positive(_positive) {
-		#ifdef BINTDEBUG
-			cout << "bint右值拷贝构造函数\n";
-		#endif 
-		}
+		bool iszero()const;
+		bool ispositive()const;
+		bint()noexcept;
+		~bint();
+		explicit bint(const int& val)noexcept;
+		explicit bint(const long long& val)noexcept;
+		explicit bint(const char* s)noexcept;
+		explicit bint(const std::string& s)noexcept;
+		bint(const bint& other)noexcept;
+		bint(bint&& other)noexcept;
+		bint(const bint& other, const bool& _positive)noexcept;
+		bint(bint&& other, const bool& _positive)noexcept;
 
-		bint(const bint& other, const int& L, const int& R)noexcept : vec(max(1, R - L)), positive(true) {
-		#ifdef BINTDEBUG
-			cout << "bint拷贝构造函数\n";
-		#endif
-			assign(other, L, R);
-		}
-		bint(const Array& _vec, const bool& _positive)noexcept :vec(_vec), positive(_positive) {
-		#ifdef BINTDEBUG
-			cout << "bint拷贝构造函数\n";
-		#endif
-
-		}
-		bint& operator=(const int& val)noexcept {
-		#ifdef BINTDEBUG
-			cout << "bint复制函数\n";
-		#endif
-			assign(val);
-			return*this;
-		}
-		bint& operator=(const long long& val)noexcept {
-		#ifdef BINTDEBUG
-			cout << "bint复制函数\n";
-		#endif
-			assign(val);
-			return*this;
-		}
-		bint& operator=(const char* s)noexcept {
-		#ifdef BINTDEBUG
-			cout << "bint复制函数\n";
-		#endif
-			assign(s);
-			return*this;
-		}
-		bint& operator=(const std::string& s)noexcept {
-		#ifdef BINTDEBUG
-			cout << "bint复制函数\n";
-		#endif
-			assign(s);
-			return*this;
-		}
-		bint& operator=(const bint& other)noexcept {
-		#ifdef BINTDEBUG
-			cout << "bint复制函数\n";
-		#endif
-			vec = other.vec;
-			positive = other.positive;
-			return*this;
-		}
-		bint& operator=(bint&& other)noexcept {
-		#ifdef BINTDEBUG
-			cout << "bint右值复制\n";
-		#endif
-			vec = std::move(other.vec);
-			positive = other.positive;
-			return*this;
-		}
+		bint(const bint& other, const size_t& L, const size_t& R)noexcept;
+		bint(const Array& _vec, const bool& _positive)noexcept;
+		bint& operator=(const int& val)noexcept;
+		bint& operator=(const long long& val)noexcept;
+		bint& operator=(const char* s)noexcept;
+		bint& operator=(const std::string& s)noexcept;
+		bint& operator=(const bint& other)noexcept;
+		bint& operator=(bint&& other)noexcept;
 		bint& operator=(const bint2& other)noexcept;
 
-		const size_t length()const;
+		size_t length()const;
 		void relength(const size_t&);
-		void reverse(size_t = -1);
+		void reverse(size_t = 0);
 
-		const int operator[](const size_t&)const;//下标的const 访问，略快于非const动态扩展访问
+		int operator[](const size_t&)const;//下标的const 访问，略快于非const动态扩展访问
 		int& operator[](const size_t&);//非const 的动态扩展访问
 		int& save_at(const size_t&);//vec[index]，但是去掉了动态扩展，且可以修改
 
-		uint at(const size_t&)const;//10进制下的index位，取值0~9,因此用short就够了
-		void set(const size_t&, const uint&);//10进制位的index位修改
+		uint32_t at(const size_t&)const;//10进制下的index位，取值0~9,因此用short就够了
+		void set(const size_t&, const uint32_t&);//10进制位的index位修改
 		void randdata(const bint& other);
 
 		friend ostream& operator<<(ostream&, const bint&);
@@ -415,6 +328,7 @@ namespace Math {
 		/*
 		* 防止int强制转换，同时后期可以针对int进行特别优化
 		*/
+
 		friend bool operator<(const bint&, const bint&);
 		friend bool operator<(const bint&, int);
 		friend bool operator==(const bint&, const bint&);
@@ -457,8 +371,8 @@ namespace Math {
 		friend bint operator/(int, const bint&);
 
 		void quick_mul_10();//O(n)乘10，但省去了部分运算
-		bint& quick_mul_10k(const int& = 1);//O(n)乘10^k
-		bint& quick_divide_10k(const int& = 1);
+		bint& quick_mul_10k(const size_t&);//O(n)乘10^k
+		bint& quick_divide_10k(const size_t&);
 		void abs();//变为绝对值，即positive取true
 		friend bint abs(bint);
 		void swap(bint& other);
@@ -500,7 +414,6 @@ namespace Math {
 				c.positive = true;
 				return c;
 			}
-			int n = a.size(), m = b.size();
 
 			FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
 			c.positive = !(a.positive ^ b.positive);
@@ -514,14 +427,14 @@ namespace Math {
 				c.positive = true;
 				return c;
 			}
-			int n = a.size(), m = b.size(), _min = min(n, m), _max = max(n, m);
+			size_t n = a.size(), m = b.size(), _min = min(n, m), _max = max(n, m);
 
-			if (((1 << min(30, max(0, _min - 32 >> 1))) <= _max))
+			if (_min<=32||(((1ll << min(30, max(0, (_min - 32) >> 1))) <= _max)))
 				Array_func::SlowMul(a.vec, b.vec, c.vec);
 			else FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
 
 
-			if (((1 << min(30, max(0, _min - 32 >> 1))) <= _max))
+			if (_min<=32||(((1ll << min(30, max(0, (_min - 32) >> 1))) <= _max)))
 				mode = 1;
 			else mode = 3;
 
@@ -555,8 +468,8 @@ namespace Math {
 		void assign(const std::string&);
 
 		//saveadd和savedel均为均摊O(1)
-		void saveadd(int);
-		void savedel(int);
+		void saveadd(size_t);
+		void savedel(size_t);
 
 		static void quickadd(bint2&, const bint2&, bool);
 		static void addint(bint2&, int, bool);
@@ -576,75 +489,31 @@ namespace Math {
 		void clear();
 	public:
 		void assign(const bint2& other, const int& L, const int& R);
-		const bool ispositive()const;
-		const bool iszero()const;
-		bint2()noexcept : positive(true) {
-			vec[0] = 0;
-		}
-		~bint2() {
+		bool ispositive()const;
+		bool iszero()const;
+		bint2()noexcept;
+		~bint2();
+		explicit bint2(const int& val)noexcept;
+		explicit bint2(const long long& val)noexcept;
+		explicit bint2(const char* s)noexcept;
+		explicit bint2(const std::string& s)noexcept;
 
-		}
-		explicit bint2(const int& val)noexcept :positive(true) {
-			assign(val);
-		}
-		explicit bint2(const long long& val)noexcept :positive(true) {
-			assign(val);
-		}
-		explicit bint2(const char* s)noexcept :positive(true) {
-			assign(s);
-		}
-		explicit bint2(const std::string& s)noexcept :positive(true) {
-			assign(s);
-		}
-
-		bint2(const bint2& other)noexcept :vec(other.vec), positive(other.positive) {
-
-		}
-		bint2(bint2&& other)noexcept :vec(std::move(other.vec)), positive(other.positive) {
-
-		}
-		bint2(const bint2& other, const bool& _positive)noexcept :vec(other.vec), positive(_positive) {
-
-		}
-		bint2(bint2&& other, bool _positive)noexcept : vec(std::move(other.vec)), positive(_positive) {
-
-		}
-		bint2(const Array2& _vec, const bool& _positive)noexcept :vec(_vec), positive(_positive) {
-
-		}
-		bint2& operator=(const int& val) noexcept {
-			assign(val);
-			return*this;
-		}
-		bint2& operator=(const long long& val) noexcept {
-			assign(val);
-			return*this;
-		}
-		bint2& operator=(const bint2& other)noexcept {
-			if (this == &other)return*this;
-			vec = other.vec;
-			positive = other.positive;
-			return*this;
-		}
-		bint2& operator=(bint2&& other) noexcept {
-			vec = std::move(other.vec);
-			positive = other.positive;
-			return*this;
-		}
-		bint2& operator=(const char* s) noexcept {
-			assign(s);
-			return*this;
-		}
-		bint2& operator=(const std::string& s)noexcept {
-			assign(s);
-			return*this;
-		}
+		bint2(const bint2& other)noexcept;
+		bint2(bint2&& other)noexcept;
+		bint2(const bint2& other, const bool& _positive)noexcept;
+		bint2(bint2&& other, bool _positive)noexcept;
+		bint2(const Array2& _vec, const bool& _positive)noexcept;
+		bint2& operator=(const int& val) noexcept;
+		bint2& operator=(const long long& val) noexcept;
+		bint2& operator=(const bint2& other)noexcept;
+		bint2& operator=(bint2&& other) noexcept;
+		bint2& operator=(const char* s) noexcept;
+		bint2& operator=(const std::string& s)noexcept;
 		bint2& operator=(const bint& other)noexcept;
 
-
-		const uint operator[](const int&)const;
-		uint& operator[](const int&);
-		uint& save_at(const int&);
+		uint32_t operator[](const int&)const;
+		uint32_t& operator[](const int&);
+		uint32_t& save_at(const int&);
 
 		bool at(const int&)const;
 		void set(const int&, const bool&);
@@ -719,12 +588,17 @@ namespace Math {
 		friend bint2 operator%(const bint2&, const int&);
 		friend bint2 operator%(const int&, const bint2&);
 
+		friend bint2 operator<<(const bint2&,int);
+		friend bint2 operator>>(const bint2&, int);
+		friend bint2 operator&(const bint2&, const bint2&);
+		friend bint2 operator|(const bint2&,const bint2&);
+		friend bint2 operator^(const bint2&,const bint2&);
 
-		void resize(const uint&);
-		const uint size()const;
-		const uint length()const;
-		void reserve(const uint&);
-		void relength(const uint&);
+		void resize(const uint32_t&);
+		uint32_t size()const;
+		uint32_t length()const;
+		void reserve(const uint32_t&);
+		void relength(const uint32_t&);
 
 		friend bint2 qpow(const bint2&, int);
 
@@ -740,4 +614,4 @@ namespace Math {
 
 
 }
-#endif BINT_H
+#endif

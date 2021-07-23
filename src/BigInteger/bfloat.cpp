@@ -514,7 +514,7 @@ namespace Math {
 		str.push_back('0' + base.at(Length - 1));
 		if (Length > 1) {
 			str.push_back('.');
-			for (int i = Length - 2; ~i; --i)
+			for (size_t i = Length - 2; ~i; --i)
 				str.push_back('0' + base.at(i));
 		}
 		if (EXP) {
@@ -604,7 +604,7 @@ namespace Math {
 		return qpow(EXP, _Floor) * sqrtEXP * exp(x - _Floor - 0.5);
 	}
 
-	bfloat atan(bfloat x) {
+	/*bfloat atan(bfloat x) {
 		if (x < 0)return -atan(-x);
 		if (x <= 0.5) {
 			int tmp = bfloat::floatlim << 1;
@@ -684,7 +684,7 @@ namespace Math {
 			return cos(2 * pi - x);
 		if (x > 0.8)return sin(pi / 2 - x);
 		return cos(x);
-	}
+	}*/
 
 }
 

@@ -3,7 +3,9 @@
 
 #define LZLEVEL 2
 
-#if LZLEVEL == 1
+//更高的速度
+
+#if LZLEVEL == 1 
 
 #define WINDOW_SIZE_BIT 13
 #define WINDOW_SIZE (1<<WINDOW_SIZE_BIT)
@@ -12,7 +14,8 @@
 
 #endif
 
-#if LZLEVEL == 2
+//更小的压缩率
+#if LZLEVEL == 2 
 
 #define WINDOW_SIZE_BIT 13
 #define WINDOW_SIZE (1<<WINDOW_SIZE_BIT)
@@ -154,14 +157,14 @@ namespace lz77 {
 
 	void writebuf(std::string& str, uint32_t& buf, uint32_t& bufsize) {
 		while (bufsize >= 8) {
-			str.push_back(buf >> bufsize - 8);
+			str.push_back(buf >> (bufsize - 8));
 			bufsize -= 8;
 		}
 	}
 
 	void writebuf(uint8_t*& op, uint32_t& buf, uint32_t& bufsize) {
 		while (bufsize >= 8) {
-			*(op++) = buf >> bufsize - 8;
+			*(op++) = buf >> (bufsize - 8);
 			bufsize -= 8;
 		}
 	}

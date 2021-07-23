@@ -66,12 +66,12 @@ namespace Math {
 	bfloat ln(bfloat);
 	bfloat exp(const bfloat&);
 
-	bfloat atan(bfloat);
+	/*bfloat atan(bfloat);
 	bfloat asin(const bfloat&);
 	bfloat acos(const bfloat&);
 
 	bfloat sin(const bfloat&);
-	bfloat cos(const bfloat&);
+	bfloat cos(const bfloat&);*/
 
 	//------------------------------------------------------------------//
 
