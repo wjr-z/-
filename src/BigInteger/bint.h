@@ -381,7 +381,6 @@ namespace Math {
 		long long toll()const;//转为long long
 		std::string tostr()const;//转为字符串
 
-		bint inv(int = -1)const;//求精度为lim的逆元，很慢！
 		bint2 to2bit()const;//转为2进制bint
 		//用于测试三种乘法
 	#ifdef TEST

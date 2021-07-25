@@ -692,33 +692,6 @@ namespace Math {
 		return Factorial(L, mid) * Factorial(mid+1, R);
 	}
 
-	bint bint::inv(int lim)const {//弃置不用
-		bint ni, two;
-		int fac = length();
-		if (lim == -1)lim = fac << 1;
-		two.set(lim, 2);
-		if (fac > 1) {//牛顿迭代初值
-			int val = 1000 / (this->at(fac - 1) * 10 + this->at(fac - 2) + 1);
-			ni.set(lim - fac, val / 10);
-			ni.set(lim - fac - 1, val % 10);
-		}
-		else ni.set(lim - fac, 10 / (this->at(fac - 1) + 1));
-		int _maxn = quicklog2(lim) + 2;
-		/* 初始 F*G = e
-		* 迭代一次后 G = G * ( 2 - F * G )
-		* F*G = e * ( 2 - e )
-		* e 初始不小于 0.5
-		* 收敛的会很快，但如果 A 和 B 长度相差过大，则即便很小的误差也会被放的很大
-		*/
-		for (int i = 1; i <= _maxn; ++i) {
-			ni = ni * (two - (*this) * ni);
-			Array_func::QuickDivide10k(ni.vec, lim);
-		}
-		ni.positive = this->positive;
-		return ni;
-	}
-
-
 	void bint::clear() {
 		vec.clear();
 		positive = true;
