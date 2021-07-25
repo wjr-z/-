@@ -18,6 +18,10 @@ void randdata(bint& x, size_t n) {
 	x.set(n - 1, randint(1, 9));
 }
 
+#include <bitset>
+
+bint2 tst[2005];
+bitset<2005>tst2[2005];
 
 int main() {
 
@@ -26,21 +30,17 @@ int main() {
 	cout.tie(0);
 
 	bint a, b;
-	a = randdata(1000000);
-	b = randdata(910000);
-
-	START
-		bint c = a / b;
-	END
-		cout << en - sta << endl;
+	while (1) {
+		cin>>a;
+		cout<<a<<endl;
+	}
 
 	return 0;
-
-	a = qpow(bint(1234), 56);
+	a = qpow(bint(12345), 5678);
 	string ttst = a.tostr();
 	double ss = currTime();
 	cout << "----------\n";
-	for (int i = 0; i < 1000000; ++i)
+	for (int i = 0; i < 1000; ++i)
 		b = a * a;
 
 	double tt = currTime();

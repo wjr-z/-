@@ -146,8 +146,8 @@ namespace Math {
 
 	bint abs(bint);
 	bint gcd(const bint&, const bint&);
-	bint randdata(const bint& L, const bint& R);
-	bint randdata(size_t);
+	bint randbint(const bint& L, const bint& R);
+	bint randbint(size_t);
 	bint randprime(const bint&L,const bint&R);//获取一个[L,R]的随机素数
 	bint randprime(size_t);//获取一个长度为n的随机素数
 	void swap(bint&, bint&);
@@ -216,6 +216,7 @@ namespace Math {
 	bint2 qpow(const bint2&, int);
 
 	bint2 abs(bint2);
+	bint2 randbint2(size_t);
 
 	bool operator==(const bint&, const bint2&);
 	bool operator==(const bint2&, const bint&);
@@ -320,7 +321,13 @@ namespace Math {
 
 		uint32_t at(const size_t&)const;//10进制下的index位，取值0~9,因此用short就够了
 		void set(const size_t&, const uint32_t&);//10进制位的index位修改
-		void randdata(const bint& other);
+
+		const int* begin()const;
+		const int* end()const;
+		int* begin();
+		int* end();
+
+		void rand(const bint& other);
 
 		friend ostream& operator<<(ostream&, const bint&);
 		friend istream& operator>>(istream&, bint&);
@@ -375,6 +382,7 @@ namespace Math {
 		bint& quick_divide_10k(const size_t&);
 		void abs();//变为绝对值，即positive取true
 		friend bint abs(bint);
+		void oppsite();
 		void swap(bint& other);
 
 		int toint()const;//转为int
@@ -428,12 +436,12 @@ namespace Math {
 			}
 			size_t n = a.size(), m = b.size(), _min = min(n, m), _max = max(n, m);
 
-			if (_min<=32||(((1ll << min(30, max(0, (_min - 32) >> 1))) <= _max)))
+			if (_min<=32||(((1ull << min(30, max(0, (_min - 32) >> 1))) <= _max)))
 				Array_func::SlowMul(a.vec, b.vec, c.vec);
 			else FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
 
 
-			if (_min<=32||(((1ll << min(30, max(0, (_min - 32) >> 1))) <= _max)))
+			if (_min<=32||(((1ull << min(30, max(0, (_min - 32) >> 1))) <= _max)))
 				mode = 1;
 			else mode = 3;
 
@@ -486,6 +494,8 @@ namespace Math {
 		static void mulint(const bint2& a, int b, bint2& c);
 		bint get10bit()const;
 		void clear();
+		bool atbool(const int&)const;
+		void setbool(const int&, const bool&);
 	public:
 		void assign(const bint2& other, const int& L, const int& R);
 		bool ispositive()const;
@@ -510,12 +520,19 @@ namespace Math {
 		bint2& operator=(const std::string& s)noexcept;
 		bint2& operator=(const bint& other)noexcept;
 
-		uint32_t operator[](const int&)const;
-		uint32_t& operator[](const int&);
+		uint32_t at(const int&)const;
+		uint32_t& at(const int&);
 		uint32_t& save_at(const int&);
 
-		bool at(const int&)const;
-		void set(const int&, const bool&);
+		bool operator[](const size_t&index)const;
+		reference2 operator[](const size_t&index);
+
+		const uint32_t*begin()const;
+		const uint32_t*end()const;
+		uint32_t*begin();
+		uint32_t*end();
+
+		void maintain();
 		void randdata(const bint2&);
 
 		friend ostream& operator<<(ostream& out, const bint2& x);
@@ -593,6 +610,12 @@ namespace Math {
 		friend bint2 operator|(const bint2&,const bint2&);
 		friend bint2 operator^(const bint2&,const bint2&);
 
+		bint2&operator&=(const bint2&);
+		bint2&operator|=(const bint2&);
+		bint2&operator^=(const bint2&);
+
+		size_t count();
+
 		void resize(const uint32_t&);
 		uint32_t size()const;
 		uint32_t length()const;
@@ -606,11 +629,11 @@ namespace Math {
 		bint2& quick_divide_2k(int = 1);
 		void abs();
 		friend bint2 abs(bint2);
+		void oppsite();
 
 		std::string tostr()const;
 		bint to10bit()const;
 	};
-
 
 }
 #endif
