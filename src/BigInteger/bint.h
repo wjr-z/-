@@ -1,53 +1,4 @@
-/* bigintger 类
-* 分为 bint ( 10-bit ) 和 bint2 (2 - bit)
-* bint (10-bit):
-*
-* 因为均采用了压位，以下 "第 index 位" 代表 10-bit/2-bit 第 index 位的数 ， "第 index 个元素" 代表压位后的数
-* 元素代表内部记录的每个数，而非每个位置下的数
-*
-* 运算符：
-* 包含常用的运算符 +、-、*、/、%，其中 * 复杂度是 O ( n log n ) , / 和 % 复杂度是 O ( n log ^ 2 n)
-* +=、-=、*=、/=、++、--、<、>、<=、>=、==、!=等
-* 赋值为 int、long long、const char* （末尾有\0）、string
-*
-* at(index) : 返回index位
-* 下标访问[index] :（支持const 和非const) 返回 10^8进制下index个元素，会自动扩展，请注意！
-* save_at(index) : 第index个元素，去掉了边界检查和动态扩展
-*
-* a.abs() : a变为绝对值
-* bintabs(a) : 返回a的绝对值，非必要则尽量不用，避免拷贝耗时
-*
-* a.assign(b,L,R) : 初始化为 b 的 [L,R] 的元素
-*
-* a.iszero() : 用于判断是否为 0 ，比 a!=0 会更快
-*
-* a.size() : 返回 a 的元素个数
-* a.length() : 返回位数（非元素个数）
-*
-* a.resize(Size) : 元素个数变为 Size
-* a.reserve(Size) : 预留 Size 的容量
-* a.relenth(Length) : 将 a 的 位数变为 length
-*
-* a.quick_mul_10() : 将 a 快速乘以 10 O(n)
-* a.quick_mul_10k(k) : 将 a 快速乘以 10 ^ k (O(n))
-*
-* a.set(index,val) : 将 a 的第 index 位 设置为 val
-*
-* a.toint() : 返回 a 的 int 值
-* a.toll() : 返回 a 的 long long 值
-* a.tostr() : 返回 一个 string
-* a.to2bit() : 返回 bint2 类型 ，即10进制转为2进制
-*
-*
-* bint2 :
-*
-* 与bint 基本类似，只是将10^8进位改为了2^32
-*
-* 现在功能还不完善，以后慢慢补充
-*
-* a.to10bit() : 返回 bint 类型，即2进制转为10进制
-*
-*/
+
 
 #ifndef BINT_H
 #define BINT_H
@@ -315,12 +266,12 @@ namespace Math {
 		void relength(const size_t&);
 		void reverse(size_t = 0);
 
-		int operator[](const size_t&)const;//下标的const 访问，略快于非const动态扩展访问
-		int& operator[](const size_t&);//非const 的动态扩展访问
-		int& save_at(const size_t&);//vec[index]，但是去掉了动态扩展，且可以修改
+		int at(const size_t&)const;
+		int& at(const size_t&);
+		int& save_at(const size_t&);
 
-		uint32_t at(const size_t&)const;//10进制下的index位，取值0~9,因此用short就够了
-		void set(const size_t&, const uint32_t&);//10进制位的index位修改
+		int operator[](const size_t&)const;
+		reference operator[](const size_t&);
 
 		const int* begin()const;
 		const int* end()const;
@@ -436,12 +387,12 @@ namespace Math {
 			}
 			size_t n = a.size(), m = b.size(), _min = min(n, m), _max = max(n, m);
 
-			if (_min<=32||(((1ull << min(30, max(0, (_min - 32) >> 1))) <= _max)))
+			if (_min<=32||(((1ull << min(size_t(30), max(size_t(0), (_min - 32) >> 1))) <= _max)))
 				Array_func::SlowMul(a.vec, b.vec, c.vec);
 			else FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
 
 
-			if (_min<=32||(((1ull << min(30, max(0, (_min - 32) >> 1))) <= _max)))
+			if (_min<=32||(((1ull << min(size_t(30), max(size_t(0), (_min - 32) >> 1))) <= _max)))
 				mode = 1;
 			else mode = 3;
 
@@ -494,8 +445,6 @@ namespace Math {
 		static void mulint(const bint2& a, int b, bint2& c);
 		bint get10bit()const;
 		void clear();
-		bool atbool(const int&)const;
-		void setbool(const int&, const bool&);
 	public:
 		void assign(const bint2& other, const int& L, const int& R);
 		bool ispositive()const;

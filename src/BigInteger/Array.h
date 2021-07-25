@@ -39,23 +39,28 @@ namespace Math {
 	/*---Array类---*/
 	/*---使用vector---*/
 
+#define USE_ALLOCATOR
+
 #if defined(_ITERATOR_DEBUG_LEVEL) && _ITERATOR_DEBUG_LEVEL!=0
-#define _ALLOCATOR_DEBUG
+#undef USE_ALLOCATOR
 #endif
 
+	class reference;
 	class Array_func;
 
 	class Array {
-	private:
+		friend reference;
 		friend Array_func;
-
-	#ifdef _ALLOCATOR_DEBUG //DEBUG版本
+	private:
+	#ifndef USE_ALLOCATOR //DEBUG版本
 		vector<int>vec;
 	#endif
-	#ifndef _ALLOCATOR_DEBUG
+	#ifdef USE_ALLOCATOR
 		vector<int, Allocator<int>>vec;
 	#endif
 		size_t Size;
+		void setv(const size_t& index, const int& val);
+		int atv(const size_t& index)const;
 	public:
 		Array(const size_t& index = 1)noexcept;
 		Array(const Array& other)noexcept;
@@ -77,12 +82,27 @@ namespace Math {
 		void assign(const Array& other, const size_t& L, const size_t& R);
 
 		int& save_at(const size_t& index);
-		int operator[](const size_t& index)const;
-		int& operator[](const size_t& index);
+		int at(const size_t& index)const;
+		int& at(const size_t& index);
 
-		void set(const size_t& index, const uint32_t& val);
-		uint32_t at(const size_t& index)const;
+		uint32_t operator[](const size_t&index)const;
+		reference operator[](const size_t&index);
 		void swap(Array& other);
+	};
+
+	class reference {
+		friend Array;
+	private:
+		Array* Point;
+		size_t _Pos;
+	public:
+		~reference() noexcept;
+		reference& operator=(int _Val)noexcept;
+		reference& operator=(const reference& _Bitref) noexcept;
+		operator int()const;
+	private:
+		reference() noexcept;
+		reference(Array& _bint2, size_t _Pos);
 	};
 
 
@@ -114,18 +134,17 @@ namespace Math {
 	/*---使用vector---*/
 
 	class reference2;
-
 	class Array2_func;
 	//ungisned int 
 	//每一个存储2^32进制数，即32个二进制数
 	class Array2 {
 		friend reference2;
-	private:
 		friend Array2_func;
-	#ifdef _ALLOCATOR_DEBUG //DEBUG版本
+	private:
+	#ifndef USE_ALLOCATOR //DEBUG版本
 		vector<uint32_t>vec;
 	#endif
-	#ifndef _ALLOCATOR_DEBUG
+	#ifdef USE_ALLOCATOR
 		vector<uint32_t, Allocator<uint32_t>>vec;
 	#endif
 		size_t Size;

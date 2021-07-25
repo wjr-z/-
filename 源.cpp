@@ -12,16 +12,16 @@ void randdata(bint& x, size_t n) {
 	x = 0;
 	size_t Size = n - 1 >> 3;
 	for (size_t i = 0; i < Size; ++i)
-		x[i] = randint(0, bintjw - 1);
+		x.at(i) = randint(0, bintjw - 1);
 	for (size_t i = Size << 3; i < n - 1; ++i)
-		x.set(i, randint(0, 9));
-	x.set(n - 1, randint(1, 9));
+		x[i]=randint(0, 9);
+	x[n-1]=randint(1, 9);
 }
 
 #include <bitset>
 
-bint2 tst[2005];
-bitset<2005>tst2[2005];
+bint2 tst;
+bitset<2005>tst2;
 
 int main() {
 
@@ -30,12 +30,8 @@ int main() {
 	cout.tie(0);
 
 	bint a, b;
-	while (1) {
-		cin>>a;
-		cout<<a<<endl;
-	}
+	
 
-	return 0;
 	a = qpow(bint(12345), 5678);
 	string ttst = a.tostr();
 	double ss = currTime();

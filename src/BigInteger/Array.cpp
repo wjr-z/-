@@ -48,7 +48,7 @@ namespace Math {
 	}
 
 	bool Array::iszero()const {
-		return ((Size==1&&this->operator[](0)==0)||!Size)?true:false;
+		return ((Size==1&&at(0)==0)||!Size)?true:false;
 	}
 
 	const size_t& Array::size()const {
@@ -60,7 +60,7 @@ namespace Math {
 	}
 
 	size_t Array::length()const {
-		return ((Size - 1) << 3) + quicklog10(this->operator[](Size - 1)) + 1;
+		return ((Size - 1) << 3) + quicklog10(at(Size - 1)) + 1;
 	}
 
 	void Array::resize(const size_t& index) {
@@ -88,22 +88,30 @@ namespace Math {
 
 	int& Array::save_at(const size_t& index) { return vec[index]; }
 
-	int Array::operator[](const size_t& index)const { return vec[index]; }
+	int Array::at(const size_t& index)const { return vec[index]; }
 
-	int& Array::operator[](const size_t& index) {
+	int& Array::at(const size_t& index) {
 		if (size() <= index)
 			this->resize(index + 1);
 		return save_at(index);
 	}
 
-	void Array::set(const size_t& index, const uint32_t& val) {
+	void Array::setv(const size_t& index, const int& val) {
+		if(val<0||val>=10)return ;
 		size_t pos = index >> 3;
 		int x = _10k[index & 7];
-		(*this)[pos] += (val - (this->operator[](pos) / x) % 10) * x;
+		at(pos) += (val - (at(pos) / x) % 10) * x;
 	}
 
-	uint32_t Array::at(const size_t& index)const {
-		return (this->operator[](index >> 3) / _10k[index & 7]) % 10;
+	int Array::atv(const size_t& index)const {
+		return (at(index >> 3) / _10k[index & 7]) % 10;
+	}
+
+	uint32_t Array::operator[](const size_t& index)const {
+		return atv(index);
+	}
+	reference Array::operator[](const size_t& index) {
+		return reference(*this,index);
 	}
 
 	void Array::swap(Array& other) {
@@ -126,8 +134,9 @@ namespace Math {
 
 	bool operator==(const Array& _left, const Array& _right) {
 		if (_left.size() != _right.size())return false;
+		const int* _Lhs = _left.begin(), * _Rhs = _right.begin();
 		for (size_t i = _left.size() - 1; ~i; --i)
-			if (_left[i] != _right[i])
+			if (_Lhs[i] != _Rhs[i])
 				return false;
 		return true;
 	}
@@ -135,9 +144,10 @@ namespace Math {
 	bool operator<=(const Array& _left, const Array& _right) {
 		if (_left.size() < _right.size())return true;
 		if (_left.size() > _right.size())return false;
+		const int* _Lhs = _left.begin(), * _Rhs = _right.begin();
 		for (size_t i = _left.size() - 1; ~i; --i)
-			if (_left[i] != _right[i])
-				return _left[i] < _right[i];
+			if (_Lhs[i] != _Rhs[i])
+				return _Lhs[i] < _Rhs[i];
 		return true;
 	}
 
@@ -152,6 +162,42 @@ namespace Math {
 	bool operator!=(const Array& _left, const Array& _right) {
 		return !(_left == _right);
 	}
+
+	/*reference2::~reference2() noexcept {}
+	reference2& reference2::operator=(bool _Val)noexcept {
+		Point->setbool(_Pos, _Val);
+		return*this;
+	}
+	reference2& reference2::operator=(const reference2& _Bitref) noexcept {
+		Point->setbool(_Pos, _Bitref.Point->atbool(_Bitref._Pos));
+		return *this;
+	}
+
+	bool reference2::operator~() const noexcept {
+		return !Point->atbool(_Pos);
+	}
+
+	reference2::operator bool() const noexcept {
+		return Point->atbool(_Pos);
+	}
+
+	reference2::reference2() noexcept : Point(nullptr), _Pos(0) {}
+	reference2::reference2(Array2& _Array2, size_t _Pos) : Point(&_Array2), _Pos(_Pos) {}*/
+
+	reference::~reference() noexcept {}
+	reference& reference::operator=(int _Val)noexcept {
+		Point->setv(_Pos,_Val);
+		return*this;
+	}
+	reference& reference::operator=(const reference& _Bitref) noexcept {
+		Point->setv(_Pos,_Bitref.Point->atv(_Bitref._Pos));
+		return*this;
+	}
+	reference::operator int()const {
+		return Point->atv(_Pos);
+	}
+	reference::reference() noexcept : Point(nullptr),_Pos(0){}
+	reference::reference(Array& _Array, size_t _Pos):Point(&_Array),_Pos(_Pos) {}
 
 	/*---bint_fuc部分实现---*/
 
@@ -185,10 +231,10 @@ namespace Math {
 				mul10 *= 10;
 			size_t mod10 = bintjw / mul10;
 			for (size_t i = 0; i < Size; ++i) {
-				a[i] = a[i] / mul10 + (i + 1 == Size ? 0 : (a[i + 1] % mul10) * mod10);
+				a.at(i) = a.at(i) / mul10 + (i + 1 == Size ? 0 : (a.at(i+1) % mul10) * mod10);
 			}
 			for (size_t i = (k&7)<Length?Length-(k&7):0; i < Length; ++i)
-				a.set(i, 0);
+				a.setv(i, 0);
 			while (Size > 1 && !a.save_at(Size - 1))
 				--Size;
 			a.resize(Size);
@@ -229,7 +275,7 @@ namespace Math {
 			c.save_at(Length) = mid[Length];
 		}
 		else c.resize(Length);
-		memcpy(&c[0], mid, sizeof(int) * Length);
+		memcpy(c.begin(), mid, sizeof(int) * Length);
 		test.deallocate(mid, n + m);
 	}
 
@@ -248,8 +294,9 @@ namespace Math {
 		size_t s = 1ull << bit;
 
 		double* a = new double[s << 1];
+		const int*va=A.begin(),*vb=B.begin();
 		for (size_t i = 0; i < n; i += 8) {
-			uint32_t val = A[i >> 3];
+			uint32_t val = va[i >> 3];
 			for (size_t j = 0; j < 8; ++j) {
 				uint32_t q = val % 10;
 				val /= 10;
@@ -260,7 +307,7 @@ namespace Math {
 		for (size_t i = (n << 1); i < (s << 1); ++i)
 			a[i] = 0;
 		for (size_t i = 0; i < m; i += 8) {
-			uint32_t val = B[i >> 3];
+			uint32_t val = vb[i >> 3];
 			for (size_t j = 0; j < 8; ++j) {
 				uint32_t q = val % 10;
 				val /= 10;
@@ -280,7 +327,8 @@ namespace Math {
 		for (size_t i = 0; i < s; ++i)
 			a[i << 1] *= invs;
 		c.resize((len >> 3) + 1);
-		c[0] = 0;
+		int*arr=c.begin();
+		arr[0] = 0;
 		for (size_t i = 0; i < len - 7; i += 8) {
 			uint64_t now =
 				double_to_ull(a[i << 1] + 0.5) +
@@ -291,11 +339,11 @@ namespace Math {
 				double_to_ull(a[(i+5)<<1] + 0.5) * 100000 +
 				double_to_ull(a[(i+6)<<1] + 0.5) * 1000000 +
 				double_to_ull(a[(i+7)<<1] + 0.5) * 10000000 +
-				c[i >> 3];
-			c[i >> 3] = now % bintjw;
-			c[(i >> 3) + 1] = now / bintjw;
+				arr[i >> 3];
+			arr[i >> 3] = now % bintjw;
+			arr[(i >> 3) + 1] = now / bintjw;
 		}
-		c[len >> 3] += double_to_ull(a[(len-7)<<1] + 0.5) +
+		arr[len >> 3] += double_to_ull(a[(len-7)<<1] + 0.5) +
 			double_to_ull(a[(len-6)<<1] + 0.5) * 10 +
 			double_to_ull(a[(len-5)<<1] + 0.5) * 100 +
 			double_to_ull(a[(len-4)<<1] + 0.5) * 1000 +
@@ -318,8 +366,9 @@ namespace Math {
 		size_t s = 1ull << bit;
 
 		double* a = new double[s << 1];
+		const int*va=A.begin(),*vb=B.begin();
 		for (size_t i = 0; i < n; i += 4) {
-			uint32_t val = A[i >> 2];
+			uint32_t val = va[i >> 2];
 			uint32_t q, w, e, r;
 			q = val % 100;
 			val /= 100;
@@ -336,7 +385,7 @@ namespace Math {
 		for (size_t i = (n << 1); i < (s << 1); ++i)
 			a[i] = 0;
 		for (size_t i = 0; i < m; i += 4) {
-			uint32_t val = B[i >> 2];
+			uint32_t val = vb[i >> 2];
 			uint32_t q, w, e, r;
 			q = val % 100;
 			val /= 100;
@@ -366,18 +415,19 @@ namespace Math {
 			a[i << 1] *= invs;
 
 		c.resize((len >> 2) + 1);
-		c[0] = 0;
+		int*arr=c.begin();
+		arr[0] = 0;
 		for (size_t i = 0; i < len - 3; i += 4) {
 			uint64_t now =
 				double_to_ull(a[i << 1] + 0.5) +
 				double_to_ull(a[(i+1)<<1] + 0.5) * 100 +
 				double_to_ull(a[(i+2)<<1] + 0.5) * 10000 +
 				double_to_ull(a[(i+3)<<1] + 0.5) * 1000000 +
-				c[i >> 2];
-			c[i >> 2] = now % bintjw;
-			c[(i >> 2) + 1] = now / bintjw;
+				arr[i >> 2];
+			arr[i >> 2] = now % bintjw;
+			arr[(i >> 2) + 1] = now / bintjw;
 		}
-		c[len >> 2] += double_to_ull(a[(len-3)<<1] + 0.5) +
+		arr[len >> 2] += double_to_ull(a[(len-3)<<1] + 0.5) +
 			double_to_ull(a[(len-2)<<1] + 0.5) * 100 +
 			double_to_ull(a[(len-1)<<1] + 0.5) * 10000;
 		size_t Size = c.size();
@@ -619,7 +669,7 @@ namespace Math {
 	}
 
 	reference2::reference2() noexcept : Point(nullptr), _Pos(0) {}
-	reference2::reference2(Array2& _bint2, size_t _Pos) : Point(&_bint2), _Pos(_Pos) {}
+	reference2::reference2(Array2& _Array2, size_t _Pos) : Point(&_Array2), _Pos(_Pos) {}
 
 	void Array2_func::QuickMul2k(Array2& a, const uint32_t& k) {//快速乘2^k
 		if (!k)return;

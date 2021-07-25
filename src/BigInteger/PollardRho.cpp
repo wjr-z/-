@@ -62,7 +62,7 @@ namespace Math {
 			int i = 0, j = 1;
 			while (++i) {//开始玄学生成
 				r = f(r);
-				p = (p * std::abs(r - t)) % x;
+				p = (p * Math::abs(r - t)) % x;
 				if (t == r || !p)break;
 				if (!(i & 127) || i == j) {//我们不仅在等127次之后gcd我们还会倍增的来gcd
 					d = Math::gcd(p, x);
@@ -170,7 +170,7 @@ namespace Math {
 			int i = 0, j = 1;
 			while (++i) {//开始玄学生成
 				r = f(r);
-				p = LLMul(p, std::abs(r - t), x);
+				p = LLMul(p, Math::abs(r - t), x);
 				if (t == r || !p)break;
 				if (!(i & 127) || i == j) {//我们不仅在等127次之后gcd我们还会倍增的来gcd
 					d = Math::gcd(p, x);

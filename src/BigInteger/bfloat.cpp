@@ -37,7 +37,7 @@ namespace Math {
 			}
 			if (s[head] == 'e' || s[head] == 'E')break;
 			if (is)--exp;
-			base.set(base_head++, s[head] - '0');
+			base[base_head++]=s[head]-'0';
 		}
 		base.reverse(base_head);
 
@@ -73,10 +73,10 @@ namespace Math {
 	void bfloat::maintain() {
 		int Length = length(), Size = size();
 		int tail = 0;
-		while (!base[tail] && tail < Size - 1)
+		while (!base.at(tail) && tail < Size - 1)
 			++tail;
 		tail <<= 3;
-		while (!base.at(tail) && tail < Length - 1)
+		while (!base[tail-1] && tail < Length - 1)
 			++tail;
 		if (Length < bfloat::floatlim) {
 			base.quick_divide_10k(tail);
@@ -99,8 +99,8 @@ namespace Math {
 	void bfloat::reserve(const int& index) {
 		base.reserve(index);
 	}
-	const int& bfloat::operator[](const int& index)const { return base[index]; }
-	int& bfloat::operator[](const int& index) { return base[index]; }
+	const int& bfloat::operator[](const int& index)const { return base.at(index); }
+	int& bfloat::operator[](const int& index) { return base.at(index); }
 	int& bfloat::save_at(const int& index) { return base.save_at(index); }
 
 
@@ -124,10 +124,10 @@ namespace Math {
 	}
 
 	int bfloat::at(const int& index)const {
-		return base.at(index);
+		return base[index];
 	}
 	void bfloat::set(const int& index, const int& val) {
-		base.set(index, val);
+		base[index]=val;
 	}
 	void bfloat::setbase(const bint& other) {
 		this->base = other;
@@ -151,7 +151,7 @@ namespace Math {
 			out << '0';
 
 		for (; head >= tail; --head)
-			out << x.base.at(head);
+			out << x.base[head];
 		if (x.exp > 0) {
 			for (head = x.exp; head; --head)
 				out << '0';
@@ -161,7 +161,7 @@ namespace Math {
 			for (int i = head + 1; i < tail; ++i)
 				out << '0';
 			for (; head >= 0; --head)
-				out << x.base.at(head);
+				out << x.base[head];
 		}
 		return out;
 	}
@@ -477,7 +477,7 @@ namespace Math {
 	}
 
 	bool approximate(const bfloat& lhs, const bfloat& rhs) {
-		if (std::abs(lhs.length() + lhs.getexp() - rhs.length() - rhs.getexp()) > 1)
+		if (Math::abs(lhs.length() + lhs.getexp() - rhs.length() - rhs.getexp()) > 1)
 			return false;
 		int tmp = 0;
 		if (max(lhs.length(), rhs.length()) >= bfloat::floatlim)tmp = 5;
@@ -498,7 +498,7 @@ namespace Math {
 	bfloat qpow(bfloat lhs, bint rhs) {
 		bfloat ans(1);
 		while (!rhs.iszero()) {
-			if (rhs.at(0) & 1)
+			if (rhs[0] & 1)
 				ans *= lhs;
 			lhs *= lhs;
 			rhs >>= 1;
@@ -511,11 +511,11 @@ namespace Math {
 		int Length = length();
 		int EXP = exp + Length - 1;
 
-		str.push_back('0' + base.at(Length - 1));
+		str.push_back('0' + base[Length-1]);
 		if (Length > 1) {
 			str.push_back('.');
 			for (size_t i = Length - 2; ~i; --i)
-				str.push_back('0' + base.at(i));
+				str.push_back('0' + base[i]);
 		}
 		if (EXP) {
 			str.push_back('e');
@@ -603,88 +603,6 @@ namespace Math {
 		if (x - _Floor < 0.5)return qpow(EXP, _Floor) * exp(x - _Floor);
 		return qpow(EXP, _Floor) * sqrtEXP * exp(x - _Floor - 0.5);
 	}
-
-	/*bfloat atan(bfloat x) {
-		if (x < 0)return -atan(-x);
-		if (x <= 0.5) {
-			int tmp = bfloat::floatlim << 1;
-			tmp += 32;
-			bfloat ans, A(x), sqrx(x * x);
-			for (int i = 0; i < tmp; ++i) {
-				if (!(i & 1))
-					ans += A / (2 * i + 1);
-				else ans -= A / (2 * i + 1);
-				A *= sqrx;
-			}return ans;
-		}
-		bfloat X = atan(bfloat(0.5)), ans;
-
-		while (x > 0.5) {
-			ans += X;
-			x = (x - 0.5) / (1 + 0.5 * x);
-		}
-		return ans + atan(x);
-	}
-
-	bfloat asin(const bfloat& x) {
-		if (x == 1)return 2 * atan(bfloat(1));
-		if (x == -1)return -2 * atan(bfloat(1));
-		return atan(x / sqrt(1 - x * x));
-	}
-
-	bfloat acos(const bfloat& x) {
-		return 2 * atan(bfloat(1)) - asin(x);
-	}
-
-	bfloat sin(const bfloat& x) {
-		if (x < 0)return -sin(-x);
-		if (x <= 0.8) {
-			bfloat ans;
-			bfloat A(x), sqrx(x * x);
-			bint d(1);
-			int tmp = bfloat::floatlim << 1;
-			tmp += 32;
-			for (int i = 0; i < tmp; ++i) {
-				if (!(i & 1))
-					ans += A / d;
-				else ans -= A / d;
-				d *= (2 * (i + 1)) * (2 * (i + 1) + 1);
-				A *= sqrx;
-			}return ans;
-		}
-		const bfloat pi = acos(bfloat(-1));
-		if (x >= 2 * pi)
-			return sin(x - 2 * pi * (x / (2 * pi)));
-		if (x >= pi)
-			return -sin(2 * pi - x);
-		if (x > 0.8)return cos(pi / 2 - x);
-		return sin(x);
-	}
-
-	bfloat cos(const bfloat& x) {
-		if (x < 0)return cos(-x);
-		if (x <= 0.8) {
-			bfloat ans;
-			bfloat A(1), sqrx(x * x);
-			bint d(1);
-			int tmp = bfloat::floatlim << 1;
-			tmp += 32;
-			for (int i = 0; i < tmp; ++i) {
-				if (!(i & 1))
-					ans += A / d;
-				else ans -= A / d;
-				d *= (2 * (i + 1) - 1) * (2 * (i + 1));
-				A *= sqrx;
-			}return ans;
-		}
-		const bfloat pi = acos(bfloat(-1));
-		if (x >= 2 * pi)
-			return cos(x - 2 * pi * (x / (2 * pi)));
-		if (x >= pi)
-			return cos(2 * pi - x);
-		if (x > 0.8)return sin(pi / 2 - x);
-		return cos(x);
-	}*/
 
 }
 

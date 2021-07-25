@@ -2,6 +2,7 @@
 #define MATH_FUNC_H
 
 #include <stdint.h>
+#include <string.h>
 
 #define TEST //测试用高精度计时器 ，直接网上找的代码
 
@@ -14,17 +15,20 @@ extern int mode;
 #define END en=currTime();
 #define ADD tot+=en-sta;
 
-#ifndef max
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef min
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
-#endif
+#undef min
+#undef max
 
 namespace Math {
 
 #define bintjw 100000000
+
+	template<typename Ty>
+	inline Ty abs(Ty x){return x>=0?x:-x;}
+
+	template<typename Ty>
+	inline Ty min(Ty lhs,Ty rhs){return lhs<rhs?lhs:rhs;}
+	template<typename Ty>
+	inline Ty max(Ty lhs,Ty rhs){return lhs>rhs?lhs:rhs;}
 
 	//声明Ooura FFT 相关函数
 	extern "C" {

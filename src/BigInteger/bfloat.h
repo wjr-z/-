@@ -62,16 +62,8 @@ namespace Math {
 
 	int log2(const bint&);
 
-	/*暂时使用的最简单的算法*/
 	bfloat ln(bfloat);
 	bfloat exp(const bfloat&);
-
-	/*bfloat atan(bfloat);
-	bfloat asin(const bfloat&);
-	bfloat acos(const bfloat&);
-
-	bfloat sin(const bfloat&);
-	bfloat cos(const bfloat&);*/
 
 	//------------------------------------------------------------------//
 
