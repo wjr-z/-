@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#define QUICK //使用空间换时间
+
 #define TEST //测试用高精度计时器 ，直接网上找的代码
 
 extern double currTime(); //使用高精度计时器

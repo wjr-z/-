@@ -2,10 +2,13 @@
 #include <random>
 #include <algorithm>
 
+#ifdef QUICK
+#include <unordered_map>
+#endif
+
 namespace Math {
 
 	/*---bint类部分函数定义---*/
-
 	//------------------------------------------------------------------//
 	/*------private------*/
 
@@ -22,6 +25,7 @@ namespace Math {
 			vec.save_at(0) = val;
 		}
 	}
+
 	void bint::assign(long long val) {
 		positive = true;
 		if (val < 0)val = -val, positive ^= 1;
@@ -64,6 +68,7 @@ namespace Math {
 			Vec[head] = Vec[head] * 10 + s[j] - '0';
 		if(iszero())positive=true;
 	}
+
 	void bint::assign(const std::string& _s) {
 		assign(_s.c_str());
 	}
@@ -175,6 +180,7 @@ namespace Math {
 		else a.save_at(0) += b;//不会溢出，直接加即可
 		a.positive = !a.positive;
 	}
+
 	void bint::quickdel(bint& a, const bint& b) {
 		if (!b)
 			return;
@@ -404,7 +410,6 @@ namespace Math {
 		return ans;
 	}
 
-
 	bint bint::quickdivide(const bint& A, const bint& B) {
 		if (A.vec < B.vec)return bintzero;
 		size_t n = A.size(), m = B.size();
@@ -560,7 +565,6 @@ namespace Math {
 		}
 	}
 
-
 	void bint::Karatsuba(const bint& a, const bint& b, bint& c) {
 		size_t lena=a.size(),lenb=b.size(),_max=max(lena,lenb),_min=min(lena,lenb);
 		if (_max <= 32||(_min<<1)<=_max) {
@@ -571,7 +575,6 @@ namespace Math {
 		}
 
 		size_t midlen = (_max + 1) >> 1;
-
 		bint B(a, 0, midlen), D(b, 0, midlen);
 		Karatsuba(B, D, c);
 		bint A(a, midlen, lena), C(b, midlen, lenb);
@@ -581,14 +584,16 @@ namespace Math {
 		Karatsuba(A + B, C + D, G);
 		G -= c + F;
 		c.resize(lena + lenb);
+		const int*vf=F.begin(),*vg=G.begin();
+		int*vc=c.begin();
 		for (size_t i = F.size() - 1; ~i; --i)
-			c.save_at(i + (midlen << 1)) += F.save_at(i);
+			vc[i + (midlen << 1)] += vf[i];
 		for (size_t i = G.size() - 1; ~i; --i)
-			c.save_at(i + midlen) += G.save_at(i);
+			vc[i + midlen] += vg[i];
 		size_t Siz = c.size();
 		for (size_t i = midlen; i < Siz - 1; ++i) {
-			while (c.save_at(i) >= bintjw)
-				++c.save_at(i + 1), c.save_at(i) -= bintjw;
+			while (vc[i] >= bintjw)
+				++vc[i + 1], vc[i] -= bintjw;
 		}
 		while (c.save_at(Siz - 1) >= bintjw)
 			++c.at(Siz), c.save_at(Siz - 1) -= bintjw;
@@ -619,7 +624,6 @@ namespace Math {
 			else mulint(a, b.positive ? b.at(0) : -b.at(0), a);
 		}
 	}
-
 
 	void bint::mulint(const bint& a, const int& b, bint& c) {
 
@@ -686,8 +690,7 @@ namespace Math {
 		c.positive = tmp;
 	}
 
-
-	bint bint::Factorial(int L, int R) {
+	static bint factorial(int L, int R) {
 		if (R - L <= 2) {
 			bint ans(L);
 			for (int i = L + 1; i <= R; ++i)
@@ -695,7 +698,7 @@ namespace Math {
 			return ans;
 		}
 		int mid=(L+R)>>1;
-		return Factorial(L, mid) * Factorial(mid+1, R);
+		return factorial(L, mid) * factorial(mid+1, R);
 	}
 
 	void bint::clear() {
@@ -704,7 +707,9 @@ namespace Math {
 	}
 
 	void bint::resize(const size_t& len) { vec.resize(len); }
+
 	size_t bint::size()const { return vec.size(); }
+
 	void bint::reserve(const size_t& len) { vec.reserve(len); }
 
 	bint::bint(const size_t& len, int) :vec(len), positive(true) {
@@ -714,11 +719,12 @@ namespace Math {
 	}
 
 	int bint::at(const size_t& index)const { return vec.at(index); }
+
 	int& bint::at(const size_t& index) { return vec.at(index); }
+
 	int& bint::save_at(const size_t& index) { return vec.save_at(index); }
 
 	//-----------------------------------------------//
-
 	/*------public------*/
 
 	void bint::assign(const bint& other, const size_t& L, const size_t& R) {
@@ -738,74 +744,88 @@ namespace Math {
 	bool bint::iszero() const {
 		return vec.iszero();
 	}
+
 	bool bint::ispositive()const {
 		return positive;
 	}
+
 	bint::bint()noexcept :positive(true) {
 	#ifdef BINTDEBUG
 		cout << "bint构造函数\n";
 	#endif
 	}
+
 	bint::~bint() {
 	#ifdef BINTDEBUG
 		cout << "bint析构函数\n";
 	#endif
 	}
+
 	bint::bint(const int& val)noexcept {
 	#ifdef BINTDEBUG
 		cout << "bint构造函数\n";
 	#endif 
 		assign(val);
 	}
+
 	bint::bint(const long long& val)noexcept :positive(true) {
 	#ifdef BINTDEBUG
 		cout << "bint构造函数\n";
 	#endif 
 		assign(val);
 	}
+
 	bint::bint(const char* s)noexcept :positive(true) {
 	#ifdef BINTDEBUG
 		cout << "bint构造函数\n";
 	#endif
 		assign(s);
 	}
+
 	bint::bint(const std::string& s)noexcept :positive(true) {
 	#ifdef BINTDEBUG
 		cout << "bint构造函数\n";
 	#endif
 		assign(s);
 	}
+
 	bint::bint(const bint& other)noexcept :vec(other.vec), positive(other.positive) {
 	#ifdef BINTDEBUG
 		cout << "bint拷贝构造函数\n";
 	#endif
 	}
+
 	bint::bint(bint&& other)noexcept : vec(std::move(other.vec)), positive(other.positive) {
 	#ifdef BINTDEBUG
 		cout << "bint右值拷贝构造函数\n";
 	#endif
 	}
+
 	bint::bint(const bint& other, const bool& _positive)noexcept :vec(other.vec), positive(_positive) {
 	#ifdef BINTDEBUG
 		cout << "bint拷贝构造函数\n";
 	#endif 
 	}
+
 	bint::bint(bint&& other, const bool& _positive)noexcept :vec(std::move(other.vec)), positive(_positive) {
 	#ifdef BINTDEBUG
 		cout << "bint右值拷贝构造函数\n";
 	#endif 
 	}
+
 	bint::bint(const bint& other, const size_t& L, const size_t& R)noexcept : vec(max(size_t(1), R - L)), positive(true) {
 	#ifdef BINTDEBUG
 		cout << "bint拷贝构造函数\n";
 	#endif
 		assign(other, L, R);
 	}
+
 	bint::bint(const Array& _vec, const bool& _positive)noexcept :vec(_vec), positive(_positive) {
 	#ifdef BINTDEBUG
 		cout << "bint拷贝构造函数\n";
 	#endif
 	}
+
 	bint& bint::operator=(const int& val)noexcept {
 	#ifdef BINTDEBUG
 		cout << "bint复制函数\n";
@@ -813,6 +833,7 @@ namespace Math {
 		assign(val);
 		return*this;
 	}
+
 	bint& bint::operator=(const long long& val)noexcept {
 	#ifdef BINTDEBUG
 		cout << "bint复制函数\n";
@@ -820,6 +841,7 @@ namespace Math {
 		assign(val);
 		return*this;
 	}
+
 	bint& bint::operator=(const char* s)noexcept {
 	#ifdef BINTDEBUG
 		cout << "bint复制函数\n";
@@ -827,6 +849,7 @@ namespace Math {
 		assign(s);
 		return*this;
 	}
+
 	bint& bint::operator=(const std::string& s)noexcept {
 	#ifdef BINTDEBUG
 		cout << "bint复制函数\n";
@@ -834,6 +857,7 @@ namespace Math {
 		assign(s);
 		return*this;
 	}
+
 	bint& bint::operator=(const bint& other)noexcept {
 	#ifdef BINTDEBUG
 		cout << "bint复制函数\n";
@@ -842,6 +866,7 @@ namespace Math {
 		positive = other.positive;
 		return*this;
 	}
+
 	bint& bint::operator=(bint&& other)noexcept {
 	#ifdef BINTDEBUG
 		cout << "bint右值复制\n";
@@ -857,11 +882,13 @@ namespace Math {
 	}
 
 	size_t bint::length() const { return vec.length(); }
+
 	void bint::relength(const size_t& index) { vec.relength(index); }
+
 	void bint::reverse(size_t Length) {
 		if (Length == 0)Length = length();
 		for (size_t i = 0; (i << 1) < Length; ++i) {
-			int u=vec[u],v=vec[Length-1-i];
+			int u=vec[i],v=vec[Length-1-i];
 			vec[u]=v;
 			vec[v]=u;
 		}
@@ -870,6 +897,7 @@ namespace Math {
 	int bint::operator[](const size_t&index)const {
 		return vec[index];
 	}
+
 	reference bint::operator[](const size_t&index) {
 		return vec[index];
 	}
@@ -877,12 +905,15 @@ namespace Math {
 	const int* bint::begin()const {
 		return vec.begin();
 	}
+
 	const int* bint::end()const {
 		return vec.end();
 	}
+
 	int* bint::begin() {
 		return vec.begin();
 	}
+
 	int* bint::end() {
 		return vec.end();
 	}
@@ -922,6 +953,7 @@ namespace Math {
 	bool operator<(const bint& lhs, const bint& rhs) {
 		return ((lhs.ispositive() == rhs.ispositive()) && (lhs.vec < rhs.vec)) ^ (!lhs.ispositive());
 	}
+
 	bool operator<(const bint& lhs, int rhs) {
 		if (lhs.positive != (rhs >= 0))return !lhs.positive;
 		bool tmp = !lhs.positive;
@@ -932,6 +964,7 @@ namespace Math {
 		default:return tmp;
 		}
 	}
+
 	bool operator<(const int& lhs, const bint& rhs) {
 		return rhs < lhs;
 	}
@@ -939,6 +972,7 @@ namespace Math {
 	bool operator==(const bint& lhs, const bint& rhs) {
 		return ((lhs.positive == rhs.positive) && lhs.vec == rhs.vec);
 	}
+
 	bool operator==(const bint& lhs, int rhs) {
 		if (lhs.positive != (rhs >= 0))return false;
 		rhs = Math::abs(rhs);
@@ -951,6 +985,7 @@ namespace Math {
 			return false;
 		}
 	}
+
 	bool operator==(const int& lhs, const bint& rhs) {
 		return rhs == lhs;
 	}
@@ -958,6 +993,7 @@ namespace Math {
 	bool operator<=(const bint& lhs, const bint& rhs) {
 		return !(((lhs.positive == rhs.positive) && (lhs.vec > rhs.vec)) ^ (!lhs.positive));
 	}
+
 	bool operator<=(const bint& lhs, int rhs) {
 		if (lhs.positive != (rhs >= 0))return !lhs.positive;
 		bool tmp = !lhs.positive;
@@ -968,22 +1004,28 @@ namespace Math {
 		default:return tmp;
 		}
 	}
+
 	bool operator<=(const int& lhs, const bint& rhs) {
 		return rhs <= lhs;
 	}
 
 	bool operator>(const bint& lhs, const bint& rhs) { return !(lhs <= rhs); }
+
 	bool operator>(const bint& lhs, const int& rhs) { return !(lhs <= rhs); }
+
 	bool operator>(const int& lhs, const bint& rhs) { return !(lhs <= rhs); }
 
 	bool operator>=(const bint& lhs, const bint& rhs) { return !(lhs < rhs); }
+
 	bool operator>=(const bint& lhs, const int& rhs) { return !(lhs < rhs); }
+
 	bool operator>=(const int& lhs, const bint& rhs) { return !(lhs < rhs); }
 
 	bool operator!=(const bint& lhs, const bint& rhs) { return !(lhs == rhs); }
-	bool operator!=(const bint& lhs, const int& rhs) { return !(lhs == rhs); }
-	bool operator!=(const int& lhs, const bint& rhs) { return !(lhs == rhs); }
 
+	bool operator!=(const bint& lhs, const int& rhs) { return !(lhs == rhs); }
+
+	bool operator!=(const int& lhs, const bint& rhs) { return !(lhs == rhs); }
 
 	bint& bint::operator+=(const bint& b) {
 		(positive == b.positive) ?
@@ -998,7 +1040,6 @@ namespace Math {
 			: quickdel(*this, std::move(b));
 		return*this;
 	}
-
 
 	bint& bint::operator+=(const int& b) {
 		bool f = b >= 0;
@@ -1069,7 +1110,6 @@ namespace Math {
 		return *this;
 	}
 
-
 	bint& bint::operator++() {
 		(*this) += 1;
 		return*this;
@@ -1100,6 +1140,7 @@ namespace Math {
 		(*this) /= qpow(bint(2), index);
 		return*this;
 	}
+
 	bint& bint::operator<<=(const int& index) {
 		if (index < 31) {
 			(*this) *= (1 << index);
@@ -1127,7 +1168,6 @@ namespace Math {
 		return a;
 	}
 
-
 	bint operator+(bint X) {
 		return X;
 	}
@@ -1145,22 +1185,68 @@ namespace Math {
 		return X.iszero();
 	}
 
-	bint Factorial(int n) {
-		return bint::Factorial(1, n);
+	bint factorial(int n) {
+		return factorial(1, n);
 	}
+
+#ifdef QUICK
+	static std::unordered_map<int,bint>fibmap;
+	static bint quickfib(int n) {
+		if(fibmap.count(n))return fibmap[n];
+		return fibmap[n]=
+			(n&1? quickfib(n>>1)* quickfib(n>>1)+ quickfib((n>>1)+1)* quickfib((n>>1)+1)
+				: quickfib(n>>1)*(quickfib((n>>1)+1)+ quickfib((n>>1)-1)));
+	}
+#endif
+	bint fibonacci(int n) {
+	#ifdef QUICK
+		fibmap[0]=0;
+		fibmap[1]=fibmap[2]=1;
+		fibmap[3]=2;
+		bint ans=quickfib(n);
+		fibmap.clear();
+		return ans;
+	#else
+		++n;
+		bint ini[2];
+		ini[1] = 1;
+		bint ans[2];
+		ans[0] = 1;
+		bint A, B, C;
+		while (n) {
+			if (n & 1) {
+				A = ini[0] * ans[0], B = ini[1] * ans[1], C = (ini[0] + ini[1]) * (ans[0] + ans[1]);
+				ans[0] = A + B;
+				ans[1] = C - A;
+			}
+			A = ini[0] * ini[0];
+			B = ini[1] * ini[1];
+			C = (ini[0] + ini[1]) * (ini[0] + ini[1]);
+
+			ini[0] = A + B;
+			ini[1] = C - A;
+			n >>= 1;
+		}
+		return ans[0];
+	#endif
+	}
+
 	bint operator+(const bint& a, const bint& b) {
 		bint ans(a);
 		ans += b;
 		return ans;
 	}
+
 	bint operator+(bint&& a, const bint& b) {
 		a += b;
 		return std::move(a);
 	}
+
 	bint operator+(const bint& a, bint&& b) {
 		b += a;
 		return std::move(b);
 	}
+
 	bint operator+(bint&& a, bint&& b) {
 		a += std::move(b);
 		return std::move(a);
@@ -1181,15 +1267,18 @@ namespace Math {
 		ans -= b;
 		return ans;
 	}
+
 	bint operator-(bint&& a, const bint& b) {
 		a -= b;
 		return std::move(a);
 	}
+
 	bint operator-(const bint& a, bint&& b) {
 		b -= a;
 		b.positive=(!b?true:!b.positive);
 		return std::move(b);
 	}
+
 	bint operator-(bint&& a, bint&& b) {
 		a -= std::move(b);
 		return std::move(a);
@@ -1217,10 +1306,12 @@ namespace Math {
 		a *= b;
 		return std::move(a);
 	}
+
 	bint operator*(const bint& a, bint&& b) {
 		b *= a;
 		return std::move(b);
 	}
+
 	bint operator*(bint&& a, bint&& b) {
 		a *= std::move(b);
 		return std::move(a);
@@ -1280,11 +1371,13 @@ namespace Math {
 			b /= 2;
 		}return ans;
 	}
+
 	bint qpow(const bint&a, int b) {
 		if(b==1)return a;
 		bint mid=qpow(a,b>>1);
 		return b&1?(mid*a)*mid:mid*mid;
 	}
+
 	bint qpow(int a, bint b) {
 		return qpow(bint(a), b);
 	}
@@ -1318,18 +1411,22 @@ namespace Math {
 		if (x.positive)return x;
 		return -std::move(x);
 	}
+
 	void bint::oppsite() {
 		positive^=1;
 	}
+
 	bint gcd(const bint& a, const bint& b) {
 		return !b ? a : gcd(b, a % b);
 	}
+
 	bint randbint(const bint& L, const bint& R) {
 		bint X;
 		X.rand(R - L);
 		X += L;
 		return X;
 	}
+
 	bint randbint(size_t n) {
 		bint ans(0);
 		size_t Size = (n - 1) >> 3;
@@ -1340,6 +1437,7 @@ namespace Math {
 		ans[n-1]=randint(1, 9);
 		return ans;
 	}
+
 	bint randprime(const bint& L, const bint& R) {
 		bint ans(randbint(L,R));
 		if (ans.at(0) % 2 == 0) {
@@ -1360,6 +1458,7 @@ namespace Math {
 			return bint(-1);
 		}else return ans;
 	}
+
 	bint randprime(size_t n) {
 		bint ans(randbint(n));
 		if (ans.at(0) % 2 == 0)
@@ -1394,6 +1493,7 @@ namespace Math {
 		default:return 0;
 		}
 	}
+
 	long long bint::toll()const {
 		switch (size()) {
 		case 1:return positive?vec.at(0):-vec.at(0);
@@ -1436,7 +1536,6 @@ namespace Math {
 	* 导致会额外进行一倍以上的运算，且递归常数较大，所以实际常数较大
 	*/
 
-
 	bint2 bint::get2bit()const {
 		size_t Size = size();
 		if (Size <= 32) {
@@ -1459,12 +1558,7 @@ namespace Math {
 		return bint2(get2bit(), positive);
 	}
 
-	
-
-
 	//------------------------------------------------------------------//
-
-
 	/*---bint2类部分函数定义---*/
 
 	void bint2::assign(int val) {
@@ -1473,6 +1567,7 @@ namespace Math {
 		resize(1);
 		vec.save_at(0) = val;
 	}
+
 	void bint2::assign(long long val) {
 		positive = true;
 		if (val < 0)val = -val, positive ^= 1;
@@ -1507,6 +1602,7 @@ namespace Math {
 		if (iszero())positive=true;
 
 	}
+
 	void bint2::assign(const std::string& s) { assign(s.c_str()); }
 
 	void bint2::saveadd(size_t index) {//index位加1
@@ -1561,7 +1657,6 @@ namespace Math {
 		a.at(0) += b;
 		a.positive = _positive;
 	}
-
 
 	bint2 bint2::largedivide(const bint2& A, const bint2& B) {
 		int n = A.size(), m = B.size(), mid = 2 * m - n - 2;
@@ -1627,7 +1722,6 @@ namespace Math {
 		return ans;
 	}
 
-
 	bint2 bint2::quickdivide(const bint2& A, const bint2& B) {
 		if (A.vec < B.vec)return bint2zero;
 		size_t n = A.size(), m = B.size();
@@ -1635,7 +1729,6 @@ namespace Math {
 		if (m * 3 >= 2 * n)return largedivide(A, B);
 		return smalldivide(A, B);
 	}
-
 
 	bint2 bint2::del(const bint2& a, const bint2& b, bool _positive) {
 		size_t n = a.size(), m = b.size();
@@ -1723,74 +1816,96 @@ namespace Math {
 	bool bint2::ispositive()const {
 		return positive;
 	}
+
 	bool bint2::iszero() const {
 		return vec.iszero();
 	}
+
 	bint2::bint2()noexcept : positive(true) {
 
 	}
+
 	bint2::~bint2() {
 
 	}
+
 	bint2::bint2(const int& val)noexcept :positive(true) {
 		assign(val);
 	}
+
 	bint2::bint2(const long long& val)noexcept :positive(true) {
 		assign(val);
 	}
+
 	bint2::bint2(const char* s)noexcept :positive(true) {
 		assign(s);
 	}
+
 	bint2::bint2(const std::string& s)noexcept :positive(true) {
 		assign(s);
 	}
+
 	bint2::bint2(const bint2& other)noexcept :vec(other.vec), positive(other.positive) {
 
 	}
+
 	bint2::bint2(bint2&& other)noexcept :vec(std::move(other.vec)), positive(other.positive) {
 
 	}
+
 	bint2::bint2(const bint2& other, const bool& _positive)noexcept :vec(other.vec), positive(_positive) {
 
 	}
+
 	bint2::bint2(bint2&& other, bool _positive)noexcept : vec(std::move(other.vec)), positive(_positive) {
 
 	}
+
 	bint2::bint2(const Array2& _vec, const bool& _positive)noexcept :vec(_vec), positive(_positive) {
 
 	}
+
 	bint2& bint2::operator=(const int& val) noexcept {
 		assign(val);
 		return*this;
 	}
+
 	bint2& bint2::operator=(const long long& val) noexcept {
 		assign(val);
 		return*this;
 	}
+
 	bint2& bint2::operator=(const bint2& other)noexcept {
 		if (this == &other)return*this;
 		vec = other.vec;
 		positive = other.positive;
 		return*this;
 	}
+
 	bint2& bint2::operator=(bint2&& other) noexcept {
 		vec = std::move(other.vec);
 		positive = other.positive;
 		return*this;
 	}
+
 	bint2& bint2::operator=(const char* s) noexcept {
 		assign(s);
 		return*this;
 	}
+
 	bint2& bint2::operator=(const std::string& s)noexcept {
 		assign(s);
 		return*this;
 	}
 
 	void bint2::resize(const uint32_t& len) { vec.resize(len); }
+
 	uint32_t bint2::size()const { return vec.size(); }
+
 	uint32_t bint2::length() const { return vec.length(); }
+
 	void bint2::reserve(const uint32_t& len) { vec.reserve(len); }
+
 	void bint2::relength(const uint32_t& index) { vec.relength(index); }
 
 	bint2& bint2::operator=(const bint& other)noexcept {
@@ -1799,21 +1914,27 @@ namespace Math {
 	}
 
 	uint32_t bint2::at(const int& index)const { return vec.at(index); }
+
 	uint32_t& bint2::at(const int& index) { return vec.at(index); }
+
 	uint32_t& bint2::save_at(const int& index) { return vec.save_at(index); }
 
 	bool bint2::operator[](const size_t&index)const{return vec[index]; }
+
 	reference2 bint2::operator[](const size_t&index){return vec[index]; }
 
 	const uint32_t* bint2::begin()const {
 		return vec.begin();
 	}
+
 	const uint32_t* bint2::end()const {
 		return vec.end();
 	}
+
 	uint32_t* bint2::begin() {
 		return vec.begin();
 	}
+
 	uint32_t* bint2::end() {
 		return vec.end();
 	}
@@ -1848,9 +1969,11 @@ namespace Math {
 	bool operator<(const bint2& lhs, const bint2& rhs) {
 		return ((lhs.positive == rhs.positive) && (lhs.vec < rhs.vec)) ^ (!lhs.positive);
 	}
+
 	bool operator<(const bint2& lhs, const int& rhs) {
 		return lhs < bint2(rhs);//经典偷懒 
 	}
+
 	bool operator<(const int& lhs, const bint2& rhs) {
 		return bint2(lhs) < rhs;
 	}
@@ -1858,12 +1981,14 @@ namespace Math {
 	bool operator==(const bint2& lhs, const bint2& rhs) {
 		return ((lhs.positive == rhs.positive) && lhs.vec == rhs.vec);
 	}
+
 	bool operator==(const bint2& lhs, const int& rhs) {
 		if (lhs.positive != (rhs >= 0) || lhs.size() > 2)return false;
 		if (lhs.size() == 1)
 			return lhs.at(0) == rhs;
 		return false;
 	}
+
 	bool operator==(const int& lhs, const bint2& rhs) {
 		if (rhs.positive != (rhs >= 0) || rhs.size() > 2)return false;
 		if (rhs.size() == 1)
@@ -1874,25 +1999,32 @@ namespace Math {
 	bool operator<=(const bint2& lhs, const bint2& rhs) {
 		return !(((lhs.positive == rhs.positive) && (lhs.vec > rhs.vec)) ^ (!lhs.positive));
 	}
+
 	bool operator<=(const bint2& lhs, const int& rhs) {
 		return lhs <= bint2(rhs);
 	}
+
 	bool operator<=(const int& lhs, const bint2& rhs) {
 		return bint2(lhs) <= rhs;
 	}
 
 	bool operator>(const bint2& lhs, const bint2& rhs) { return !(lhs <= rhs); }
+
 	bool operator>(const bint2& lhs, const int& rhs) { return lhs > bint2(rhs); }
+
 	bool operator>(const int& lhs, const bint2& rhs) { return bint2(lhs) > bint2(rhs); }
 
 	bool operator>=(const bint2& lhs, const bint2& rhs) { return !(lhs < rhs); }
+
 	bool operator>=(const bint2& lhs, const int& rhs) { return lhs >= bint2(rhs); }
+
 	bool operator>=(const int& lhs, const bint2& rhs) { return bint2(lhs) >= rhs; }
 
 	bool operator!=(const bint2& lhs, const bint2& rhs) { return !(lhs == rhs); }
-	bool operator!=(const bint2& lhs, const int& rhs) { return lhs != bint2(rhs); }
-	bool operator!=(const int& lhs, const bint2& rhs) { return bint2(lhs) != rhs; }
 
+	bool operator!=(const bint2& lhs, const int& rhs) { return lhs != bint2(rhs); }
+
+	bool operator!=(const int& lhs, const bint2& rhs) { return bint2(lhs) != rhs; }
 
 	ostream& operator<<(ostream& out, const bint2& x) {
 		if (!x.positive)out << "-";
@@ -1901,13 +2033,13 @@ namespace Math {
 			out << x[i];
 		return out;
 	}
+
 	istream& operator>>(istream& in, bint2& x) {
 		std::string str;
 		cin >> str;
 		x = str;
 		return in;
 	}
-
 
 	bint2& bint2::operator+=(const bint2& b) {
 		(positive == b.positive) ?
@@ -1917,6 +2049,7 @@ namespace Math {
 				: quickdel(*this, b, false));
 		return*this;
 	}
+
 	bint2& bint2::operator+=(const int& b) {
 		bool f = b >= 0;
 		(positive == f) ?
@@ -1926,6 +2059,7 @@ namespace Math {
 				: delint(*this, b, false));
 		return*this;
 	}
+
 	bint2& bint2::operator-=(const bint2& b) {
 		(positive == b.positive) ?
 			(positive ? quickdel(*this, b, true)
@@ -1934,6 +2068,7 @@ namespace Math {
 				: quickadd(*this, b, false));
 		return*this;
 	}
+
 	bint2& bint2::operator-=(const int& b) {
 		bool f = b >= 0;
 		(positive == f) ?
@@ -1943,10 +2078,12 @@ namespace Math {
 				: addint(*this, b, false));
 		return*this;
 	}
+
 	bint2& bint2::operator*=(const bint2& b) {
 		quickmul(*this, b);
 		return*this;
 	}
+
 	bint2& bint2::operator*=(int k) {
 		*this *= bint2(k);
 		return*this;
@@ -1955,12 +2092,15 @@ namespace Math {
 	bint2& bint2::operator/=(const bint2& b) {
 		return (*this) = (*this) / b;
 	}
+
 	bint2& bint2::operator/=(int b) {
 		return (*this) = (*this) / b;
 	}
+
 	bint2& bint2::operator%=(const bint2& b) {
 		return (*this) = (*this) % b;
 	}
+
 	bint2& bint2::operator%=(int b) {
 		return (*this) = (*this) % b;
 	}
@@ -2009,14 +2149,17 @@ namespace Math {
 		ans += b;
 		return ans;
 	}
+
 	bint2 operator+(bint2&& a, const bint2& b) {
 		a += b;
 		return std::move(a);
 	}
+
 	bint2 operator+(const bint2& a, bint2&& b) {
 		b += a;
 		return std::move(b);
 	}
+
 	bint2 operator+(bint2&& a, bint2&& b) {
 		a += std::move(b);
 		return std::move(a);
@@ -2037,16 +2180,19 @@ namespace Math {
 		ans -= b;
 		return ans;
 	}
+
 	bint2 operator-(bint2&& a, const bint2& b) {
 		a -= b;
 		return std::move(a);
 	}
+
 	bint2 operator-(const bint2& a, bint2&& b) {
 		b -= a;
 		b.positive ^= 1;
 		if (b.iszero())b.positive = true;
 		return std::move(b);
 	}
+
 	bint2 operator-(bint2&& a, bint2&& b) {
 		a -= std::move(b);
 		return std::move(a);
@@ -2074,26 +2220,33 @@ namespace Math {
 		a *= b;
 		return std::move(a);
 	}
+
 	bint2 operator*(const bint2& a, bint2&& b) {
 		b *= a;
 		return std::move(b);
 	}
+
 	bint2 operator*(bint2&& a, bint2&& b) {
 		a *= std::move(b);
 		return std::move(a);
 	}
+
 	bint2 operator*(bint2 a, const int& b) {
 		return a * bint2(b);
 	}
+
 	bint2 operator*(const int& a, bint2 b) {
 		return bint2(a) * b;
 	}
+
 	bint2 operator/(const bint2& a, const bint2& b) {
 		return bint2::quickdivide(a, b);
 	}
+
 	bint2 operator/(const bint2& a, const int& b) {
 		return bint2::quickdivide(a, bint2(b));
 	}
+
 	bint2 operator/(const int& a, const bint2& b) {
 		return bint2::quickdivide(bint2(a), b);
 	}
@@ -2101,9 +2254,11 @@ namespace Math {
 	bint2 operator%(const bint2& a, const bint2& b) {
 		return a - (a / b) * b;
 	}
+
 	bint2 operator%(const bint2& a, const int& b) {
 		return a - (a / b) * b;
 	}
+
 	bint2 operator%(const int& a, const bint2& b) {
 		return a - (a / b) * b;
 	}
@@ -2157,6 +2312,7 @@ namespace Math {
 			return ans;
 		}
 	}
+
 	bint2 operator^(const bint2&lhs, const bint2&rhs) {
 		size_t LhsSize = lhs.size(), RhsSize = rhs.size();
 		const uint32_t* _Lhs = lhs.begin(), * _Rhs = rhs.begin();
@@ -2191,6 +2347,7 @@ namespace Math {
 			q[i] &= r[i];
 		return*this;
 	}
+
 	bint2& bint2::operator|=(const bint2&other) {
 		size_t MaxSize = max(size(), other.size());
 		resize(MaxSize);
@@ -2200,6 +2357,7 @@ namespace Math {
 			q[i] |= r[i];
 		return*this;
 	}
+
 	bint2& bint2::operator^=(const bint2& other) {
 		size_t MinSize=min(size(),other.size());
 		uint32_t* q = begin();
@@ -2280,8 +2438,7 @@ namespace Math {
 		}return str;
 	}
 
-	/* 和 to2bit 类似的思想
-	*/
+	/* 和 to2bit 类似的思想*/
 
 	bint bint2::get10bit()const {
 		int Size = size();
@@ -2337,6 +2494,7 @@ namespace Math {
 			--ans[now];
 		return ans[now];
 	}
+
 	bint2 sqrt(const bint2& A) {
 		bint2 ans[2];
 		int now = 1;
@@ -2403,7 +2561,6 @@ namespace Math {
 		return MillerRobin(n);
 	}
 
-
 	bint rho(const bint& x) {
 		if (x == 4)
 			return bint(2);
@@ -2440,11 +2597,13 @@ namespace Math {
 		pollard_rho(pri, ans);
 		pollard_rho(x, ans);
 	}
+
 	vector<bint> pollard_rho(bint x) {
 		vector<bint>ans;
 		pollard_rho(x, ans);
 		return ans;
 	}
+
 	void max_pollard_rho(bint x, bint& Max) {
 		if (x < 2 || x <= Max)return;
 		if (isprime(x)) {
@@ -2456,6 +2615,7 @@ namespace Math {
 		max_pollard_rho(pri, Max);
 		max_pollard_rho(x, Max);
 	}
+
 	bint max_prime(const bint&x) {
 		bint ans;
 		max_pollard_rho(x, ans);

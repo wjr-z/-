@@ -1,6 +1,7 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 #include <stdint.h>
+#include "bint.h"
 /*---ÓÐ´ýÍêÉÆ---*/
 
 namespace Math {
@@ -28,9 +29,8 @@ namespace Math {
 	template<typename Ty>
 	void matrix<Ty>::Clear() {
 		if (arr == nullptr)return;
-		for (size_t i = 0; i < row; ++i) {
+		for (size_t i = 0; i < row; ++i) 
 			delete[]arr[i];
-		}
 		delete[]arr;
 		arr = nullptr;
 	}
@@ -47,7 +47,7 @@ namespace Math {
 	template<typename Ty>
 	void matrix<Ty>::Reallocate(size_t _Row, size_t _Column) {
 		if (row == _Row && column == _Column)return;
-		if (arr != nullptr)Clear();
+		Clear();
 		row = _Row, column = _Column;
 		BuySize();
 	}
@@ -110,6 +110,4 @@ namespace Math {
 	}
 
 }
-
-
 #endif

@@ -7,9 +7,8 @@
 #include <vector>
 #include "Allocator.h"
 #include "math_func.h"
-
+ 
 namespace Math {
-	//#define ARRAYDEBUG
 	using std::vector;
 
 	/*---友元函数声明---*/
@@ -105,9 +104,6 @@ namespace Math {
 		reference(Array& _bint2, size_t _Pos);
 	};
 
-
-	/*---biginteger的一些函数---*/
-
 	class Array_func {
 	private:
 		static const int jw = 100000000;//常规进位,10^8
@@ -115,7 +111,6 @@ namespace Math {
 		static void QuickMul10k(Array&, const size_t & = 1);//快速乘以10^k
 		static void QuickDivide10k(Array& a, const size_t & = 1);//快速除以10^k
 		static void SlowMul(const Array&, const Array&, Array&);//暴力乘法
-		static Array SlowMul(const Array&, const Array&);
 	};
 
 	class FFT_Array_func {//FFT乘法，使用了Ooura FFT，据说很快，如果有更快的会进行更换
@@ -124,15 +119,12 @@ namespace Math {
 		static void FFTQuickMul2(const Array&, const Array&, Array&);
 		static void FFTQuickMul4(const Array&, const Array&, Array&);
 		static void FFTQuickMul(const Array&, const Array&, Array&);
-		static Array FFTQuickMul(Array&, Array&);
 
 	};
-
 
 	/*---Array2---*/
 	/*---Array2<Ty>类---*/
 	/*---使用vector---*/
-
 	class reference2;
 	class Array2_func;
 	//ungisned int 
@@ -175,7 +167,6 @@ namespace Math {
 		reference2 operator[](const size_t&index);
 
 		void maintain();//用于弹出头部多余的1
-
 		void relength(const size_t& index);
 	};
 
@@ -202,10 +193,7 @@ namespace Math {
 		static void QuickMul2k(Array2&, const uint32_t & = 1);//快速乘2^k,即左移k位
 		static void QuickDivide2k(Array2& a, const int& = 1);//快速除2^k，即右移k位
 		static void SlowMul(const Array2&, const Array2&, Array2&);
-		static Array2 SlowMul(const Array2&, const Array2&);
 	};
-
-	/*---biginteger的一些函数---*/
 
 	class FFT_Array2_func {
 	public:
@@ -213,9 +201,7 @@ namespace Math {
 		static void FFTQuickMul3(const Array2&, const Array2&, Array2&);
 		static void FFTQuickMul4(const Array2&, const Array2&, Array2&);
 		static void FFTQuickMul(const Array2&, const Array2&, Array2&);
-		static Array2 FFTQuickMul(Array2&, Array2&);
 	};
-
 }
 
 

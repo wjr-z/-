@@ -12,7 +12,6 @@ int mode;
 #include <Windows.h>
 static LARGE_INTEGER freq;
 
-
 static BOOL initFreq() {
 	if (!QueryPerformanceFrequency(&freq))
 		return FALSE;
@@ -44,6 +43,7 @@ double currTime() {
 #endif
 
 static const char* const tabel="\0\0\1\1\2\2\2\2\3\3\3\3\3\3\3\3";
+
 static const int debruijn[32] = {
 	 0,  1, 28,  2, 29, 14, 24,  3, 30, 22, 20, 15, 25, 17,  4,  8,
 	31, 27, 13, 23, 21, 19, 16,  7, 26, 12, 18,  6, 11,  5, 10,  9
@@ -114,6 +114,7 @@ namespace Math {
 	}
 
 	int findnumber1(uint32_t n) {
+	#ifdef QUICK
 		static const char* const _Bitsperbyte 
 		  = "\0\1\1\2\1\2\2\3\1\2\2\3\2\3\3\4"
 			"\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
@@ -135,6 +136,14 @@ namespace Math {
 			_Bitsperbyte[(n>>8)&255]+
 			_Bitsperbyte[(n>>16)&255]+
 			_Bitsperbyte[n>>24];
+	#else
+		n = (n & 0x55555555) + ((n >> 1) & 0x55555555);
+		n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
+		n = (n & 0x0f0f0f0f) + ((n >> 4) & 0x0f0f0f0f);
+		n = (n & 0x00ff00ff) + ((n >> 8) & 0x00ff00ff);
+		n = (n & 0x0000ffff) + ((n >> 16) & 0x0000ffff);
+		return n;
+	#endif
 	}
 	int findnumber1(int n) {
 		return findnumber1((uint32_t)n);
@@ -147,6 +156,7 @@ namespace Math {
 	}
 
 	int lowbit(int x) { return x & -x; }
+
 	long long lowbit(long long x) { return x & -x; }
 
 	int _minx(uint32_t x) { 
@@ -227,6 +237,7 @@ namespace Math {
 			while (!(x & 1))x >>= 1;
 		}
 	}
+
 	long long gcd(long long x, long long y) {
 		if (x == 0) return y;
 		if (y == 0) return x;

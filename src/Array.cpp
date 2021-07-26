@@ -2,47 +2,42 @@
 namespace Math {
 
 	Array::Array(const size_t& index)noexcept :vec(index) {
-	#ifdef ARRAYDEBUG
-		cout << "Array构造函数\n";
-	#endif
 		resize(1);
 	}
+
 	Array::Array(const Array& other)noexcept :vec(other.vec), Size(other.Size) {
-	#ifdef ARRAYDEBUG
-		cout << "Array左值拷贝构造\n";
-	#endif
+
 	}
+
 	Array::Array(Array&& other)noexcept
 		:vec(std::move(other.vec)), Size(other.Size) {
-	#ifdef ARRAYDEBUG
-		cout << "Array右值拷贝构造\n";
-	#endif
+
 	}
+
 	Array& Array::operator=(const Array& other)noexcept {
-	#ifdef ARRAYDEBUG
-		cout << "Array左值复制\n";
-	#endif
 		vec = other.vec;
 		Size = other.Size;
 		return*this;
 	}
+
 	Array& Array::operator=(Array&& other)noexcept {
-	#ifdef ARRAYDEBUG
-		cout << "Array右值复制\n";
-	#endif
 		vec = std::move(other.vec);
 		Size = other.Size;
 		return*this;
 	}
+
 	const int* Array::begin() const{
 		return &vec[0];
 	}
+
 	const int* Array::end() const{
 		return begin()+Size;
 	}
+
 	int* Array::begin() {
 		return &vec[0];
 	}
+
 	int* Array::end() {
 		return begin() + Size;
 	}
@@ -110,6 +105,7 @@ namespace Math {
 	uint32_t Array::operator[](const size_t& index)const {
 		return atv(index);
 	}
+
 	reference Array::operator[](const size_t& index) {
 		return reference(*this,index);
 	}
@@ -163,40 +159,24 @@ namespace Math {
 		return !(_left == _right);
 	}
 
-	/*reference2::~reference2() noexcept {}
-	reference2& reference2::operator=(bool _Val)noexcept {
-		Point->setbool(_Pos, _Val);
-		return*this;
-	}
-	reference2& reference2::operator=(const reference2& _Bitref) noexcept {
-		Point->setbool(_Pos, _Bitref.Point->atbool(_Bitref._Pos));
-		return *this;
-	}
-
-	bool reference2::operator~() const noexcept {
-		return !Point->atbool(_Pos);
-	}
-
-	reference2::operator bool() const noexcept {
-		return Point->atbool(_Pos);
-	}
-
-	reference2::reference2() noexcept : Point(nullptr), _Pos(0) {}
-	reference2::reference2(Array2& _Array2, size_t _Pos) : Point(&_Array2), _Pos(_Pos) {}*/
-
 	reference::~reference() noexcept {}
+
 	reference& reference::operator=(int _Val)noexcept {
 		Point->setv(_Pos,_Val);
 		return*this;
 	}
+
 	reference& reference::operator=(const reference& _Bitref) noexcept {
 		Point->setv(_Pos,_Bitref.Point->atv(_Bitref._Pos));
 		return*this;
 	}
+
 	reference::operator int()const {
 		return Point->atv(_Pos);
 	}
+
 	reference::reference() noexcept : Point(nullptr),_Pos(0){}
+
 	reference::reference(Array& _Array, size_t _Pos):Point(&_Array),_Pos(_Pos) {}
 
 	/*---bint_fuc部分实现---*/
@@ -277,12 +257,6 @@ namespace Math {
 		else c.resize(Length);
 		memcpy(c.begin(), mid, sizeof(int) * Length);
 		test.deallocate(mid, n + m);
-	}
-
-	Array Array_func::SlowMul(const Array& A, const Array& B) {
-		Array c;
-		SlowMul(A, B, c);
-		return c;
 	}
 
 	/*---FFT相关,根据范围选择对应函数---*/
@@ -506,41 +480,43 @@ namespace Math {
 		else FFTQuickMul1(A, B, c);
 	}
 
-	Array FFT_Array_func::FFTQuickMul(Array& A, Array& B) {
-		Array c;
-		FFTQuickMul(A, B, c);
-		return c;
-	}
-
 	Array2::Array2(const size_t& index)noexcept :vec(index) {
 		resize(1);
 	}
+
 	Array2::Array2(const Array2& other)noexcept :vec(other.vec), Size(other.Size) {
 
 	}
+
 	Array2::Array2(Array2&& other)noexcept
 		:vec(std::move(other.vec)), Size(other.Size) {
 
 	}
+
 	Array2& Array2::operator=(const Array2& other)noexcept {
 		vec = other.vec;
 		Size = other.Size;
 		return*this;
 	}
+
 	Array2& Array2::operator=(Array2&& other)noexcept {
 		vec = std::move(other.vec);
 		Size = other.Size;
 		return*this;
 	}
+
 	const uint32_t* Array2::begin() const {
 		return &vec[0];
 	}
+
 	const uint32_t* Array2::end() const {
 		return begin() + Size;
 	}
+
 	uint32_t* Array2::begin() {
 		return &vec[0];
 	}
+
 	uint32_t* Array2::end() {
 		return begin() + Size;
 	}
@@ -595,6 +571,7 @@ namespace Math {
 	bool Array2::operator[](const size_t& index)const {
 		return atbool(index);
 	}
+
 	reference2 Array2::operator[](const size_t& index) {
 		return reference2(*this,index);
 	}
@@ -651,10 +628,12 @@ namespace Math {
 	}
 
 	reference2::~reference2() noexcept {}
+
 	reference2& reference2::operator=(bool _Val)noexcept {
 		Point->setbool(_Pos, _Val);
 		return*this;
 	}
+
 	reference2& reference2::operator=(const reference2& _Bitref) noexcept {
 		Point->setbool(_Pos, _Bitref.Point->atbool(_Bitref._Pos));
 		return *this;
@@ -669,6 +648,7 @@ namespace Math {
 	}
 
 	reference2::reference2() noexcept : Point(nullptr), _Pos(0) {}
+
 	reference2::reference2(Array2& _Array2, size_t _Pos) : Point(&_Array2), _Pos(_Pos) {}
 
 	void Array2_func::QuickMul2k(Array2& a, const uint32_t& k) {//快速乘2^k
@@ -735,12 +715,6 @@ namespace Math {
 		for (size_t i = 0; i < Length; ++i)
 			it[i] = mid[i];
 		test.deallocate(mid, n + m);
-	}
-
-	Array2 Array2_func::SlowMul(const Array2& A, const Array2& B) {
-		Array2 c;
-		SlowMul(A, B, c);
-		return c;
 	}
 
 	/*---FFT相关,根据范围选择对应函数---*/
@@ -947,11 +921,5 @@ namespace Math {
 		if (Size <= 10000)FFTQuickMul4(A, B, c);
 		else if (Size <= 10000000)FFTQuickMul3(A, B, c);
 		else FFTQuickMul2(A, B, c);
-	}
-
-	Array2 FFT_Array2_func::FFTQuickMul(Array2& A, Array2& B) {
-		Array2 c;
-		FFTQuickMul(A, B, c);
-		return c;
 	}
 }

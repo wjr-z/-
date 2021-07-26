@@ -23,7 +23,6 @@ namespace Math {
 #define bint2zero bint2()
 //#define BINTDEBUG
 
-
 /*---友元函数声明---*/
 
 //------------------------------------------------------------------//
@@ -62,7 +61,8 @@ namespace Math {
 	bint operator-(bint);
 	bool operator!(const bint&);
 	bool operator!(bint&&);
-	bint Factorial(int);
+	bint factorial(int);
+	bint fibonacci(int);
 
 	bint operator+(const bint&, const bint&);
 	bint operator+(bint&&, const bint&);
@@ -130,7 +130,6 @@ namespace Math {
 	bool operator!(const bint2&);
 	bool operator!(bint2&&);
 
-
 	bint2 operator+(const bint2&, const bint2&);
 	bint2 operator+(bint2&&, const bint2&);
 	bint2 operator+(const bint2&, bint2&&);
@@ -163,7 +162,6 @@ namespace Math {
 	bint2 operator|(const bint2&, const bint2&);
 	bint2 operator^(const bint2&, const bint2&);
 
-
 	bint2 qpow(const bint2&, int);
 
 	bint2 abs(bint2);
@@ -172,10 +170,8 @@ namespace Math {
 	bool operator==(const bint&, const bint2&);
 	bool operator==(const bint2&, const bint&);
 
-
 	std::string bit10_to_bit2(const std::string&);//10进制字符串转化为2进制字符串
 	std::string bit2_to_bit10(const std::string&);//2进制字符串转化为10进制字符串
-
 
 	bint sqrt(const bint&);
 	bint2 sqrt(const bint2&);
@@ -184,8 +180,6 @@ namespace Math {
 	bint max_prime(const bint& x);
 
 	//------------------------------------------------------------------//
-
-
 
 	class bint {
 		friend class bfloat;
@@ -226,12 +220,9 @@ namespace Math {
 		static void quickmul(bint&, const bint&);
 		/*---低精度乘法---*/
 		static void mulint(const bint&, const int&, bint&);
-		static bint Factorial(int, int);
 
 		bint2 get2bit()const;
-
 		void clear();
-
 		void resize(const size_t&);
 		size_t size()const;
 		void reserve(const size_t&);
@@ -314,8 +305,6 @@ namespace Math {
 
 		bint& operator<<=(const int&);
 		bint& operator>>=(const int&);
-
-		friend bint Factorial(int);
 
 		friend bint operator-(const bint&, bint&&);
 		friend bint operator-(const int&, bint);
@@ -402,8 +391,6 @@ namespace Math {
 		}
 	#endif
 	};
-
-
 
 	/* bigintger类(2bit)
 	* 2^32为一位，完美（划掉）采用了溢出
@@ -583,6 +570,5 @@ namespace Math {
 		std::string tostr()const;
 		bint to10bit()const;
 	};
-
 }
 #endif
