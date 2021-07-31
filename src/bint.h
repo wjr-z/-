@@ -227,6 +227,7 @@ namespace Math {
 		void resize(const size_t&);
 		size_t size()const;
 		void reserve(const size_t&);
+		void pop_back();
 		bint(const size_t&, int);
 	public:
 		/*---初始化为other的[L,R]元素---*/

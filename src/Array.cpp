@@ -43,7 +43,7 @@ namespace Math {
 	}
 
 	bool Array::iszero()const {
-		return ((Size == 1 && at(0) == 0) || !Size) ? true : false;
+		return (Size == 1 && at(0) == 0) ? true : false;
 	}
 
 	const size_t& Array::size()const {

@@ -81,6 +81,7 @@ namespace Math {
 	void bint::quickadd(bint& a, const bint& b) {
 		if (!a) {
 			a = b;
+			a.positive=true;
 			return;
 		}
 		if (!b)return;
@@ -97,6 +98,7 @@ namespace Math {
 					++vc[i + 1];
 				}
 			}
+
 
 			for (size_t tail = n; tail < m && vc[tail] >= bintjw; ++tail) {//答案最多是m+1位
 				vc[tail] -= bintjw;
@@ -127,11 +129,12 @@ namespace Math {
 	}
 
 	void bint::quickadd(bint& a, bint&& b) {
-		if (!b)return;
 		if (!a) {
 			a = std::move(b);
+			a.positive=true;
 			return;
 		}
+		if (!b)return;
 		size_t n = a.size(), m = b.size();
 		if (n < m) {//若a比b小，则优化失败，转为朴素加法
 			bint c(std::move(b),a.positive);
@@ -167,6 +170,7 @@ namespace Math {
 		}
 	}
 
+	//加int绝对值
 	void bint::addint(bint& a, int b) {
 		uint32_t copyb(b);
 		if (copyb + a.save_at(0) >= bintjw) {//可能会溢出，因此要用减法这样比较
@@ -184,35 +188,32 @@ namespace Math {
 		else a.save_at(0) += b;//不会溢出，直接加即可
 	}
 
+	//若|a|>=|b| 则为a的符号，否则取反
 	void bint::quickdel(bint& a, const bint& b) {
-		if (!b)
-			return;
 		if (!a) {
 			a = b;
 			a.positive=false;
 			return;
 		}
-		if (a.vec < b.vec) {//类似加法
-			bint c(b);
+		if (!b)
+			return;
+		//|a|<|b|
+		if (a.vec < b.vec) {
+			bint c(b,!a.positive);
 			size_t n = a.size();
+			int*vc=c.begin();
+			const int*va=a.begin();
 			for (size_t i = 0, j; i < n; ++i) {
-				if (c.save_at(i) < a.save_at(i)) {
-					j = i + 1;
-					c.save_at(i) += bintjw - a.save_at(i);
-					while (!c.save_at(j))
-						c.save_at(j) = bintjw - 1, ++j;
-					--c.save_at(j);
+				vc[i]-=va[i];
+				j=i;
+				while (vc[j]<0) {
+					vc[j]+=bintjw;
+					--vc[j+1];
+					++j;
 				}
-				else c.save_at(i) -= a.save_at(i);
 			}
 
-			size_t Length = c.size();
-			while (Length > 1 && !c.save_at(Length - 1))
-				--Length;
-			if (Length != c.size())
-				c.resize(Length);
-			c.positive = !a.positive;
-			if (!c)c.positive = true;
+			c.pop_back();
 			a = std::move(c);
 			return;
 		}
@@ -230,24 +231,19 @@ namespace Math {
 			else a.save_at(i) -= b.at(i);
 		}
 
-		size_t Length = a.size();
-		while (Length > 1 && !a.save_at(Length - 1))
-			--Length;
-		if (Length != a.size())
-			a.resize(Length);
-		if (!a)
-			a.positive = true;
+		a.pop_back();
+		if (!a)a.positive = true;
 	}
 
 	void bint::quickdel(bint& a, bint&& b) {
-		if (!b)return;
 		if (!a) {
 			a = std::move(b);
 			a.positive=false;
 			return;
 		}
+		if (!b)return;
 		if (a.vec < b.vec) {//类似加法
-			bint c(std::move(b));
+			bint c(std::move(b),!a.positive);
 			size_t n = a.size();
 			for (size_t i = 0, j; i < n; ++i) {
 				if (c.save_at(i) < a.save_at(i)) {
@@ -260,14 +256,7 @@ namespace Math {
 				else c.save_at(i) -= a.save_at(i);
 			}
 
-			size_t Length = c.size();
-			while (Length > 1 && !c.save_at(Length - 1))
-				--Length;
-			if (Length != c.size())
-				c.resize(Length);
-			c.positive = !a.positive;
-			if (c.iszero())
-				c.positive = true;
+			c.pop_back();
 			a = std::move(c);
 			return;
 		}
@@ -285,10 +274,7 @@ namespace Math {
 			else a.save_at(i) -= b.at(i);
 		}
 
-		size_t Size = a.size();
-		while (Size > 1 && !a.save_at(Size - 1))
-			--Size;
-		a.resize(Size);
+		a.pop_back();
 		if (!a)a.positive = true;
 	}
 
@@ -332,6 +318,7 @@ namespace Math {
 					a.save_at(i) = bintjw - 1, ++i;
 				--a.save_at(i);
 			}
+			a.pop_back();
 		}
 		else a.save_at(0) -= b;
 	}
@@ -748,6 +735,12 @@ namespace Math {
 	size_t bint::size()const { return vec.size(); }
 
 	void bint::reserve(const size_t& len) { vec.reserve(len); }
+
+	void bint::pop_back() {
+		size_t Size=size();
+		while(Size>1&&!save_at(Size-1))--Size;
+		if(Size!=size())resize(Size);
+	}
 
 	bint::bint(const size_t& len, int) :vec(len), positive(true) {
 	#ifdef BINTDEBUG
