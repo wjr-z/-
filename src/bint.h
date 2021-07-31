@@ -99,7 +99,7 @@ namespace Math {
 	bint gcd(const bint&, const bint&);
 	bint randbint(const bint& L, const bint& R);
 	bint randbint(size_t);
-	bint randprime(const bint&L,const bint&R);//获取一个[L,R]的随机素数
+	bint randprime(const bint& L, const bint& R);//获取一个[L,R]的随机素数
 	bint randprime(size_t);//获取一个长度为n的随机素数
 	void swap(bint&, bint&);
 
@@ -156,9 +156,9 @@ namespace Math {
 	bint2 operator%(const bint2&, const int&);
 	bint2 operator%(const int&, const bint2&);
 
-	bint2 operator<<(const bint2&,int);
+	bint2 operator<<(const bint2&, int);
 	bint2 operator>>(const bint2&, int);
-	bint2 operator&(const bint2&,const bint2&);
+	bint2 operator&(const bint2&, const bint2&);
 	bint2 operator|(const bint2&, const bint2&);
 	bint2 operator^(const bint2&, const bint2&);
 
@@ -216,6 +216,7 @@ namespace Math {
 		/*---复杂度为O(n*m^0.517)---*/
 		/*---当m<=64时使用暴力乘法---*/
 		static void Karatsuba(const bint&, const bint&, bint&);
+		static void TOOM_COOK_3(const bint&,const bint&,bint&);
 		/*---快速乘法，自动选择不同算法---*/
 		static void quickmul(bint&, const bint&);
 		/*---低精度乘法---*/
@@ -226,7 +227,7 @@ namespace Math {
 		void resize(const size_t&);
 		size_t size()const;
 		void reserve(const size_t&);
-		bint(const size_t&,int);
+		bint(const size_t&, int);
 	public:
 		/*---初始化为other的[L,R]元素---*/
 		void assign(const bint& other, const size_t& L, const size_t& R);
@@ -284,6 +285,8 @@ namespace Math {
 		friend bool operator==(const bint&, int);
 		friend bool operator<=(const bint&, const bint&);
 		friend bool operator<=(const bint&, int);
+
+		friend bint operator+(const bint&,const bint&);
 
 		bint& operator+=(const bint&);
 		bint& operator+=(bint&&);
@@ -376,17 +379,22 @@ namespace Math {
 			}
 			size_t n = a.size(), m = b.size(), _min = min(n, m), _max = max(n, m);
 
-			if (_min<=32||(((1ull << min(size_t(30), max(size_t(0), (_min - 32) >> 1))) <= _max)))
+			if (_min <= 32 || (((1ull << min(size_t(30), max(size_t(0), (_min - 32) >> 1))) <= _max)))
 				Array_func::SlowMul(a.vec, b.vec, c.vec);
 			else FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
 
 
-			if (_min<=32||(((1ull << min(size_t(30), max(size_t(0), (_min - 32) >> 1))) <= _max)))
+			if (_min <= 32 || (((1ull << min(size_t(30), max(size_t(0), (_min - 32) >> 1))) <= _max)))
 				mode = 1;
 			else mode = 3;
 
 			c.positive = !(a.positive ^ b.positive);
 			if (c.iszero())c.positive = true;
+			return c;
+		}
+		friend bint testTOOM(const bint& a, const bint& b) {
+			bint c;
+			TOOM_COOK_3(a,b,c);
 			return c;
 		}
 	#endif
@@ -460,13 +468,13 @@ namespace Math {
 		uint32_t& at(const int&);
 		uint32_t& save_at(const int&);
 
-		bool operator[](const size_t&index)const;
-		reference2 operator[](const size_t&index);
+		bool operator[](const size_t& index)const;
+		reference2 operator[](const size_t& index);
 
-		const uint32_t*begin()const;
-		const uint32_t*end()const;
-		uint32_t*begin();
-		uint32_t*end();
+		const uint32_t* begin()const;
+		const uint32_t* end()const;
+		uint32_t* begin();
+		uint32_t* end();
 
 		void maintain();
 		void randdata(const bint2&);
@@ -540,15 +548,15 @@ namespace Math {
 		friend bint2 operator%(const bint2&, const int&);
 		friend bint2 operator%(const int&, const bint2&);
 
-		friend bint2 operator<<(const bint2&,int);
+		friend bint2 operator<<(const bint2&, int);
 		friend bint2 operator>>(const bint2&, int);
 		friend bint2 operator&(const bint2&, const bint2&);
-		friend bint2 operator|(const bint2&,const bint2&);
-		friend bint2 operator^(const bint2&,const bint2&);
+		friend bint2 operator|(const bint2&, const bint2&);
+		friend bint2 operator^(const bint2&, const bint2&);
 
-		bint2&operator&=(const bint2&);
-		bint2&operator|=(const bint2&);
-		bint2&operator^=(const bint2&);
+		bint2& operator&=(const bint2&);
+		bint2& operator|=(const bint2&);
+		bint2& operator^=(const bint2&);
 
 		size_t count();
 

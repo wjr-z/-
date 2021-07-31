@@ -7,7 +7,7 @@
 #include <vector>
 #include "Allocator.h"
 #include "math_func.h"
- 
+
 namespace Math {
 	using std::vector;
 
@@ -68,8 +68,8 @@ namespace Math {
 		Array& operator=(Array&& other)noexcept;
 		const int* begin()const;
 		const int* end()const;
-		int*begin();
-		int*end();
+		int* begin();
+		int* end();
 		bool iszero()const;
 		const size_t& size() const;
 		size_t capacity()const;
@@ -84,8 +84,8 @@ namespace Math {
 		int at(const size_t& index)const;
 		int& at(const size_t& index);
 
-		uint32_t operator[](const size_t&index)const;
-		reference operator[](const size_t&index);
+		uint32_t operator[](const size_t& index)const;
+		reference operator[](const size_t& index);
 		void swap(Array& other);
 	};
 
@@ -147,11 +147,11 @@ namespace Math {
 		Array2(const Array2& other)noexcept;
 		Array2(Array2&& other)noexcept;
 		Array2& operator=(const Array2& other)noexcept;
-		Array2& operator=(Array2&& other)noexcept ;
-		const uint32_t*begin()const ;
-		const uint32_t*end()const;
-		uint32_t*begin();
-		uint32_t*end();
+		Array2& operator=(Array2&& other)noexcept;
+		const uint32_t* begin()const;
+		const uint32_t* end()const;
+		uint32_t* begin();
+		uint32_t* end();
 		bool iszero()const;
 		size_t size() const;
 		size_t length()const;
@@ -160,11 +160,11 @@ namespace Math {
 		void clear();
 
 		uint32_t& save_at(const size_t& index);
-		uint32_t at(const size_t&index)const;
-		uint32_t&at(const size_t&index);
+		uint32_t at(const size_t& index)const;
+		uint32_t& at(const size_t& index);
 
-		bool operator[](const size_t&index)const;
-		reference2 operator[](const size_t&index);
+		bool operator[](const size_t& index)const;
+		reference2 operator[](const size_t& index);
 
 		void maintain();//用于弹出头部多余的1
 		void relength(const size_t& index);
@@ -178,14 +178,14 @@ namespace Math {
 	public:
 		~reference2() noexcept;
 		reference2& operator=(bool _Val)noexcept;
-		reference2& operator=(const reference2& _Bitref) noexcept ;
+		reference2& operator=(const reference2& _Bitref) noexcept;
 
 		bool operator~() const noexcept;
 		operator bool() const noexcept;
 
 	private:
 		reference2() noexcept;
-		reference2(Array2& _bint2, size_t _Pos) ;
+		reference2(Array2& _bint2, size_t _Pos);
 	};
 
 	class Array2_func {
