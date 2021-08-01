@@ -1,31 +1,55 @@
-#include <Windows.h>
+ï»¿#include <Windows.h>
 #include "src/Matrix.h"
 #include "src/bint.h"
 #include "src/bfloat.h"
 #include "src/lz77.h"
-#include "src/wtest.h"
+#include "src/mtool.h"
 #include <functional>
 using namespace Math;
 using namespace std;
-#include <random>
-std::mt19937 mt_rand(time(NULL));
-void randdata(bint& x, size_t n) {
-	if (n < 1)return;
-	x = 0;
-	size_t Size = n - 1 >> 3;
-	for (size_t i = 0; i < Size; ++i)
-		x.at(i) = randint(0, bintjw - 1);
-	for (size_t i = Size << 3; i < n - 1; ++i)
-		x[i]=randint(0, 9);
-	x[n-1]=randint(1, 9);
-}
+
+void print(int x){cout<<x+1<<endl; }
+
+const int N=1e6+10;
+int tx[N],ty[N];
+int az[N];
 
 int main() {
-	//void (*p)(int,int) =work;
-	
+
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	cout.tie(0);
+
+	int aa[3]={6,3,7};
+	qswap(aa, aa + 3, { 1,0,2 });
+	cout<<aa[0]<<endl<<aa[1]<<endl<<aa[2]<<endl;
+	return 0;
+	int n=1e6;
+	for(int i=0;i<n;++i)
+		tx[i]=ty[i]=randuint(),az[i]=i;
+
+	sort(tx,tx+n);
+
+	sort(az,az+n,[](int x,int y){return ty[x]<ty[y];});
+
+	qswap(ty,ty+n,az);
+
+	if(!check(tx,ty,n))
+		cout<<"wa\n";
+	else cout<<"ac\n";
+
+
+
+	return 0;
+	cout<<qtime(print,3)<<endl;
+
+	cout << qtime(
+		[](int x) {
+			cout << x-1 << endl;
+		}, 3
+	) << endl;
+
+	return 0;
 
 	bint a, b,c;
 	a = qpow(bint(12345),5678);
@@ -42,7 +66,7 @@ int main() {
 
 	FILE* stream1;
 	freopen_s(&stream1, "test.out", "w", stdout);
-	cout.setf(ios::left); //ÉèÖÃ¶ÔÆë·½Ê½Îªleft
+	cout.setf(ios::left); //è®¾ç½®å¯¹é½æ–¹å¼ä¸ºleft
 
 	int HEAD = 400000, TAIL = 100000, PY = 10;
 
@@ -52,8 +76,8 @@ int main() {
 			len1 = ((i - 1) >> 3) + 1;
 			len2 = ((j - 1) >> 3) + 1;
 			bint x, y;
-			randdata(x, i);
-			randdata(y, j);
+			x=randbint(i);
+			y=randbint(j);
 			double stime, ftime, ktime,ttime;
 			cout << setw(4) << "i=" << setw(4) << i << setw(6) << "  j=" << setw(4) << j << ' ';
 			int K = 4;
@@ -71,7 +95,7 @@ int main() {
 		#endif
 			END
 
-				cout << setw(6) << "±©Á¦£º" << setw(12) << (stime = en - sta);
+				cout << setw(6) << "æš´åŠ›ï¼š" << setw(12) << (stime = en - sta);
 			cout << " ";
 
 			START
@@ -81,7 +105,7 @@ int main() {
 		#endif
 			END
 
-				cout << setw(6) << "Kar£º" << setw(12) << (ktime = en - sta);
+				cout << setw(6) << "Karï¼š" << setw(12) << (ktime = en - sta);
 			cout << " ";
 			START
 			#ifdef TEST
@@ -89,7 +113,7 @@ int main() {
 					test3(x, y);
 		#endif
 			END
-				cout << setw(6) << "FFT£º" << setw(12) << (ftime = en - sta);
+				cout << setw(6) << "FFTï¼š" << setw(12) << (ftime = en - sta);
 			cout << " ";
 
 			START
@@ -98,7 +122,7 @@ int main() {
 					testTOOM(x, y);
 		#endif
 			END
-				cout << setw(6) << "TOOM_COOK_3£º" << setw(12) << (ttime = en - sta);
+				cout << setw(6) << "TOOM_COOK_3ï¼š" << setw(12) << (ttime = en - sta);
 			cout << " ";
 
 			START
@@ -107,39 +131,39 @@ int main() {
 					test4(x, y);
 		#endif
 			END
-				cout << setw(6) << "ÖÇÄÜÄ£Ê½£º";
-			if (mode == 1)cout << setw(6) << "±©Á¦ ";
+				cout << setw(6) << "æ™ºèƒ½æ¨¡å¼ï¼š";
+			if (mode == 1)cout << setw(6) << "æš´åŠ› ";
 			else if (mode == 2)cout << setw(6) << "Kar ";
 			else cout << setw(6) << "FFT ";
 
 			cout << "  " << setw(14) << en - sta << ' ';
-			cout << setw(6) << "×îÓÅÑ¡Ôñ£º";
-			if (stime < ftime && stime < ktime&&stime<ttime) {
-				cout << "±©Á¦" << ' ';
+			cout << setw(6) << "æœ€ä¼˜é€‰æ‹©ï¼š";
+			double mintime = min({ stime,ftime,ktime,ttime });
+			
+			if (mintime==stime) {
+				cout << "æš´åŠ›" << ' ';
 			}
-			if (ktime < stime && ktime < ftime&&ktime<ttime) {
+			if (mintime==ktime) {
 				cout << "Kar" << ' ';
 			}
-			if (ftime < stime && ftime < ktime&&ftime<ttime) {
+			if (mintime==ftime) {
 				cout << "FFT" << ' ';
 			}
-			if (ttime < stime && ttime < ktime && ttime < ftime) {
+			if (mintime==ttime) {
 				cout<<"TOOM_COOK"<<' ';
 			}
-			if (ans1 == ans2 && ans1 == ans3&&ans1==ans5) {
-				cout << "ÕýÈ·\n";
+			if (check(ans1,ans3,ans5)) {
+				cout << "æ­£ç¡®\n";
 			}
 			else {
 				if (ans1 != ans3) {
-					cout << "±©Á¦´íÎó\n";
+					cout << "æš´åŠ›é”™è¯¯\n";
 				}
 				if (ans1 == ans3 && ans1 != ans2) {
-					cout << "Kar´íÎó\n";
+					cout << "Karé”™è¯¯\n";
 				}
 				else if (ans1 == ans2 && ans1 != ans3) {
-					cout << "FFT´íÎó\n";
-
-					//test3(x, y);
+					cout << "FFTé”™è¯¯\n";
 				}
 
 			}

@@ -1,22 +1,169 @@
-现有较为完善的大整数类，包括十进制和二进制两种，各种运算均进行了一定程度上的优化，乘法暂时使用的暴力和FFT，Karatsuba已实现但暂未使用。二进制大整数不仅可用作整数，还实现了部分bitset功能，支持快速异或、与、或等，并且支持动态扩展、缩小。支持随机大数，大素数，十进制和二进制快速转化等等。（相关文件Allocator.h、Array.h、Array.cpp、bint.h、bint.cpp、fftsg_h.c）  
+主要用于学习C++的相关知识，例如if else的分治预测，右值引用和左值引用，参数包，初始化列表，迭代器，封装，运算符重载，效率优化和测试等等。代码在VS上可以很好地运行，在其他的环境则不能保证，可以尝试在math_func.h注释掉
 
-实现了部分实用函数，包括log(log n)的向下取整log2和log10，O(1)求二进制1的个数，double对long long 的快速转换等等。（match_func.h、math_func.cpp)   
-
-包括lz77算法，有两种模式，其中快速模式压缩率略小于Fast_Lz，压缩速度略高于Fast_Lz。（lz77.h、lz77.cpp）  
-
-还有封装的Splay类，可以自定义pushup、pushdown函数，实现了迭代器。（Splay.h）  
-
-实现了pollard-rho算法，可以快速分解10^20以内的数，以及Miller-Robin快速判断素数。（PollardRho.h、PollardRho.cpp）
-
----
-
-暂时需要继续调整。
-
-对于部分编译器，其vector实现可能不同，例如Qt的，此时需要在Array.h中找到：
-
-```C++
-#define USE_ALLOCATOR
+```
+#define TEST
 ```
 
-并将其注释。
+### bint.h、bint.cpp  
+
+现有较为完善的大整数类，支持10进制和2进制两种，可通过中括号访问每一位，并且封装了vector进行动态扩展（超过现有长度自动扩展），可以直接使用int或者long long赋值等等，乘法使用了暴力、Karatsuba、TOOM-COOK、FFT，但Karatsuba和TOOM-COOK只进行了学习，并保留但未使用。除法暂时只用了我自己想到的两种分治除法和knuth除法。实现了大整数随机数，大整数随机质数，二进制和十进制的快速转化（分治）。  
+
+```C++
+常用运算符：+（单目/双目）、- (单目/双目)、* 、/ 等，二进制有 ^ 、| 、& 等，基本能像int那样用。
+
+只能显示构造！
+正确的初始化：
+bint a(7);
+bint a("124");
+bint a(1),b(a),c(a,false);
+bint a("-123");
+...
+错误的初始化：
+bint a=7;
+bint a="124";
+bint a="-123";
+...
+    
+赋值和int基本类似
+
+toint():转化为int
+toll():转化为long long
+tostr():转换为字符串
+
+length():数字长度，不包括符号
+relength():改变长度，不足补0
+[]:十进制/二进制下的第几位的数字
+at()、save_at():压位后第几位的数字
+
+isprime()
+randprime()
+pollarrho()
+randbint()
+randbint2()
+...
+```
+
+
+
+### math_func.h、math_func.cpp  
+
+只实现了一些简单函数
+
+log(log n)的向下取整 log2和log10，思想很好理解。  
+
+int和double串的合法性判断
+
+等等
+
+### mtool.h、mtool.cpp
+
+```C++
+timereference getTime();//获取当前时间，精度更高
+double operator-(const timereference& lhs, const timereference& rhs);//两个时间的间隔，单位为毫秒
+
+//例子：
+
+auto start=getTime();
+...//待测函数
+auto end=getTime();
+cout<<end-start<<endl;
+```
+
+```C++
+template<typename Fn>
+double qtime(const Fn& ToBeTest)//返回无参数函数运行一次的耗时
+
+template<typename Fn, typename... Args>
+double qtime(const Fn& ToBeTest, Args&&...List)//返回带参函数运行一次的耗时
+
+template<typename Fn>
+double qavltime(const Fn& ToBeTest, int kth)//返回无参函数运行k次的平均耗时
+
+template<typename Fn, typename... Args>
+double qavltime(const Fn& ToBeTest, int kth, Args&&...List)//返回带参函数运行k次的平均耗时
+
+template<typename Fn>
+double qcounttime(const Fn& ToBeTest, int kth)//返回无参函数运行k次的总耗时
+
+template<typename Fn, typename... Args>
+double qcounttime(const Fn& ToBeTest, int kth, Args&&...List)//返回带参函数运行k次的总耗时
+    
+//例子：
+void print(int x){
+    cout<<x<<endl;
+}
+cout<<qtime(print,3)<<endl;
+cout<<qtime(
+	[](int&x){
+        cout<<x<<endl;
+    },3
+)<<endl;
+
+//其余的基本同理，只是多了一个k参数
+```
+
+```C++
+template<typename Ty>
+bool check(Ty* arr1,Ty*arr2,int n)//比较前n个元素是否相同
+
+template<typename Ty,typename... Args>
+bool check(const Ty&head,const Ty&nxt,Args ...toBeTest)//比较所有参数是否相同（同类型）
+```
+
+```C++
+template<typename Ty>
+void qswap(Ty* Start, Ty* End, int* rev)
+//设数组为a,让所有的a[i]=a[rev[i]]
+//进行了内存优化，使用了自己的bint2即二进制大整数，之后也许会单独写一个动态长度bitset
+//只使用了sizeof(int)*(n/8)的内存，并且避免了拷贝，主要思想是进行若干个环形移动
+
+//例子：
+
+int aa[3]={6,3,7};
+qswap(aa, aa + 3, { 1,0,2 });
+cout<<aa[0]<<endl<<aa[1]<<endl<<aa[2]<<endl;
+```
+
+```C++
+void bucketsort(uint32_t* Start, uint32_t* End);
+//unsigned int桶排序
+//设n为元素个数
+//n<=500时为sort。
+//500<n<=32768时为桶的个数为256的桶排序。
+//32768<n时为桶的个数为65536的桶排序。
+//当数据范围很大时，并且数据接近随机时快于sort 2~4倍。
+//复杂度之和n有关，和内部元素顺序无关，因此在较为有序或者完全有序时慢于sort。
+```
+
+```C++
+std::vector<std::string> getFiles(const std::string& path);
+//获取一个文件夹下的所有文件路径，如果该路径是文件，则只获取该路径
+//若路径不合法，则返回空的vector
+```
+
+```C++
+template<typename Ty>
+void printAll(Ty Start, Ty End);//每行输出一个元素
+template<typename Ty>
+void printAll(Ty inSTL);//每行输出一个STL内的元素
+//就是为了偷一点懒。
+```
+
+### Allocator.h
+
+网上找到的内存池类。
+
+### lz77.h、lz77.cpp
+
+自己实现的lz77算法
+
+接口非常简单，具体见代码
+
+```C++
+#define LZLEVEL 2 //2:体积最小,1：速度最快
+```
+
+
+
+
 

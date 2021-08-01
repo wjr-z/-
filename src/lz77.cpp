@@ -3,9 +3,7 @@
 
 #define LZLEVEL 2
 
-//更高的速度
-
-#if LZLEVEL == 1 
+#if LZLEVEL == 1
 
 #define WINDOW_SIZE_BIT 13
 #define WINDOW_SIZE (1<<WINDOW_SIZE_BIT)
@@ -14,8 +12,7 @@
 
 #endif
 
-//更小的压缩率
-#if LZLEVEL == 2 
+#if LZLEVEL == 2
 
 #define WINDOW_SIZE_BIT 13
 #define WINDOW_SIZE (1<<WINDOW_SIZE_BIT)
@@ -23,7 +20,7 @@
 #define BUFFER_SIZE_BIT 16
 #define BUFFER_SIZE (1<<BUFFER_SIZE_BIT)
 
-#define MATCH_LIMIT 6
+#define MATCH_LIMIT 8
 #define LIST_LIMIT 64
 
 #endif
@@ -47,8 +44,8 @@ namespace lz77 {
 	uint32_t notused;
 #endif
 
-	inline uint32_t fibhash(const uint32_t& x) { return (x * fib) >> 18; }
-	inline uint32_t gethash(const void* ptr) {
+	uint32_t fibhash(const uint32_t& x) { return (x * fib) >> 18; }
+	uint32_t gethash(const void* ptr) {
 		return fibhash((*(uint32_t*)ptr) & 0xffffff);
 	}
 
@@ -101,8 +98,8 @@ namespace lz77 {
 		push_List(str, pos);
 	#endif
 	#if LZLEVEL == 2
-		push_List(str, pos);
 		if (pos >= WINDOW_SIZE)pop_List(str, pos - WINDOW_SIZE);
+		push_List(str, pos);
 	#endif
 	}
 
@@ -157,14 +154,14 @@ namespace lz77 {
 
 	void writebuf(std::string& str, uint32_t& buf, uint32_t& bufsize) {
 		while (bufsize >= 8) {
-			str.push_back(buf >> (bufsize - 8));
+			str.push_back(buf >> bufsize - 8);
 			bufsize -= 8;
 		}
 	}
 
 	void writebuf(uint8_t*& op, uint32_t& buf, uint32_t& bufsize) {
 		while (bufsize >= 8) {
-			*(op++) = buf >> (bufsize - 8);
+			*(op++) = buf >> bufsize - 8;
 			bufsize -= 8;
 		}
 	}
@@ -253,16 +250,17 @@ namespace lz77 {
 		return getkbit(ql, logmatch, bit, bitsize, i) + (1 << logmatch);
 	}
 	uint32_t readdelta(const uint8_t*& ql, uint8_t& bit, uint8_t& bitsize, uint32_t& i) {
-		uint8_t logmatch=readgamma(ql,bit,bitsize,i);
-		return getkbit(ql,logmatch,bit,bitsize,i)+(1<<logmatch);
+		uint8_t logmatch = readgamma(ql, bit, bitsize, i);
+		return getkbit(ql, logmatch, bit, bitsize, i) + (1 << logmatch);
 	}
 
 	std::string compress(const std::string& arr) {
+		uint32_t Length = arr.length();
+
+		if(Length>=3&&arr.substr(0,3)=="wjr")return arr;
 
 		std::string str;
 		str.append("wjr");
-
-		uint32_t Length = arr.length();
 
 		const uint8_t* ql = (const uint8_t*)arr.c_str();
 
@@ -295,9 +293,9 @@ namespace lz77 {
 					}
 				}
 				else {
-					writegamma(str,buf,bufsize,2);
+					writegamma(str, buf, bufsize, 8);
 
-					writegamma(str,buf,bufsize,matchLength-MATCH_LIMIT);
+					writegamma(str, buf, bufsize, matchLength - MATCH_LIMIT);
 
 					for (j = 0; j < matchLength; ++j) {
 						buf = buf << 8 | ql[i++];
@@ -309,7 +307,7 @@ namespace lz77 {
 
 			if (!match)continue;
 
-			writegamma(str,buf,bufsize,match);
+			writegamma(str, buf, bufsize, match - (match <= 8));
 
 			buf = buf << WINDOW_SIZE_BIT | offset;
 			bufsize += WINDOW_SIZE_BIT;
@@ -335,15 +333,16 @@ namespace lz77 {
 	}
 
 	int compress(const void* input, int length, void* output) {
+
+		uint32_t Length = length;
+
+		const uint8_t* ql = (const uint8_t*)input;
+
 		uint8_t* op = (uint8_t*)output;
 		//uint8_t*op_limit=op+length;
 		*(op++) = 'w';
 		*(op++) = 'j';
 		*(op++) = 'r';
-
-		uint32_t Length = length;
-
-		const uint8_t* ql = (const uint8_t*)input;
 
 		uint32_t buf = 0;
 		uint32_t bufsize = 0;
@@ -375,8 +374,7 @@ namespace lz77 {
 					}
 				}
 				else {
-					writegamma(op,buf,bufsize,2);
-	
+					writegamma(op, buf, bufsize, 8);
 
 					writegamma(op, buf, bufsize, matchLength - MATCH_LIMIT);
 
@@ -390,7 +388,7 @@ namespace lz77 {
 
 			if (!match)continue;
 
-			writegamma(op,buf,bufsize,match);
+			writegamma(op, buf, bufsize, match - (match <= 8));
 
 			buf = buf << WINDOW_SIZE_BIT | offset;
 			bufsize += WINDOW_SIZE_BIT;
@@ -419,7 +417,7 @@ namespace lz77 {
 		std::string str;
 		uint32_t Length = arr.length();
 		const uint8_t* ql = (const uint8_t*)arr.c_str();
-		if (arr[0] != 'w' || arr[1] != 'j' || arr[2] != 'r')return arr;
+		if (Length<3||arr.substr(0,3)!="wjr")return arr;
 		ql += 3;
 
 		uint32_t head = 0;
@@ -428,9 +426,9 @@ namespace lz77 {
 
 		uint8_t bit, bitsize;
 		bit = bitsize = 0;
-		uint32_t match,offset;
+		uint32_t match, offset;
 		for (uint32_t i = 0; i < bufLength;) {
-			match=readgamma(ql,bit,bitsize,i);
+			match = readgamma(ql, bit, bitsize, i);
 			switch (match) {
 			case 1: {
 				if (i + 7 >= bufLength)break;
@@ -438,8 +436,8 @@ namespace lz77 {
 				++head;
 				break;
 			}
-			case 2: {
-				match=readgamma(ql,bit,bitsize,i)+MATCH_LIMIT;
+			case 8: {
+				match = readgamma(ql, bit, bitsize, i) + MATCH_LIMIT;
 				for (uint32_t j = 0; j < match; ++j) {
 					str.push_back(getbyte(ql, bit, bitsize, i));
 					++head;
@@ -447,6 +445,7 @@ namespace lz77 {
 				break;
 			}
 			default: {
+				match += match < 8;
 				offset = getkbit(ql, WINDOW_SIZE_BIT, bit, bitsize, i) + 1;
 
 				for (uint32_t j = 0; j < match; ++j) {
@@ -463,7 +462,7 @@ namespace lz77 {
 
 		const uint8_t* ql = (const uint8_t*)input;
 
-		if (*(ql++) != (uint8_t)'w' || (*ql++) != (uint8_t)'j' || (*ql++) != (uint8_t)'r') {
+		if (length<3||(*(ql++) != (uint8_t)'w' || (*ql++) != (uint8_t)'j' || (*ql++) != (uint8_t)'r')) {
 			memcpy(output, input, length);
 			return length;
 		}
@@ -474,22 +473,23 @@ namespace lz77 {
 
 		uint8_t bit, bitsize;
 		bit = bitsize = 0;
-		uint32_t match,offset;
+		uint32_t match, offset;
 		for (uint32_t i = 0; i < bufLength;) {
-			match=readgamma(ql,bit,bitsize,i);
+			match = readgamma(ql, bit, bitsize, i);
 			switch (match) {
 			case 1: {
 				if (i + 7 >= bufLength)break;
 				*(op++) = getbyte(ql, bit, bitsize, i);
 				break;
 			}
-			case 2: {
+			case 8: {
 				match = readgamma(ql, bit, bitsize, i) + MATCH_LIMIT;
 				for (uint32_t j = 0; j < match; ++j)
 					*(op++) = getbyte(ql, bit, bitsize, i);
 				break;
 			}
 			default: {
+				match += match < 8;
 				offset = getkbit(ql, WINDOW_SIZE_BIT, bit, bitsize, i) + 1;
 
 				for (uint32_t j = 0; j < match; ++j)
