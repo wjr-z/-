@@ -130,7 +130,6 @@ public:
 		if(!delta)return *this;
 
 		Point->nsplit(Pos1);
-		Point->nmerge(Pos1);
 
 		while (delta && Pos2 != Pos1->begin()) {
 			--Pos2;
@@ -168,8 +167,6 @@ public:
 	}
 };
 
-enum { BloRatio = 4 };
-
 template<typename Ty>
 class slist {
 	template<typename Ty>
@@ -188,34 +185,46 @@ private:
 
 	void psplit(iterator1 pos) {
 		//大于等于2*sqrt(Size)的进行分裂
-		std::list<Ty>* point = &*pos;
-		size_t NowSize = point->size();
-		if (NowSize * NowSize < BloRatio * Size) return;
-		std::list<Ty>* nxt = new std::list<Ty>;
-		size_t mid = NowSize >> 1;
+		size_t NowSize = pos->size();
+		if (NowSize * NowSize < 2 * Size) return;
 
-		iterator2 First = point->end(), Last = First;
-		while (mid)--First, --mid;
+		int BlockSize=sqrt(2*Size)/2+1;
+		int BloCnt=NowSize/BlockSize;
 
-		nxt->splice(nxt->end(), *point, First, Last);
+		while (BloCnt > 1) {
+			std::list<Ty>*nxt=new std::list<Ty>;
+			iterator2 First=pos->end(),Last=First;
+			size_t mid=0;
+			while(mid<BlockSize)--First,++mid;
+			nxt->splice(nxt->end(),*pos,First,Last);
+			--BloCnt;
+			iterator1 PosNxt=pos;
+			++PosNxt;
+			List.emplace(PosNxt,*nxt);
+		}
 
-		List.emplace(++pos, *nxt);
 	}
 
 	void nsplit(const iterator1& pos) {
 		//大于等于2*sqrt(Size)的进行分裂
 		std::list<Ty>* point = &*pos;
 		size_t NowSize = point->size();
-		if (NowSize * NowSize < BloRatio * Size) return;
-		std::list<Ty>* pre = new std::list<Ty>;
-		size_t mid = NowSize >> 1;
+		if (NowSize * NowSize < 2 * Size) return;
 
-		iterator2 First = point->begin(), Last = First;
-		while (mid)++Last, --mid;
+		int BlockSize = sqrt(2 * Size)/ 2+1;
+		int BloCnt = NowSize / BlockSize;
 
-		pre->splice(pre->end(), *point, First, Last);
+		std::list<Ty>* pre;
 
-		List.emplace(pos, *pre);
+		while (BloCnt > 1) {
+			pre=new std::list<Ty>;
+			iterator2 First = point->begin(), Last = First;
+			size_t mid = 0;
+			while (mid<BlockSize)++Last, ++mid;
+			pre->splice(pre->end(), *point, First, Last);
+			--BloCnt;
+			List.emplace(pos, *pre);
+		}
 	}
 
 	void pmerge(const iterator1& pos) {
@@ -225,11 +234,12 @@ private:
 		if (npos == List.end())return;
 		std::list<Ty>* point = &*pos, * nxt = &*npos;
 		size_t NowSize = point->size(), NxtSize = nxt->size();
-		if (BloRatio * NowSize * NowSize > Size || BloRatio * NxtSize * NxtSize > Size)return;
+		if (2 * NowSize * NowSize > Size || 2 * NxtSize * NxtSize > Size)return;
 
 		point->splice(point->end(), *nxt);
 
 		List.erase(npos);
+		pmerge(pos);
 	}
 
 	void nmerge(const iterator1& pos) {
@@ -239,14 +249,16 @@ private:
 		--ppos;
 		std::list<Ty>* point = &*pos, * pre = &*ppos;
 		size_t NowSize = point->size(), NxtSize = pre->size();
-		if (BloRatio * NowSize * NowSize > Size || BloRatio * NxtSize * NxtSize > Size)return;
+		if (2 * NowSize * NowSize > Size || 2 * NxtSize * NxtSize > Size)return;
 
 		point->splice(point->end(), *pre);
 
 		List.erase(ppos);
+		nmerge(pos);
 	}
 
 	void initial() {
+		Size=0;
 		std::list<Ty>* Extend = new std::list<Ty>;
 		List.emplace_back(*Extend);
 		iterator1 it = List.end();
@@ -259,18 +271,52 @@ private:
 	}
 public:
 
-	slist() :Size(0) {
+	slist() {
 		initial();
+	}
+
+	slist(size_t Count) {
+		initial();
+		while(Count)push_back(Ty()),--Count;
+		maintain();
+	}
+
+	slist(size_t Count, const Ty& Val) {
+		initial();
+		while(Count)push_back(Val),--Count;
+		maintain();
+	}
+
+	slist(const std::initializer_list<Ty>&ini) {
+		initial();
+		for(auto i : ini)
+			push_back(i);
+		maintain();
+	}
+
+	slist(slist& other) {
+		initial();
+		for(auto i : other)
+			push_back(i);
+		maintain();
+	}
+
+	slist& operator = (slist& other) {
+		if(this==&other)return *this;
+		List.clear();
+		initial();
+		for(auto i : other)
+			push_back(i);
+		maintain();
+		return *this;
 	}
 
 	void push_back(const Ty& Val) {
 		insert(end(),Val);
-		++Size;
 	}
 
 	void push_front(const Ty& Val) {
 		insert(begin(),Val);
-		++Size;
 	}
 
 	void pop_back() {
@@ -340,6 +386,12 @@ public:
 		}
 		List.swap(*NewList);
 		NewList->clear();
+	}
+
+	void debug() {
+		for(auto i :List)
+			printf("%d ",i.size());
+		printf("\n");
 	}
 
 };
