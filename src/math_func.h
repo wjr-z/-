@@ -6,23 +6,18 @@
 
 #define QUICK //使用空间换时间
 
-#define TEST //测试用高精度计时器 ，直接网上找的代码
-
-extern double currTime(); //使用高精度计时器
-
-extern double tot, sta, en;
+#define TEST
+#ifdef TEST
 extern int mode;
-
-#define START sta=currTime();
-#define END en=currTime();
-#define ADD tot+=en-sta;
+#endif
 
 #undef min
 #undef max
 
 namespace Math {
 
-#define bintjw 100000000
+	const int bintjw=100000000;
+//#define bintjw 100000000
 
 	template<typename Ty>
 	inline Ty abs(Ty x){return x>=0?x:-x;}

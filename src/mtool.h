@@ -1,20 +1,21 @@
 #ifndef MTOOL_H
 #define MTOOL_H
 
-
 #include <utility>
 #include <chrono>
 #include <algorithm>
 #include <string>
 #include <vector>
 #include <iostream>
+#include <map>
+#include <set>
 #include "bint.h"
 
 namespace Math {
 
 	class timereference;
 
-	timereference getTime();
+	timereference GetTime();
 	class timereference {
 	private:
 		typedef std::chrono::high_resolution_clock mclock;
@@ -22,7 +23,7 @@ namespace Math {
 
 		mclock::time_point TimePoint;
 
-		friend timereference getTime();
+		friend timereference GetTime();
 		static mclock::time_point NowTime();
 		static double testTime(const mclock::time_point& start, const mclock::time_point& end);
 	public:
@@ -34,48 +35,83 @@ namespace Math {
 
 	template<typename Fn>
 	double qtime(const Fn& ToBeTest) {
-		auto start=getTime();
+		auto start=GetTime();
 		ToBeTest();
-		return getTime()-start;
+		return GetTime()-start;
 	}
 
 	template<typename Fn, typename... Args>
 	double qtime(const Fn& ToBeTest, Args&&...List) {
-		auto start=getTime();
+		auto start=GetTime();
 		ToBeTest(std::forward<Args>(List)...);
-		return getTime()-start;
+		return GetTime()-start;
 	}
 
 	template<typename Fn>
 	double qavltime(const Fn& ToBeTest, int kth) {
-		auto start=getTime();
+		auto start=GetTime();
 		for (int i = 0; i < kth; ++i)
 			ToBeTest();
-		return (getTime()-start) / kth;
+		return (GetTime()-start) / kth;
 	}
 
 	template<typename Fn, typename... Args>
 	double qavltime(const Fn& ToBeTest, int kth, Args&&...List) {
-		auto start=getTime();
+		auto start=GetTime();
 		for (int i = 0; i < kth; ++i)
 			ToBeTest(std::forward<Args>(List)...);
-		return (getTime()-start) / kth;
+		return (GetTime()-start) / kth;
 	}
 
 	template<typename Fn>
 	double qcounttime(const Fn& ToBeTest, int kth) {
-		auto start=getTime();
+		auto start=GetTime();
 		for (int i = 0; i < kth; ++i)
 			ToBeTest();
-		return getTime()-start;
+		return GetTime()-start;
 	}
 
 	template<typename Fn, typename... Args>
 	double qcounttime(const Fn& ToBeTest, int kth, Args&&...List) {
-		auto start=getTime();
+		auto start=GetTime();
 		for (int i = 0; i < kth; ++i)
 			ToBeTest(std::forward<Args>(List)...);
-		return getTime()-start;
+		return GetTime()-start;
+	}
+
+	template<typename Fn>
+	void connect(Fn fx1, Fn fx2);
+
+	template<typename Fn, typename... Args>
+	void crun(Fn fx, Args... List);
+
+	template<typename Fn>
+	class con {
+		template<typename Fn>
+		friend void connect(Fn fx1, Fn fx2);
+		template<typename Fn, typename... Args>
+		friend void crun(Fn fx, Args... List);
+	public:
+		static std::map<Fn, std::vector<Fn>>head;
+		static void connect(Fn fx1, Fn fx2) {
+			head[fx1].push_back(fx2);
+		}
+	};
+
+	template<typename Fn>
+	std::map<Fn, std::vector<Fn>> con<Fn>::head;
+
+	template<typename Fn>
+	void connect(Fn fx1, Fn fx2) {
+		con<Fn>::connect(fx1, fx2);
+	}
+
+	//函数调用树
+	template<typename Fn, typename... Args>
+	void crun(Fn fx, Args... List) {
+		fx(std::forward<Args>(List)...);
+		for (auto i : con<Fn>::head[fx])
+			crun(i, std::forward<Args>(List)...);
 	}
 
 	//判断两个数组是否相同

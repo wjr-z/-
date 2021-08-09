@@ -1,46 +1,8 @@
 #include "math_func.h"
 #include <random>
-
 #include <iomanip>
 
-double tot, sta, en;
-
 int mode;
-
-/*---测试用高精度计时器---*/
-#ifdef TEST
-#include <Windows.h>
-static LARGE_INTEGER freq;
-
-static BOOL initFreq() {
-	if (!QueryPerformanceFrequency(&freq))
-		return FALSE;
-	else
-		return TRUE;
-}
-
-double currTime() //使用高精度计时器
-{
-	LARGE_INTEGER performanceCount;
-	double time;
-	if (freq.QuadPart == 0) {
-		BOOL bRet = initFreq();
-		if (!bRet)
-			return 0;
-	}
-	QueryPerformanceCounter(&performanceCount);
-	time = performanceCount.HighPart * 4294967296.0 + performanceCount.LowPart;
-	time = time / (freq.HighPart * 4294967296.0 + freq.LowPart);
-	return time;
-}
-
-#else 
-
-double currTime() {
-	return clock()/1000.0;
-}
-
-#endif
 
 static const char* const tabel="\0\0\1\1\2\2\2\2\3\3\3\3\3\3\3\3";
 

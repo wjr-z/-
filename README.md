@@ -149,6 +149,33 @@ void printAll(Ty inSTL);//每行输出一个STL内的元素
 //就是为了偷一点懒。
 ```
 
+### slist.h
+
+顺序插入、访问O(1)，随机插入、访问O(sqrt(n))
+
+实现有iterator迭代器
+
+与list用法相似，部分还未实现
+
+与list不同的是可以快速访问所有位置
+
+例如：
+
+```C++
+slist<int>test;
+for(int i=0;i<1000;++i)
+    test.push_back(i);
+*(test.begin()+256);//256
+```
+
+访问是O(sqrt(n))
+
+### splay.h
+
+splay的封装，可以通过洛谷上的平衡树题，但暂且接口易用性不高，以后也许可能会进行简化。
+
+平衡树，动态插入节点或者区间，自定义区间维护，区间翻转等。
+
 ### Allocator.h
 
 网上找到的内存池类。

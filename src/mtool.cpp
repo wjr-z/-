@@ -3,7 +3,7 @@
 
 namespace Math {
 
-	timereference getTime(){return timereference::NowTime(); }
+	timereference GetTime(){return timereference::NowTime(); }
 
 	timereference::mclock::time_point timereference::NowTime() {
 		static mclock::time_point nowtime;

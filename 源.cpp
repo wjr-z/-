@@ -4,52 +4,23 @@
 #include "src/bfloat.h"
 #include "src/lz77.h"
 #include "src/mtool.h"
-#include <functional>
+#include <list>
+#include <iterator>
+#include "src/slist.h"
+
 using namespace Math;
 using namespace std;
 
-void print(int x){cout<<x+1<<endl; }
 
-const int N=1e6+10;
-int tx[N],ty[N];
-int az[N];
+
+
+int n;
 
 int main() {
-
+	
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	cout.tie(0);
-
-	int aa[3]={6,3,7};
-	qswap(aa, aa + 3, { 1,0,2 });
-	cout<<aa[0]<<endl<<aa[1]<<endl<<aa[2]<<endl;
-	return 0;
-	int n=1e6;
-	for(int i=0;i<n;++i)
-		tx[i]=ty[i]=randuint(),az[i]=i;
-
-	sort(tx,tx+n);
-
-	sort(az,az+n,[](int x,int y){return ty[x]<ty[y];});
-
-	qswap(ty,ty+n,az);
-
-	if(!check(tx,ty,n))
-		cout<<"wa\n";
-	else cout<<"ac\n";
-
-
-
-	return 0;
-	cout<<qtime(print,3)<<endl;
-
-	cout << qtime(
-		[](int x) {
-			cout << x-1 << endl;
-		}, 3
-	) << endl;
-
-	return 0;
 
 	bint a, b,c;
 	a = qpow(bint(12345),5678);
@@ -61,6 +32,7 @@ int main() {
 				c=a*b;
 		}
 	)<<endl;
+
 	
 	return 0;
 
@@ -88,50 +60,50 @@ int main() {
 			ans3 = test3(x, y);
 			ans5 = testTOOM(x,y);
 		#endif
-			START
+			auto sta=GetTime();
 			#ifdef TEST
-				//for (int k = 0; k < K; ++k)
-					//test1(x, y);
+				for (int k = 0; k < K; ++k)
+					test1(x, y);
 		#endif
-			END
 
-				cout << setw(6) << "暴力：" << setw(12) << (stime = en - sta);
+			auto en=GetTime();
+			cout << setw(6) << "暴力：" << setw(12) << (stime = en - sta);
 			cout << " ";
 
-			START
+			sta=GetTime();
 			#ifdef TEST
 				for (int k = 0; k < K; ++k)
 					test2(x, y);
 		#endif
-			END
+			en=GetTime();
 
-				cout << setw(6) << "Kar：" << setw(12) << (ktime = en - sta);
+			cout << setw(6) << "Kar：" << setw(12) << (ktime = en - sta);
 			cout << " ";
-			START
+			sta=GetTime();
 			#ifdef TEST
 				for (int k = 0; k < K; ++k)
 					test3(x, y);
 		#endif
-			END
-				cout << setw(6) << "FFT：" << setw(12) << (ftime = en - sta);
+			en=GetTime();
+			cout << setw(6) << "FFT：" << setw(12) << (ftime = en - sta);
 			cout << " ";
 
-			START
+			sta=GetTime();
 			#ifdef TEST
 				for (int k = 0; k < K; ++k)
 					testTOOM(x, y);
 		#endif
-			END
+			en=GetTime();
 				cout << setw(6) << "TOOM_COOK_3：" << setw(12) << (ttime = en - sta);
 			cout << " ";
 
-			START
+			sta=GetTime();
 			#ifdef TEST
 				for (int k = 0; k < K; ++k)
 					test4(x, y);
 		#endif
-			END
-				cout << setw(6) << "智能模式：";
+			en=GetTime();
+			cout << setw(6) << "智能模式：";
 			if (mode == 1)cout << setw(6) << "暴力 ";
 			else if (mode == 2)cout << setw(6) << "Kar ";
 			else cout << setw(6) << "FFT ";
