@@ -154,19 +154,19 @@ namespace lz77 {
 
 	void writebuf(std::string& str, uint32_t& buf, uint32_t& bufsize) {
 		while (bufsize >= 8) {
-			str.push_back(buf >> bufsize - 8);
+			str.push_back(buf >> (bufsize - 8));
 			bufsize -= 8;
 		}
 	}
 
 	void writebuf(uint8_t*& op, uint32_t& buf, uint32_t& bufsize) {
 		while (bufsize >= 8) {
-			*(op++) = buf >> bufsize - 8;
+			*(op++) = buf >> (bufsize - 8);
 			bufsize -= 8;
 		}
 	}
 
-	uint8_t lz77log2[1 << 16];
+	uint32_t lz77log2[1 << 16];
 
 	void lz77log2initial() {
 		static bool initialized = false;
@@ -214,7 +214,7 @@ namespace lz77 {
 		writebuf(op, buf, bufsize);
 	}
 
-	bool getbit(const uint8_t*& ql, uint8_t& bit, uint8_t& bitsize, uint32_t& i) {
+	uint32_t getbit(const uint8_t*& ql, uint8_t& bit, uint8_t& bitsize, uint32_t& i) {
 		if (!bitsize)
 			bit = *(ql++), bitsize = 8;
 		--bitsize;
@@ -458,6 +458,8 @@ namespace lz77 {
 		return str;
 	}
 	int decompress(const void* input, int length, void* output) {
+		if(!length||input==nullptr)return 0;
+
 		uint32_t Length = length;
 
 		const uint8_t* ql = (const uint8_t*)input;

@@ -102,7 +102,7 @@ namespace Math {
 		return (at(index >> 3) / _10k[index & 7]) % 10;
 	}
 
-	uint32_t Array::operator[](const size_t& index)const {
+	int Array::operator[](const size_t& index)const {
 		return atv(index);
 	}
 
@@ -206,10 +206,10 @@ namespace Math {
 		size_t Size = a.size();
 		if (k & 7) {
 			size_t Length = a.length();
-			size_t Mo = k & 7, mul10 = 1;
-			for (size_t i = 0; i < Mo; ++i)
+			int Mo = int(k & 7), mul10 = 1;
+			for (int i = 0; i < Mo; ++i)
 				mul10 *= 10;
-			size_t mod10 = bintjw / mul10;
+			int mod10 = bintjw / mul10;
 			for (size_t i = 0; i < Size; ++i) {
 				a.at(i) = a.at(i) / mul10 + (i + 1 == Size ? 0 : (a.at(i + 1) % mul10) * mod10);
 			}
@@ -245,14 +245,14 @@ namespace Math {
 			for (j = 0; j < m; ++j) {
 				Val = mid[i + j] + AA * test2[j];
 
-				mid[i + j + 1] += Val / bintjw;
+				mid[i + j + 1] += static_cast<uint32_t>(Val / bintjw);
 				mid[i + j] = Val % bintjw;
 			}
 		}
 
 		if (mid[Length]) {
 			c.resize(Length + 1);
-			c.save_at(Length) = mid[Length];
+			c.save_at(Length) = static_cast<int>(mid[Length]);
 		}
 		else c.resize(Length);
 		memcpy(c.begin(), mid, sizeof(int) * Length);
@@ -297,7 +297,7 @@ namespace Math {
 			a[i << 1 | 1] = 2 * sa * sb;
 		}
 		cdft(s << 1, -1, a);
-		double invs = 1.0 / s;
+		double invs = 1.0 / static_cast<double>(s);
 		for (size_t i = 0; i < s; ++i)
 			a[i << 1] *= invs;
 		c.resize((len >> 3) + 1);
@@ -314,16 +314,17 @@ namespace Math {
 				double_to_ull(a[(i + 6) << 1] + 0.5) * 1000000 +
 				double_to_ull(a[(i + 7) << 1] + 0.5) * 10000000 +
 				arr[i >> 3];
-			arr[i >> 3] = now % bintjw;
-			arr[(i >> 3) + 1] = now / bintjw;
+			arr[i >> 3] = static_cast<int>(now % bintjw);
+			arr[(i >> 3) + 1] = static_cast<int>(now / bintjw);
 		}
-		arr[len >> 3] += double_to_ull(a[(len - 7) << 1] + 0.5) +
+		arr[len >> 3] += static_cast<int>(
+			double_to_ull(a[(len - 7) << 1] + 0.5) +
 			double_to_ull(a[(len - 6) << 1] + 0.5) * 10 +
 			double_to_ull(a[(len - 5) << 1] + 0.5) * 100 +
 			double_to_ull(a[(len - 4) << 1] + 0.5) * 1000 +
 			double_to_ull(a[(len - 3) << 1] + 0.5) * 10000 +
 			double_to_ull(a[(len - 2) << 1] + 0.5) * 100000 +
-			double_to_ull(a[(len - 1) << 1] + 0.5) * 1000000;
+			double_to_ull(a[(len - 1) << 1] + 0.5) * 1000000);
 		size_t Size = c.size();
 		while (Size > 1 && !c.save_at(Size - 1))
 			--Size;
@@ -342,7 +343,7 @@ namespace Math {
 		double* a = new double[s << 1];
 		const int* va = A.begin(), * vb = B.begin();
 		for (size_t i = 0; i < n; i += 4) {
-			uint32_t val = va[i >> 2];
+			uint32_t val = static_cast<uint32_t>(va[i >> 2]);
 			uint32_t q, w, e, r;
 			q = val % 100;
 			val /= 100;
@@ -359,7 +360,7 @@ namespace Math {
 		for (size_t i = (n << 1); i < (s << 1); ++i)
 			a[i] = 0;
 		for (size_t i = 0; i < m; i += 4) {
-			uint32_t val = vb[i >> 2];
+			uint32_t val = static_cast<uint32_t>(vb[i >> 2]);
 			uint32_t q, w, e, r;
 			q = val % 100;
 			val /= 100;
@@ -384,7 +385,7 @@ namespace Math {
 			a[i << 1] = sa * sa - sb * sb, a[i << 1 | 1] = 2 * sa * sb;
 		}
 		cdft(s << 1, -1, a);
-		double invs = 1.0 / s;
+		double invs = 1.0 / static_cast<double>(s);
 		for (size_t i = 0; i < s; ++i)
 			a[i << 1] *= invs;
 
@@ -398,12 +399,13 @@ namespace Math {
 				double_to_ull(a[(i + 2) << 1] + 0.5) * 10000 +
 				double_to_ull(a[(i + 3) << 1] + 0.5) * 1000000 +
 				arr[i >> 2];
-			arr[i >> 2] = now % bintjw;
-			arr[(i >> 2) + 1] = now / bintjw;
+			arr[i >> 2] = static_cast<int>(now % bintjw);
+			arr[(i >> 2) + 1] = static_cast<int>(now / bintjw);
 		}
-		arr[len >> 2] += double_to_ull(a[(len - 3) << 1] + 0.5) +
+		arr[len >> 2] += static_cast<int>(
+			double_to_ull(a[(len - 3) << 1] + 0.5) +
 			double_to_ull(a[(len - 2) << 1] + 0.5) * 100 +
-			double_to_ull(a[(len - 1) << 1] + 0.5) * 10000;
+			double_to_ull(a[(len - 1) << 1] + 0.5) * 10000);
 		size_t Size = c.size();
 		while (Size > 1 && !c.save_at(Size - 1))
 			--Size;
@@ -424,7 +426,8 @@ namespace Math {
 		const int* test1 = A.begin(), * test2 = B.begin();
 
 		for (size_t i = 0; i < n; i += 2) {
-			uint32_t q = test1[i >> 1] / 10000, p = test1[i >> 1] - q * 10000;
+			uint32_t q = static_cast<uint32_t>(test1[i >> 1] / 10000),
+				p = static_cast<uint32_t>(test1[i >> 1] - q * 10000);
 			a[i << 1] = a[i << 1 | 1] = p * 0.5;
 			a[(i + 1) << 1] = a[(i + 1) << 1 | 1] = q * 0.5;
 		}
@@ -432,7 +435,8 @@ namespace Math {
 		for (size_t i = (n << 1); i < (s << 1); ++i)
 			a[i] = 0;
 		for (size_t i = 0; i < m; i += 2) {
-			uint32_t q = test2[i >> 1] / 10000, p = test2[i >> 1] - q * 10000;
+			uint32_t q = static_cast<uint32_t>(test2[i >> 1] / 10000),
+				p = static_cast<uint32_t>(test2[i >> 1] - q * 10000);
 			a[i << 1] += p * 0.5;
 			a[i << 1 | 1] -= p * 0.5;
 			a[(i + 1) << 1] += q * 0.5;
@@ -448,7 +452,7 @@ namespace Math {
 
 		cdft(s << 1, -1, a);
 
-		double invs = 1.0 / s;
+		double invs = 1.0 / static_cast<double>(s);
 		for (size_t i = 0; i < s; ++i)
 			a[i << 1] *= invs;
 
@@ -459,10 +463,10 @@ namespace Math {
 		for (size_t i = 0; i < len - 1; i += 2) {
 			uint64_t now =
 				double_to_ull(a[i << 1] + 0.5) + double_to_ull(a[(i + 1) << 1] + 0.5) * 10000 + arr[i >> 1];
-			arr[i >> 1] = now % bintjw;
-			arr[(i >> 1) + 1] = now / bintjw;
+			arr[i >> 1] = static_cast<int>(now % bintjw);
+			arr[(i >> 1) + 1] = static_cast<int>(now / bintjw);
 		}
-		arr[len >> 1] += double_to_ull(a[(len - 1) << 1] + 0.5);
+		arr[len >> 1] += static_cast<int>(double_to_ull(a[(len - 1) << 1] + 0.5));
 
 		size_t Size = c.size();
 		while (Size > 1 && !c.save_at(Size - 1))
@@ -560,7 +564,8 @@ namespace Math {
 	}
 
 	void Array2::setbool(const size_t& index, bool val) {
-		uint32_t pos = index >> 5, x = index & 31;
+		size_t pos = index >> 5;
+		int x = index & 31;
 		at(pos) ^= ((at(pos) >> x & 1) ^ val) << x;//将第index位设置为1
 	}
 
@@ -577,7 +582,6 @@ namespace Math {
 	}
 
 	void Array2::maintain() {
-		size_t Size = size();
 		while (Size > 1 && !save_at(Size - 1))
 			--Size;
 		resize(Size);
@@ -654,7 +658,7 @@ namespace Math {
 	void Array2_func::QuickMul2k(Array2& a, const uint32_t& k) {//快速乘2^k
 		if (!k)return;
 		if (k & 31) {
-			uint32_t Size = a.size();
+			size_t Size = a.size();
 			a.reserve(Size + 1);
 			uint32_t len1 = k & 31, len2 = 32 - len1, mo = (1 << len2) - 1;
 			if (a.save_at(Size - 1) >> len2)
@@ -670,7 +674,7 @@ namespace Math {
 		}
 	}
 
-	void Array2_func::QuickDivide2k(Array2& a, const int& k) {//快速除以2^k，即快速右移k位
+	void Array2_func::QuickDivide2k(Array2& a, size_t k) {//快速除以2^k，即快速右移k位
 		if (!k)return;
 		size_t Length = a.size();
 		if (k >> 5) {
@@ -753,7 +757,7 @@ namespace Math {
 			a[i << 1] = sa * sa - sb * sb, a[i << 1 | 1] = 2 * sa * sb;
 		}
 		cdft(s << 1, -1, a);
-		double invs = 1.0 / s;
+		double invs = 1.0 / static_cast<double>(s);
 		for (size_t i = 0; i < s; ++i)
 			a[i << 1] *= invs;
 		c.resize((len >> 3) + 1);
@@ -838,7 +842,7 @@ namespace Math {
 			a[i << 1] = sa * sa - sb * sb, a[i << 1 | 1] = 2 * sa * sb;
 		}
 		cdft(s << 1, -1, a);
-		double invs = 1.0 / s;
+		double invs = 1.0 / static_cast<double>(s);
 		for (size_t i = 0; i < s; ++i)
 			a[i << 1] *= invs;
 		c.resize((len >> 2) + 1);
@@ -894,7 +898,7 @@ namespace Math {
 			a[i << 1 | 1] = 2 * sa * sb;
 		}
 		cdft(s << 1, -1, a);
-		double invs = 1.0 / s;
+		double invs = 1.0 / static_cast<double>(s);
 		for (size_t i = 0; i < s; ++i)
 			a[i << 1] *= invs;
 

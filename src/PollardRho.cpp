@@ -111,7 +111,7 @@ namespace Math {
 	}
 
 	static long long LLMul(long long a, long long b, long long p) {
-		long long Val = a * b - (long long)((long double)a * b / p) * p;
+		long long Val = a * b - (long long)((long double)a * b / static_cast<double>(p)) * p;
 		return (Val % p + p) % p;
 	}
 

@@ -181,7 +181,7 @@ namespace Math {
 
 	//------------------------------------------------------------------//
 
-	class bint {
+	class alignas(8) bint {
 		friend class bfloat;
 	private:
 		Array vec;//每一位存一个int

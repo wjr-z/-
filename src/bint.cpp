@@ -404,7 +404,7 @@ namespace Math {
 		if (A.vec < B.vec)return bintzero;
 		size_t n = A.size(), m = B.size();
 		if (m == 1)return divideint(A, B.at(0) * (B.positive ? 1 : -1));//低精度除法
-		if (m <= ((quicklog2(n) + 16) << 1)) return knuthdivide(A, B);//m比较小直接用O(m*(n-m))算法
+		if (m <= ((static_cast<uint64_t>(quicklog2(n)) + 16) << 1)) return knuthdivide(A, B);//m比较小直接用O(m*(n-m))算法
 		if (m * 5 >= 3 * n)return largedivide(A, B);
 		return smalldivide(A, B);
 	}
@@ -1755,7 +1755,7 @@ namespace Math {
 	bint2 bint2::quickdivide(const bint2& A, const bint2& B) {
 		if (A.vec < B.vec)return bint2zero;
 		size_t n = A.size(), m = B.size();
-		if (m <= ((quicklog2(n) + 16) << 1)) return knuthdivide(A, B);//m比较小直接用O(m*(n-m))算法
+		if (m <= ((static_cast<uint64_t>(quicklog2(n)) + 16) << 1)) return knuthdivide(A, B);//m比较小直接用O(m*(n-m))算法
 		if (m * 3 >= 2 * n)return largedivide(A, B);
 		return smalldivide(A, B);
 	}
@@ -2441,7 +2441,7 @@ namespace Math {
 		for (size_t i = 0; i < Size; ++i)
 			ans.at(i) = randuint();
 		for (size_t i = Size << 5; i < n - 1; ++i)
-			ans[i] = randint(0, 1);
+			ans[i] = static_cast<bool>(randint(0, 1));
 		ans[n - 1] = 1;
 		return ans;
 	}

@@ -47,7 +47,7 @@ namespace Math {
 	class reference;
 	class Array_func;
 
-	class Array {
+	class alignas(8) Array {
 		friend reference;
 		friend Array_func;
 	private:
@@ -84,7 +84,7 @@ namespace Math {
 		int at(const size_t& index)const;
 		int& at(const size_t& index);
 
-		uint32_t operator[](const size_t& index)const;
+		int operator[](const size_t& index)const;
 		reference operator[](const size_t& index);
 		void swap(Array& other);
 	};
@@ -191,7 +191,7 @@ namespace Math {
 	class Array2_func {
 	public:
 		static void QuickMul2k(Array2&, const uint32_t & = 1);//快速乘2^k,即左移k位
-		static void QuickDivide2k(Array2& a, const int& = 1);//快速除2^k，即右移k位
+		static void QuickDivide2k(Array2& a, size_t = 1);//快速除2^k，即右移k位
 		static void SlowMul(const Array2&, const Array2&, Array2&);
 	};
 
