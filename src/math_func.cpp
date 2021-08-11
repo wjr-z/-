@@ -77,7 +77,7 @@ namespace Math {
 
 	int findnumber1(uint32_t n) {
 	#ifdef QUICK
-		static const char* const _Bitsperbyte 
+		static const char* const bitsperbyte 
 		  = "\0\1\1\2\1\2\2\3\1\2\2\3\2\3\3\4"
 			"\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
 			"\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
@@ -94,10 +94,10 @@ namespace Math {
 			"\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
 			"\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
 			"\4\5\5\6\5\6\6\7\5\6\6\7\6\7\7\x8";
-		return _Bitsperbyte[n&255]+ 
-			_Bitsperbyte[(n>>8)&255]+
-			_Bitsperbyte[(n>>16)&255]+
-			_Bitsperbyte[n>>24];
+		return bitsperbyte[n&255]+ 
+			bitsperbyte[(n>>8)&255]+
+			bitsperbyte[(n>>16)&255]+
+			bitsperbyte[n>>24];
 	#else
 		n = (n & 0x55555555) + ((n >> 1) & 0x55555555);
 		n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
@@ -193,7 +193,7 @@ namespace Math {
 		for (i = 0; !(x & 1); ++i)x >>= 1;
 		for (j = 0; !(y & 1); ++j)y >>= 1;
 		if (j < i) i = j;
-		while (1) {
+		while (true) {
 			if (x < y)x ^= y, y ^= x, x ^= y;
 			if (!(x -= y)) return y << i;
 			while (!(x & 1))x >>= 1;

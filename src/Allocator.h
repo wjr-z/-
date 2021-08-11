@@ -1,7 +1,7 @@
 #ifndef ALLOCATOR_H
 #define ALLOCATOR_H
 
-#include <stdlib.h>
+#include <cstdlib>
 
 //这只是找到的alloc源码
 
@@ -322,4 +322,4 @@ namespace Math {
     };
 }
 
-#endif ALLOCATOR_H
+#endif

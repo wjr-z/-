@@ -5,6 +5,7 @@
 #define ARRAY_H
 
 #include <vector>
+
 #include "Allocator.h"
 #include "math_func.h"
 
@@ -16,7 +17,7 @@ namespace Math {
 	//------------------------------------------------------------------//
 	class Array;
 
-	void swap(Array&, Array&);
+	void swap(Array&, Array&)noexcept;
 	bool operator<(const Array&, const Array&);
 	bool operator==(const Array&, const Array&);
 	bool operator>(const Array&, const Array&);
@@ -70,7 +71,7 @@ namespace Math {
 		const int* end()const;
 		int* begin();
 		int* end();
-		bool iszero()const;
+		bool is_zero()const;
 		const size_t& size() const;
 		size_t capacity()const;
 		size_t length()const;
@@ -86,22 +87,22 @@ namespace Math {
 
 		int operator[](const size_t& index)const;
 		reference operator[](const size_t& index);
-		void swap(Array& other);
+		void swap(Array& other) noexcept;
 	};
 
 	class reference {
 		friend Array;
 	private:
 		Array* Point;
-		size_t _Pos;
+		size_t Pos;
 	public:
 		~reference() noexcept;
-		reference& operator=(int _Val)noexcept;
-		reference& operator=(const reference& _Bitref) noexcept;
+		reference& operator=(int val)noexcept;
+		reference& operator=(const reference& bitref) noexcept;
 		operator int()const;
 	private:
 		reference() noexcept;
-		reference(Array& _bint2, size_t _Pos);
+		reference(Array& _bint2, size_t pos);
 	};
 
 	class Array_func {
@@ -143,7 +144,7 @@ namespace Math {
 		void setbool(const size_t& index, bool val);
 		bool atbool(const size_t& index)const;
 	public:
-		Array2(const size_t& index = 1)noexcept;
+		explicit Array2(const size_t& index = 1)noexcept;
 		Array2(const Array2& other)noexcept;
 		Array2(Array2&& other)noexcept;
 		Array2& operator=(const Array2& other)noexcept;
@@ -177,20 +178,20 @@ namespace Math {
 		size_t _Pos;
 	public:
 		~reference2() noexcept;
-		reference2& operator=(bool _Val)noexcept;
-		reference2& operator=(const reference2& _Bitref) noexcept;
+		reference2& operator=(bool val)noexcept;
+		reference2& operator=(const reference2& bitref) noexcept;
 
 		bool operator~() const noexcept;
 		operator bool() const noexcept;
 
 	private:
 		reference2() noexcept;
-		reference2(Array2& _bint2, size_t _Pos);
+		reference2(Array2& _bint2, size_t pos);
 	};
 
 	class Array2_func {
 	public:
-		static void QuickMul2k(Array2&, const uint32_t & = 1);//快速乘2^k,即左移k位
+		static void QuickMul2k(Array2&, size_t = 1);//快速乘2^k,即左移k位
 		static void QuickDivide2k(Array2& a, size_t = 1);//快速除2^k，即右移k位
 		static void SlowMul(const Array2&, const Array2&, Array2&);
 	};

@@ -80,14 +80,14 @@ namespace Math {
 		void maintain();//用于保持精度的
 
 		void resize(const int&);
-		const int size()const;
+		size_t size() const;
 		void reserve(const int&);
-		const int& operator[](const int&)const;
+		int operator[](const int&)const;
 		int& operator[](const int&);
 		int& save_at(const int&);
 	public:
-		const bool iszero()const;
-		const bool ispositive()const;
+		bool is_zero() const;
+		bool is_positive() const;
 		bfloat() :exp(0) {
 
 		}
@@ -133,7 +133,7 @@ namespace Math {
 			return*this;
 		}
 
-		const int length()const;
+		size_t length() const;
 		void relength(const int&);
 
 		int at(const int&)const;
@@ -213,10 +213,10 @@ namespace Math {
 		void add() { ++base; }
 		void del() { --base; }
 
-	#endif TEST
+	#endif
 	};
 
 }
 
-#endif BFLOAT_H
+#endif
 

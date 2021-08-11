@@ -1,8 +1,6 @@
 #ifndef LZ77_H
 #define LZ77_H
 #include <string>
-#include <queue>
-
 
 namespace lz77 {
 	int compress(const void*input,int length,void*output);
@@ -11,5 +9,4 @@ namespace lz77 {
 	std::string decompress(const std::string&arr);
 }
 
-
-#endif LZ77_H
+#endif

@@ -16,7 +16,7 @@ namespace Math {
 
 	void bucketsort(uint32_t* Start, uint32_t* End) {
 		static uint32_t tong[65536];
-		uint32_t n = End - Start;
+		const uint32_t n = End - Start;
 		if (n <= 500) {
 			std::sort(Start, End);
 			return;
@@ -52,10 +52,10 @@ namespace Math {
 	}
 
 	void getFiles(const std::string& path, std::vector<std::string>& filePath) {
-		intptr_t   hFile = 0;
-		struct _finddata_t fileinfo;
+		intptr_t h_file;
+		struct _finddata_t fileinfo{};
 		std::string p;
-		if ((hFile = _findfirst(p.assign(path).append("/*").c_str(), &fileinfo)) != -1) {
+		if ((h_file = _findfirst(p.assign(path).append("/*").c_str(), &fileinfo)) != -1) {
 			do {
 				if ((fileinfo.attrib & _A_SUBDIR))//如果是文件夹
 				{
@@ -66,8 +66,8 @@ namespace Math {
 				{
 					filePath.emplace_back(p.assign(path).append("\\").append(fileinfo.name));
 				}
-			} while (_findnext(hFile, &fileinfo) == 0);
-			_findclose(hFile);
+			} while (_findnext(h_file, &fileinfo) == 0);
+			_findclose(h_file);
 		}
 	}
 
@@ -75,8 +75,8 @@ namespace Math {
 		std::vector<std::string>filePath;
 		if (!_access(path.c_str(), 0))
 			getFiles(path, filePath);
-		struct _finddata_t fileinfo;
-		intptr_t   hFile = 0;
+		struct _finddata_t fileinfo{};
+		intptr_t hFile;
 		if ((hFile = _findfirst(path.c_str(), &fileinfo)) != -1) {
 			if (!(fileinfo.attrib & _A_SUBDIR)) {
 				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0) {

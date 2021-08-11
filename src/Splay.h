@@ -1,6 +1,8 @@
 #ifndef SPLAY_H
 #define SPLAY_H
 
+#include <algorithm>
+
 namespace Math {
 	//注意，非线程安全
 
@@ -88,7 +90,7 @@ namespace Math {
 					ch[0]->pushrev();
 				if (ch[1] != nullptr)
 					ch[1]->pushrev();
-				rev = 0;
+				rev = false;
 			}
 			val->pushdown(getl(), getr());
 			//懒惰标记等的下放
@@ -120,6 +122,7 @@ namespace Math {
 		}
 		//赋值
 		MyIterator& operator = (const MyIterator& iter) {
+			if(this==&iter)return *this;
 			_ptr = iter._ptr;
 			rt = iter.rt;
 			return*this;
@@ -203,7 +206,7 @@ namespace Math {
 			_ptr->splay(*rt);
 			Ty* Nxt = _ptr;
 			Nxt = Nxt->ch[0];
-			while (kth) {
+			while (true) {
 				if (Nxt->ch[1] == nullptr) {
 					--kth;
 					if (!kth) {
@@ -280,7 +283,7 @@ namespace Math {
 						x = x->ch[1];
 					}
 				}
-			}return nullptr;
+			}
 		}
 		tree_node* build(const Ty* valarr, const int& L, const int& R) {
 			if (L > R)return nullptr;
@@ -325,6 +328,7 @@ namespace Math {
 			delete rt;
 		}
 		Splay& operator=(Splay& other) {
+			if(this==&other)return *this;
 			delete rt;
 			initial();
 			insert(begin(), other.begin(), other.end());
@@ -341,10 +345,10 @@ namespace Math {
 			ins->fa = y;
 			splay(ins);
 		}
-		void insert(iterator _Pos, const Ty& val) {
+		void insert(iterator pos, const Ty& val) {
 			//在_pos迭代器位置加入val
 			//insert(begin(),val)等价于insert(0,val)
-			tree_node* x = (_Pos - 1)._ptr, * y = _Pos._ptr;
+			tree_node* x = (pos - 1)._ptr, * y = pos._ptr;
 			splay(x);
 			splay(y, x);
 			tree_node* ins = new tree_node(val);
@@ -362,30 +366,30 @@ namespace Math {
 			z->fa = y;
 			splay(z);
 		}
-		void insert(iterator _Pos, const Ty* valarr, const int& n) {
-			tree_node* x = (_Pos - 1)._ptr;
+		void insert(iterator pos, const Ty* valarr, const int& n) {
+			tree_node* x = (pos - 1)._ptr;
 			splay(x);
-			tree_node* y = _Pos._ptr;
+			tree_node* y = pos._ptr;
 			splay(y, x);
 			tree_node* z = build(valarr, 0, n - 1);
 			y->ch[0] = z;
 			z->fa = y;
 			splay(z);
 		}
-		void insert(iterator _Pos, iterator Val) {
+		void insert(iterator pos, iterator Val) {
 			Val._ptr->splay(rt);
-			insert(_Pos, Val->getval());
+			insert(pos, Val->getval());
 		}
 		void insert(iterator _Ins, iterator _Begin, iterator _End) {
 			if (_Begin == _End)return;
-			int Length = _End - _Begin;
+			const int Length = _End - _Begin;
 			Ty* valarr = new Ty[Length];
 			int i = 0;
 			for (iterator it = _Begin; it != _End; ++it, ++i)
 				valarr[i] = it->getval();
 			insert(_Ins, valarr, Length);
 		}
-		void swap(Splay<Ty, Pr>& other) {
+		void swap(Splay<Ty, Pr>& other) noexcept {
 			//O(1)交换两个Splay
 			std::swap(rt, other.rt);
 			std::swap(End, other.End);
@@ -408,9 +412,9 @@ namespace Math {
 			splay(x->fa);
 			delete x;
 		}
-		void erase(iterator _Pos) {
+		void erase(iterator pos) {
 			iterator Pre, Nxt;
-			Pre = Nxt = _Pos;
+			Pre = Nxt = pos;
 			--Pre;
 			++Nxt;
 			tree_node* x = Pre._ptr, * y = Nxt._ptr;
@@ -426,10 +430,10 @@ namespace Math {
 			splay(x->fa);
 			delete x;
 		}
-		void erase(iterator _PosL, iterator _PosR) {
+		void erase(iterator pos_l, iterator pos_r) {
 			iterator Pre, Nxt;
-			Pre = _PosL;
-			Nxt = _PosR;
+			Pre = pos_l;
+			Nxt = pos_r;
 			--Pre;
 			tree_node* x = Pre._ptr, * y = Nxt._ptr;
 			x->splay(rt);

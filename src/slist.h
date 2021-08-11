@@ -1,8 +1,9 @@
 #ifndef SLIST_H
 #define SLIST_H
 
-#include <list>
 #include <algorithm>
+#include <cmath>
+#include <list>
 
 namespace Math {
 
@@ -24,7 +25,7 @@ namespace Math {
 	public:
 		Ty Val;//节点权值
 		iterator1 linked;//链接到块状链表的iterator
-		slist_node() {}
+		slist_node() noexcept = default;
 		slist_node(const Ty& Val, const iterator1& linked)
 			:Val(Val), linked(linked) {
 		}
@@ -40,13 +41,13 @@ namespace Math {
 			linked = other.linked;
 			return *this;
 		}
-		slist_node& operator=(slist_node&& other) {
+		slist_node& operator=(slist_node&& other) noexcept {
 			if (this == &other)return *this;
 			Val = std::move(other.Val);
 			linked = std::move(other.linked);
 			return *this;
 		}
-		~slist_node() {}
+		~slist_node() noexcept = default;
 	};
 
 	//slist迭代器
@@ -118,7 +119,7 @@ namespace Math {
 			return *this;
 		}
 
-		slist_iterator& operator=(slist_iterator&& other) {
+		slist_iterator& operator=(slist_iterator&& other) noexcept {
 			if (this == &other)return *this;
 			Point = std::move(other.Point);
 			Pos2 = std::move(other.Pos2);
@@ -322,7 +323,7 @@ namespace Math {
 			return *this;
 		}
 
-		slist_const_iterator& operator=(slist_const_iterator&& other) {
+		slist_const_iterator& operator=(slist_const_iterator&& other)noexcept {
 			if (this == &other)return *this;
 			Point = std::move(other.Point);
 			Pos2 = std::move(other.Pos2);
@@ -397,24 +398,24 @@ namespace Math {
 		size_t Size;
 
 		//将块内节点指向的第一层迭代器统一修改
-		void Linked(iterator2 _First, iterator2 _Last, iterator1 LinkedFa) {
+		static void Linked(iterator2 _First, iterator2 _Last, iterator1 LinkedFa) {
 			for (; _First != _Last; ++_First)
 				_First->linked = LinkedFa;
 		}
 
 		//通过迭代器获取iterator1
-		iterator1 GetIterator1(const iterator& Pos) {
+		static iterator1 GetIterator1(const iterator& Pos) {
 			return Pos.GetIterator1();
 		}
 
 		//前向操作,从前往后遍历时，尝试向后分裂
 		void psplit(iterator1 pos) {
-			size_t NowSize = pos->size();
+			const size_t NowSize = pos->size();
 			//对于大于sqrt(2)*Size的块进行分裂
 			if (NowSize * NowSize < 2 * Size) return;
 
 			//分裂成大小在sqrt(2)/2 * Size ~ sqrt(2)*Size 的块
-			int BlockSize = std::sqrt(2 * Size) / 2 + 1;
+			const int BlockSize = std::sqrt(2 * Size) / 2 + 1;
 			//分裂出的块大小
 			int BloCnt = NowSize / BlockSize;
 
@@ -442,10 +443,10 @@ namespace Math {
 		//后向操作，尝试向前分裂
 		void nsplit(iterator1 pos) {
 			//同上
-			size_t NowSize = pos->size();
+			const size_t NowSize = pos->size();
 			if (NowSize * NowSize < 2 * Size) return;
 
-			int BlockSize = std::sqrt(2 * Size) / 2 + 1;
+			const int BlockSize = std::sqrt(2 * Size) / 2 + 1;
 			int BloCnt = NowSize / BlockSize;
 
 			while (BloCnt > 1) {
@@ -469,7 +470,7 @@ namespace Math {
 			iterator1 npos = pos;
 			++npos;
 			if (npos == List.end())return;
-			size_t NowSize = pos->size(), NxtSize = npos->size();
+			const size_t NowSize = pos->size(), NxtSize = npos->size();
 			if (2 * NowSize * NowSize > Size || 2 * NxtSize * NxtSize > Size)return;
 
 			Linked(npos->begin(), npos->end(), pos);
@@ -484,7 +485,7 @@ namespace Math {
 			iterator1 ppos = pos;
 			if (pos == List.begin())return;
 			--ppos;
-			size_t NowSize = pos->size(), NxtSize = ppos->size();
+			const size_t NowSize = pos->size(), NxtSize = ppos->size();
 			if (2 * NowSize * NowSize > Size || 2 * NxtSize * NxtSize > Size)return;
 
 			Linked(ppos->begin(), ppos->end(), pos);
@@ -535,6 +536,10 @@ namespace Math {
 			maintain();
 		}
 
+		slist(slist&&other)noexcept : List(std::move(other.List)),Size(other.Size){
+			
+		}
+
 		slist& operator = (const slist& other) {
 			if (this == &other)return *this;
 			List.clear();
@@ -545,12 +550,19 @@ namespace Math {
 			return *this;
 		}
 
-		void push_back(const Ty& Val) {
-			insert(end(), Val);
+		slist& operator= (slist&& other)noexcept {
+			if(this==&other)return *this;
+			List=std::move(other.List);
+			Size=other.Size;
+			return *this;
 		}
 
-		void push_front(const Ty& Val) {
-			insert(begin(), Val);
+		void push_back(const Ty& val) {
+			insert(end(), val);
+		}
+
+		void push_front(const Ty& val) {
+			insert(begin(), val);
 		}
 
 		void pop_back() {
@@ -602,7 +614,7 @@ namespace Math {
 			return *begin();
 		}
 
-		size_t size() { return Size; }
+		size_t size()const { return Size; }
 
 		value_type& operator[](size_t index) {
 			if((index<<1)>Size)return *(end()-(Size-index));
@@ -611,7 +623,8 @@ namespace Math {
 
 		void maintain() {
 			std::list<node>* Now = new std::list<node>;
-			size_t bloSize = std::sqrt(Size), NowSize = 0;
+			const size_t bloSize = std::sqrt(Size);
+			size_t NowSize = 0;
 			std::list<std::list<node>>* NewList = new std::list<std::list<node>>;
 
 			iterator1 Pos1 = List.begin();
@@ -660,6 +673,7 @@ namespace Math {
 				}
 				break;
 			}
+			default: ;
 			}
 			printf("\n");
 		}

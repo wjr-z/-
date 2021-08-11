@@ -1,14 +1,22 @@
 #include "geometry.h"
 
 point::point(double x,double y):x(x),y(y){}
-point::~point(){}
+point::~point() = default;
 
 vec::vec(double x,double y):x(x),y(y){}
 vec::vec(const point&start,const point&end):x(end.x-start.x),y(end.y-start.y){}
-vec::vec(const vec&other):x(other.x),y(other.y){}
+vec::vec(const vec&other)noexcept = default;
+vec::vec(vec&&other) noexcept:x(other.x),y(other.y){}
 vec& vec::operator=(const vec& other) {
+	if(this==&other)return *this;
 	x=other.x;
 	y=other.y;
+	return *this;
+}
+vec& vec::operator=(vec&&other) noexcept {
+	if (this == &other)return *this;
+	x = other.x;
+	y = other.y;
 	return *this;
 }
 vec& vec::operator+=(const vec& other) {
@@ -21,11 +29,11 @@ vec& vec::operator-=(const vec& other) {
 	y-=other.x;
 	return *this;
 }
-vec vec::operator+(const vec&other) {
+vec vec::operator+(const vec&other) const {
 	return vec(x+other.x,y+other.y);
 }
 
-vec vec::operator-(const vec&other) {
+vec vec::operator-(const vec&other) const {
 	return vec(x-other.x,y-other.y);
 }
 

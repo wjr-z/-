@@ -21,16 +21,15 @@ namespace Math {
 		assign(std::to_string(x));
 	}
 	void bfloat::assign(const char* s) {
-		int Length = strlen(s);
+		const int Length = strlen(s);
 		if (!isrightdouble(s))return;
 		clear();
 		reserve(Length >> 3);
 		int head = 0;
 		if (s[head] == '-')++head;
 		if (s[head] == '+')++head;
-		bool is = false;//是否含有小数点
 		int base_head = 0;
-		for (; head < Length; ++head) {
+		for (bool is = false; head < Length; ++head) {
 			if (s[head] == '.') {
 				is = true;
 				continue;
@@ -59,7 +58,7 @@ namespace Math {
 
 		if (s[0] == '-')base *= -1;
 		maintain();
-		if (base.iszero())exp = 0;
+		if (base.is_zero())exp = 0;
 	}
 	void bfloat::assign(const std::string& s) {
 		assign(s.c_str());
@@ -81,25 +80,26 @@ namespace Math {
 		if (Length < bfloat::floatlim) {
 			base.quick_divide_10k(tail);
 			exp += tail;
-			if (base.iszero())exp = 0;
+			if (base.is_zero())exp = 0;
 			return;
 		}
 		int div = max(Length - bfloat::floatlim, tail);
 		base.quick_divide_10k(div);
 		exp += div;
-		if (base.iszero())exp = 0;
+		if (base.is_zero())exp = 0;
 	}
 
 	void bfloat::resize(const int& index) {
 		base.resize(index);
 	}
-	const int bfloat::size() const {
+
+	size_t bfloat::size() const {
 		return base.size();
 	}
 	void bfloat::reserve(const int& index) {
 		base.reserve(index);
 	}
-	const int& bfloat::operator[](const int& index)const { return base.at(index); }
+	int bfloat::operator[](const int& index)const { return base.at(index); }
 	int& bfloat::operator[](const int& index) { return base.at(index); }
 	int& bfloat::save_at(const int& index) { return base.save_at(index); }
 
@@ -108,15 +108,16 @@ namespace Math {
 
 	/*---public---*/
 
-	const bool bfloat::iszero()const {
-		return base.iszero();
+	bool bfloat::is_zero() const {
+		return base.is_zero();
 	}
-	const bool bfloat::ispositive()const {
+
+	bool bfloat::is_positive() const {
 		return base.ispositive();
 	}
 
 
-	const int bfloat::length() const {
+	size_t bfloat::length() const {
 		return base.length();
 	}
 	void bfloat::relength(const int& index) {
@@ -144,7 +145,8 @@ namespace Math {
 
 	ostream& operator<<(ostream& out, const bfloat& x) {
 		if (x.base < 0)out << '-';
-		int tail = max(0, -x.exp), Length = x.length();
+		const int tail = max(0, -x.exp);
+		const size_t Length = x.length();
 		int head = Length - 1;
 
 		if (head < tail)
@@ -174,23 +176,23 @@ namespace Math {
 	}
 
 	bool operator<(const bfloat& lhs, const bfloat& rhs) {
-		if (lhs.ispositive() != rhs.ispositive())return !lhs.ispositive();//lhs是负数则返回true
+		if (lhs.is_positive() != rhs.is_positive())return !lhs.is_positive();//lhs是负数则返回true
 
-		if (rhs.iszero())
-			return !lhs.ispositive();//如果lhs是负数，rhs是0，返回true
+		if (rhs.is_zero())
+			return !lhs.is_positive();//如果lhs是负数，rhs是0，返回true
 									 //如果lhs是正数，rhs为0，返回false
-		if (lhs.iszero())//rhs不为0，但lhs为0
-			return rhs.ispositive(); //如果lhs是0，rhs如果为负数，返回false，否则返回true
+		if (lhs.is_zero())//rhs不为0，但lhs为0
+			return rhs.is_positive(); //如果lhs是0，rhs如果为负数，返回false，否则返回true
 
-		int _min = min(lhs.exp, rhs.exp);//都化为最小的指数进行比较
-		int py1 = lhs.exp - _min, py2 = rhs.exp - _min;//和最小指数的差值
-		int len1 = lhs.length() + py1, len2 = rhs.length() + py2;//化为最小指数后的长度
+		const int _min = min(lhs.exp, rhs.exp);//都化为最小的指数进行比较
+		const int py1 = lhs.exp - _min, py2 = rhs.exp - _min;//和最小指数的差值
+		const int len1 = lhs.length() + py1, len2 = rhs.length() + py2;//化为最小指数后的长度
 		if (len1 != len2) //长度不等
-			return lhs.ispositive() ^ (len1 > len2);//都是正数，且len1<len2 则返回true
-		int _max = max(py1, py2);
+			return lhs.is_positive() ^ (len1 > len2);//都是正数，且len1<len2 则返回true
+		const int _max = max(py1, py2);
 		for (int i = len1 - 1; i >= _max; --i)
 			if (lhs.at(i - py1) != rhs.at(i - py2))
-				return lhs.ispositive() ^ (lhs.at(i - py1) > rhs.at(i - py2));
+				return lhs.is_positive() ^ (lhs.at(i - py1) > rhs.at(i - py2));
 		if (!py1 && !py2)return false;//指数相同，全部比较完了还是相同则返回false
 		if (!py1)return false;//a还剩下py个不全为0，b还剩下py2个0
 		return true;
@@ -204,17 +206,17 @@ namespace Math {
 	}
 
 	bool operator==(const bfloat& lhs, const bfloat& rhs) {
-		if (lhs.ispositive() != rhs.ispositive())return false;//符号不同
-		if (rhs.iszero())
-			return lhs.iszero();
-		if (lhs.iszero())//r不为0，l为0
+		if (lhs.is_positive() != rhs.is_positive())return false;//符号不同
+		if (rhs.is_zero())
+			return lhs.is_zero();
+		if (lhs.is_zero())//r不为0，l为0
 			return false;
-		int _min = min(lhs.exp, rhs.exp);
-		int py1 = lhs.exp - _min, py2 = rhs.exp - _min;
-		int len1 = lhs.length() + py1, len2 = rhs.length() + py2;
+		const int _min = min(lhs.exp, rhs.exp);
+		const int py1 = lhs.exp - _min, py2 = rhs.exp - _min;
+		const int len1 = lhs.length() + py1, len2 = rhs.length() + py2;
 		if (len1 != len2)
 			return false;//必定不同
-		int _max = max(py1, py2);
+		const int _max = max(py1, py2);
 		for (int i = len1 - 1; i >= _max; --i)
 			if (lhs.at(i - py1) != rhs.at(i - py2))
 				return false;
@@ -229,24 +231,24 @@ namespace Math {
 	}
 
 	bool operator<=(const bfloat& lhs, const bfloat& rhs) {
-		if (lhs.ispositive() != rhs.ispositive())//符号不同，不会相同，退化为比较小于
-			return !lhs.ispositive();//lhs是负数则返回true
+		if (lhs.is_positive() != rhs.is_positive())//符号不同，不会相同，退化为比较小于
+			return !lhs.is_positive();//lhs是负数则返回true
 
-		if (rhs.iszero())
-			return (!lhs.ispositive()) || lhs.iszero();//lhs为负数或者lhs为0都返回true
+		if (rhs.is_zero())
+			return (!lhs.is_positive()) || lhs.is_zero();//lhs为负数或者lhs为0都返回true
 
-		if (lhs.iszero())//rhs不为0，但lhs为0
-			return rhs.ispositive(); //此时必定不相同，rhs为正数则返回true
+		if (lhs.is_zero())//rhs不为0，但lhs为0
+			return rhs.is_positive(); //此时必定不相同，rhs为正数则返回true
 
-		int _min = min(lhs.exp, rhs.exp);//都化为最小的指数进行比较
-		int py1 = lhs.exp - _min, py2 = rhs.exp - _min;//和最小指数的差值
-		int len1 = lhs.length() + py1, len2 = rhs.length() + py2;//化为最小指数后的长度
+		const int _min = min(lhs.exp, rhs.exp);//都化为最小的指数进行比较
+		const int py1 = lhs.exp - _min, py2 = rhs.exp - _min;//和最小指数的差值
+		const int len1 = lhs.length() + py1, len2 = rhs.length() + py2;//化为最小指数后的长度
 		if (len1 != len2) //长度不等，必定不相同，退化为比较小于
-			return lhs.ispositive() ^ (len1 > len2);//都是正数，且len1<len2 则返回true，都是负数，且len1>len2则返回true
-		int _max = max(py1, py2);
+			return lhs.is_positive() ^ (len1 > len2);//都是正数，且len1<len2 则返回true，都是负数，且len1>len2则返回true
+		const int _max = max(py1, py2);
 		for (int i = len1 - 1; i >= _max; --i)
 			if (lhs.at(i - py1) != rhs.at(i - py2))
-				return lhs.ispositive() ^ (lhs.at(i - py1) > rhs.at(i - py2));
+				return lhs.is_positive() ^ (lhs.at(i - py1) > rhs.at(i - py2));
 		if (!py1 && !py2)return true;//因为可以等于，所以返回true
 		if (!py1)return false;//a还剩下py个不全为0，b还剩下py2个0
 		return true;//因为每个数末尾都不会有0，所以a后面的肯定比0大
@@ -366,8 +368,8 @@ namespace Math {
 
 
 	bfloat& bfloat::operator/=(const bfloat& other) {
-		if (this->length() - other.length() < bfloat::floatlim) {
-			int py = bfloat::floatlim - (length() - other.length());
+		if (this->length() - other.length() < floatlim) {
+			const int py = floatlim - (length() - other.length());
 			base.quick_mul_10k(py);
 			exp -= py;
 		}
@@ -477,11 +479,12 @@ namespace Math {
 	}
 
 	bool approximate(const bfloat& lhs, const bfloat& rhs) {
-		if (Math::abs(lhs.length() + lhs.getexp() - rhs.length() - rhs.getexp()) > 1)
+		if (Math::abs(static_cast<int>(lhs.length()) + lhs.getexp() 
+			- (static_cast<int>(rhs.length()) + rhs.getexp())) > 1)
 			return false;
 		int tmp = 0;
 		if (max(lhs.length(), rhs.length()) >= bfloat::floatlim)tmp = 5;
-		bfloat delta = lhs - rhs;
+		const bfloat delta = lhs - rhs;
 		if (delta.getexp() > 0)return false;
 		return delta.getbase() <= tmp;
 	}
@@ -497,7 +500,7 @@ namespace Math {
 	}
 	bfloat qpow(bfloat lhs, bint rhs) {
 		bfloat ans(1);
-		while (!rhs.iszero()) {
+		while (!rhs.is_zero()) {
 			if (rhs[0] & 1)
 				ans *= lhs;
 			lhs *= lhs;
@@ -507,7 +510,7 @@ namespace Math {
 
 	std::string bfloat::tostr() {//返回一个
 		std::string str;
-		if (!ispositive())str.push_back('-');
+		if (!is_positive())str.push_back('-');
 		int Length = length();
 		int EXP = exp + Length - 1;
 
@@ -549,7 +552,7 @@ namespace Math {
 		ans[1] = _base;
 		ans[1].setexp(A.getexp() >> 1);
 
-		bfloat Div(0.5);
+		const bfloat Div(0.5);
 		while (!approximate(ans[0], ans[1])) {
 			now ^= 1;
 			ans[now] = (ans[now ^ 1] + A / ans[now ^ 1]) * Div;
@@ -570,7 +573,7 @@ namespace Math {
 		if (x < 1)return -ln(1 / x);
 		if (x < 1.5) {
 			bfloat ans(0), A(1);
-			bfloat x_sub_1(x - 1);
+			const bfloat x_sub_1(x - 1);
 			int tmp = bfloat::floatlim << 1;
 			tmp += 32;
 			for (int i = 1; i <= tmp; ++i) {
@@ -598,8 +601,8 @@ namespace Math {
 			}return ans;
 		}
 		if (x < 0)return bfloat(1.0) / exp(-x);
-		bint _Floor = floor(x);
-		bfloat sqrtEXP = exp(bfloat(0.5)), EXP = sqrtEXP * sqrtEXP;
+		const bint _Floor = floor(x);
+		const bfloat sqrtEXP = exp(bfloat(0.5)), EXP = sqrtEXP * sqrtEXP;
 		if (x - _Floor < 0.5)return qpow(EXP, _Floor) * exp(x - _Floor);
 		return qpow(EXP, _Floor) * sqrtEXP * exp(x - _Floor - 0.5);
 	}

@@ -46,7 +46,7 @@ namespace lz77 {
 
 	uint32_t fibhash(const uint32_t& x) { return (x * fib) >> 18; }
 	uint32_t gethash(const void* ptr) {
-		return fibhash((*(uint32_t*)ptr) & 0xffffff);
+		return fibhash(*(uint32_t*)ptr & 0xffffff);
 	}
 
 	void push_List(const uint8_t* str, uint32_t pos) {
@@ -177,8 +177,11 @@ namespace lz77 {
 		for (uint32_t i = 2; i < (1 << 16); ++i)
 			lz77log2[i] = lz77log2[i >> 1] + 1;
 	}
-	uint8_t quicklog2(uint32_t x) {
-		return (x < (1 << 16)) ? lz77log2[x] : lz77log2[x >> 16] + 16;
+	uint8_t quicklog2(uint32_t x){
+		if ((x < (1 << 16)))
+			return lz77log2[x];
+		else
+			return lz77log2[x >> 16] + 16;
 	}
 
 	void writegamma(uint8_t*& op, uint32_t& buf, uint32_t& bufsize, uint32_t val) {
@@ -266,8 +269,8 @@ namespace lz77 {
 
 		uint32_t buf = 0;
 		uint32_t bufsize = 0;
-		uint32_t offset = 0;
-		uint32_t match = 0, matchLength = 0;
+		uint32_t match = 0;
+		uint32_t matchLength;
 
 		lz77log2initial();
 
@@ -275,10 +278,11 @@ namespace lz77 {
 		memset(hastab, -1, sizeof(hastab));
 	#endif
 		for (uint32_t i = 0, j; i < Length;) {
+			uint32_t offset = 0;
 
 			j = i;
 			matchLength = 0;
-			while (j < Length && !(match = longestmatch(ql, j, Length, offset))) {
+			while (j < Length && !((match = longestmatch(ql, j, Length, offset)))) {
 				lz77_push(ql, j);
 				++j;
 				++matchLength;
@@ -347,7 +351,8 @@ namespace lz77 {
 		uint32_t buf = 0;
 		uint32_t bufsize = 0;
 		uint32_t offset = 0;
-		uint32_t match = 0, matchLength = 0;
+		uint32_t match = 0;
+		uint32_t match_length;
 
 		lz77log2initial();
 
@@ -357,17 +362,17 @@ namespace lz77 {
 		for (uint32_t i = 0, j; i < Length;) {
 
 			j = i;
-			matchLength = 0;
+			match_length = 0;
 			while (j < Length && !(match = longestmatch(ql, j, Length, offset))) {
 				lz77_push(ql, j);
 				++j;
-				++matchLength;
+				++match_length;
 			}
 
-			if (matchLength) {
+			if (match_length) {
 
-				if (matchLength <= MATCH_LIMIT) {
-					for (j = 0; j < matchLength; ++j) {
+				if (match_length <= MATCH_LIMIT) {
+					for (j = 0; j < match_length; ++j) {
 						buf = buf << 9 | ql[i++];
 						bufsize += 9;
 						writebuf(op, buf, bufsize);
@@ -376,9 +381,9 @@ namespace lz77 {
 				else {
 					writegamma(op, buf, bufsize, 8);
 
-					writegamma(op, buf, bufsize, matchLength - MATCH_LIMIT);
+					writegamma(op, buf, bufsize, match_length - MATCH_LIMIT);
 
-					for (j = 0; j < matchLength; ++j) {
+					for (j = 0; j < match_length; ++j) {
 						buf = buf << 8 | ql[i++];
 						bufsize += 8;
 						writebuf(op, buf, bufsize);
@@ -415,7 +420,8 @@ namespace lz77 {
 
 	std::string decompress(const std::string& arr) {
 		std::string str;
-		uint32_t Length = arr.length();
+		uint32_t Length;
+		Length = arr.length();
 		const uint8_t* ql = (const uint8_t*)arr.c_str();
 		if (Length<3||arr.substr(0,3)!="wjr")return arr;
 		ql += 3;

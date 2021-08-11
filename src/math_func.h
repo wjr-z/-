@@ -1,8 +1,7 @@
 #ifndef MATH_FUNC_H
 #define MATH_FUNC_H
 
-#include <stdint.h>
-#include <string.h>
+#include <cstdint>
 
 #define QUICK //使用空间换时间
 
@@ -16,8 +15,7 @@ extern int mode;
 
 namespace Math {
 
-	const int bintjw=100000000;
-//#define bintjw 100000000
+	constexpr int bintjw=100000000;
 
 	template<typename Ty>
 	inline Ty abs(Ty x){return x>=0?x:-x;}

@@ -1,6 +1,5 @@
 #ifndef MATRIX_H
 #define MATRIX_H
-#include <stdint.h>
 #include "bint.h"
 /*---ÓÐ´ýÍêÉÆ---*/
 
@@ -70,6 +69,7 @@ namespace Math {
 
 	template<typename Ty>
 	matrix<Ty>& matrix<Ty>::operator=(const matrix<Ty>& other) {
+		if(this==&other)return *this;
 		Reallocate(other.row, other.column);
 		for (size_t i = 0; i < row; ++i)
 			for (size_t j = 0; j < column; ++j)

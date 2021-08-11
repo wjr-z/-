@@ -8,15 +8,17 @@ struct point {
 };
 
 struct vec {
-	double x,y;
+	double x{},y{};
 	explicit vec(double x=0,double y=0);
 	explicit vec(const point&start,const point&end);
-	vec(const vec&other);
+	vec(const vec&other)noexcept;
+	vec(vec&&other)noexcept;
 	vec& operator=(const vec&other);
+	vec& operator=(vec&&other) noexcept;
 	vec& operator+=(const vec&other);
 	vec& operator-=(const vec&other);
-	vec operator+(const vec&other);
-	vec operator-(const vec&other);
+	vec operator+(const vec&other) const;
+	vec operator-(const vec&other) const;
 };
 
 vec operator-(const point&lhs,const point&rhs);

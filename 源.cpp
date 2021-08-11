@@ -1,51 +1,37 @@
 ﻿#include <Windows.h>
 #include "src/Matrix.h"
 #include "src/bint.h"
-#include "src/bfloat.h"
-#include "src/lz77.h"
 #include "src/mtool.h"
-#include <list>
-#include <iterator>
-#include "src/slist.h"
 
 using namespace Math;
 using namespace std;
 
 int n;
 
-class ggg {
-public:
-	list<list<int>>wjr;
-	void test()const{
-	}
-};
-
 int main() {
 	
 	ios::sync_with_stdio(false);
-	cin.tie(0);
-	cout.tie(0);
-
+	cin.tie(nullptr);
+	cout.tie(nullptr);
 
 	bint a, b,c;
 	a = qpow(bint(12345),5678);
-	b = qpow(bint(12345),6000);
 
 	cout<<qtime(
 		[&a,&b,&c]() {
 			for(int i=0;i<1000;++i)
-				c=a*b;
+				c=a * a;
 		}
 	)<<endl;
 
-	
+
 	return 0;
 
 	FILE* stream1;
 	freopen_s(&stream1, "test.out", "w", stdout);
 	cout.setf(ios::left); //设置对齐方式为left
 
-	int HEAD = 400000, TAIL = 100000, PY = 10;
+	int HEAD = 40000, TAIL = 40000, PY = 10;
 
 	for (int i = HEAD; i <= TAIL; i += PY) {
 		for (int j = HEAD; j <= i; j += PY) {
@@ -57,7 +43,7 @@ int main() {
 			y=randbint(j);
 			double stime, ftime, ktime,ttime;
 			cout << setw(4) << "i=" << setw(4) << i << setw(6) << "  j=" << setw(4) << j << ' ';
-			int K = 4;
+			int K = 20;
 			bint ans1, ans2, ans3,ans5;
 		#ifdef TEST
 			ans1 = test1(x, y);

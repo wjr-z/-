@@ -1,12 +1,11 @@
 #ifndef POLLARDRHO_H
 #define POLLARDRHO_H
 
-
 #include <vector>
 
 namespace Math {
 
-	bool isprime(int);//int判别质数，已验证
+	bool isprime(int);//int判别质数
 	std::vector<int>pollard_rho(int);
 	int max_prime(int);
 
