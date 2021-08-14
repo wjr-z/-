@@ -1,29 +1,33 @@
-﻿#include <Windows.h>
-#include "src/Matrix.h"
+﻿#include <bits/stdc++.h>
 #include "src/bint.h"
 #include "src/mtool.h"
+
+#include "src/slist.h"
 
 using namespace Math;
 using namespace std;
 
-int n;
-
+struct alignas(8) node {
+	int a;
+	double b;
+	node():a(3),b(2.7){}
+};
+int n=1e6;
 int main() {
-	
+
 	ios::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
 
-	bint a, b,c;
-	a = qpow(bint(12345),5678);
+	bint a, b, c;
+	a = qpow(bint(12345), 5678);
 
-	cout<<qtime(
-		[&a,&b,&c]() {
-			for(int i=0;i<1000;++i)
-				c=a * a;
+	cout << qtime(
+		[&a,&c]() {
+			for (int i = 0; i < 1000; ++i)
+				c = a * a;
 		}
-	)<<endl;
-
+	) << endl;
 
 	return 0;
 
@@ -39,61 +43,61 @@ int main() {
 			len1 = ((i - 1) >> 3) + 1;
 			len2 = ((j - 1) >> 3) + 1;
 			bint x, y;
-			x=randbint(i);
-			y=randbint(j);
-			double stime, ftime, ktime,ttime;
+			x = randbint(i);
+			y = randbint(j);
+			double stime, ftime, ktime, ttime;
 			cout << setw(4) << "i=" << setw(4) << i << setw(6) << "  j=" << setw(4) << j << ' ';
 			int K = 20;
-			bint ans1, ans2, ans3,ans5;
-		#ifdef TEST
+			bint ans1, ans2, ans3, ans5;
+#ifdef TEST
 			ans1 = test1(x, y);
 			ans2 = test2(x, y);
 			ans3 = test3(x, y);
-			ans5 = testTOOM(x,y);
-		#endif
-			auto sta=GetTime();
-			#ifdef TEST
-				for (int k = 0; k < K; ++k)
-					test1(x, y);
-		#endif
+			ans5 = testTOOM(x, y);
+#endif
+			auto sta = GetTime();
+#ifdef TEST
+			for (int k = 0; k < K; ++k)
+				test1(x, y);
+#endif
 
-			auto en=GetTime();
+			auto en = GetTime();
 			cout << setw(6) << "暴力：" << setw(12) << (stime = en - sta);
 			cout << " ";
 
-			sta=GetTime();
-			#ifdef TEST
-				for (int k = 0; k < K; ++k)
-					test2(x, y);
-		#endif
-			en=GetTime();
+			sta = GetTime();
+#ifdef TEST
+			for (int k = 0; k < K; ++k)
+				test2(x, y);
+#endif
+			en = GetTime();
 
 			cout << setw(6) << "Kar：" << setw(12) << (ktime = en - sta);
 			cout << " ";
-			sta=GetTime();
-			#ifdef TEST
-				for (int k = 0; k < K; ++k)
-					test3(x, y);
-		#endif
-			en=GetTime();
+			sta = GetTime();
+#ifdef TEST
+			for (int k = 0; k < K; ++k)
+				test3(x, y);
+#endif
+			en = GetTime();
 			cout << setw(6) << "FFT：" << setw(12) << (ftime = en - sta);
 			cout << " ";
 
-			sta=GetTime();
-			#ifdef TEST
-				for (int k = 0; k < K; ++k)
-					testTOOM(x, y);
-		#endif
-			en=GetTime();
-				cout << setw(6) << "TOOM_COOK_3：" << setw(12) << (ttime = en - sta);
+			sta = GetTime();
+#ifdef TEST
+			for (int k = 0; k < K; ++k)
+				testTOOM(x, y);
+#endif
+			en = GetTime();
+			cout << setw(6) << "TOOM_COOK_3：" << setw(12) << (ttime = en - sta);
 			cout << " ";
 
-			sta=GetTime();
-			#ifdef TEST
-				for (int k = 0; k < K; ++k)
-					test4(x, y);
-		#endif
-			en=GetTime();
+			sta = GetTime();
+#ifdef TEST
+			for (int k = 0; k < K; ++k)
+				test4(x, y);
+#endif
+			en = GetTime();
 			cout << setw(6) << "智能模式：";
 			if (mode == 1)cout << setw(6) << "暴力 ";
 			else if (mode == 2)cout << setw(6) << "Kar ";
@@ -101,21 +105,21 @@ int main() {
 
 			cout << "  " << setw(14) << en - sta << ' ';
 			cout << setw(6) << "最优选择：";
-			double mintime = min({ stime,ftime,ktime,ttime });
-			
-			if (mintime==stime) {
+			double mintime = min({stime, ftime, ktime, ttime});
+
+			if (mintime == stime) {
 				cout << "暴力" << ' ';
 			}
-			if (mintime==ktime) {
+			if (mintime == ktime) {
 				cout << "Kar" << ' ';
 			}
-			if (mintime==ftime) {
+			if (mintime == ftime) {
 				cout << "FFT" << ' ';
 			}
-			if (mintime==ttime) {
-				cout<<"TOOM_COOK"<<' ';
+			if (mintime == ttime) {
+				cout << "TOOM_COOK" << ' ';
 			}
-			if (check(ans1,ans3,ans5)) {
+			if (check(ans1, ans3, ans5)) {
 				cout << "正确\n";
 			}
 			else {

@@ -1,6 +1,7 @@
 #include "math_func.h"
+
+#include <ctime>
 #include <random>
-#include <iomanip>
 
 int mode;
 
@@ -11,17 +12,7 @@ static const int debruijn[32] = {
 	31, 27, 13, 23, 21, 19, 16,  7, 26, 12, 18,  6, 11,  5, 10,  9
 };
 
-static union DOUBLE_TO_LONGLONG {
-	double p;
-	uint64_t q;
-}tran;
-
 namespace Math {
-
-	uint64_t double_to_ull(double x) {
-		tran.p = x;
-		return ((tran.q & ((1ll << 52) - 1)) | (1ll << 52)) >> ((1075) - ((tran.q >> 52) & ((1ll << 11) - 1)));
-	}
 
 	uint32_t quicklog2(uint32_t x) {
 		uint32_t ans = 0;
@@ -32,7 +23,7 @@ namespace Math {
 	}
 
 	uint32_t quicklog2(int x) {
-		return quicklog2((uint32_t)x);
+		return quicklog2(static_cast<uint32_t>(x));
 	}
 
 	uint32_t quicklog2(uint64_t x) {
@@ -45,7 +36,7 @@ namespace Math {
 	}
 
 	uint32_t quicklog2(long long x) {
-		return quicklog2((uint64_t)x);
+		return quicklog2(static_cast<uint64_t>(x));
 	}
 
 	uint32_t quicklog10(uint32_t x) {
@@ -58,7 +49,7 @@ namespace Math {
 	}
 
 	uint32_t quicklog10(int x) {
-		return quicklog10((uint32_t)x);
+		return quicklog10(static_cast<uint32_t>(x));
 	}
 
 	uint32_t quicklog10(uint64_t x) {
@@ -72,7 +63,7 @@ namespace Math {
 	}
 
 	uint32_t quicklog10(long long x) {
-		return quicklog10((uint64_t)x);
+		return quicklog10(static_cast<uint64_t>(x));
 	}
 
 	int findnumber1(uint32_t n) {
@@ -108,13 +99,13 @@ namespace Math {
 	#endif
 	}
 	int findnumber1(int n) {
-		return findnumber1((uint32_t)n);
+		return findnumber1(static_cast<uint32_t>(n));
 	}
 	int findnumber1(uint64_t n) {
-		return findnumber1((uint32_t)(n>>32))+findnumber1((uint32_t)n);
+		return findnumber1(static_cast<uint32_t>(n >> 32))+findnumber1(static_cast<uint32_t>(n));
 	}
 	int findnumber1(long long n) {
-		return findnumber1((uint64_t)n);
+		return findnumber1(static_cast<uint64_t>(n));
 	}
 
 	int lowbit(int x) { return x & -x; }
@@ -194,7 +185,7 @@ namespace Math {
 		for (j = 0; !(y & 1); ++j)y >>= 1;
 		if (j < i) i = j;
 		while (true) {
-			if (x < y)x ^= y, y ^= x, x ^= y;
+			if (x < y)x ^= y^= x ^= y;
 			if (!(x -= y)) return y << i;
 			while (!(x & 1))x >>= 1;
 		}
@@ -208,7 +199,7 @@ namespace Math {
 		for (j = 0; !(y & 1); ++j)y >>= 1;
 		if (j < i) i = j;
 		while (true) {
-			if (x < y)x ^= y, y ^= x, x ^= y;
+			if (x < y)x ^= y ^= x ^= y;
 			if (!(x -= y)) return y << i;
 			while (!(x & 1))x >>= 1;
 		}

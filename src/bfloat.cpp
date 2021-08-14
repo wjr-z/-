@@ -113,7 +113,7 @@ namespace Math {
 	}
 
 	bool bfloat::is_positive() const {
-		return base.ispositive();
+		return base.is_positive();
 	}
 
 

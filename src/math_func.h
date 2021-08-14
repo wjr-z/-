@@ -18,12 +18,12 @@ namespace Math {
 	constexpr int bintjw=100000000;
 
 	template<typename Ty>
-	inline Ty abs(Ty x){return x>=0?x:-x;}
-
+	Ty abs(Ty x){return x>=0?x:-x;}
+	
 	template<typename Ty>
-	inline Ty min(Ty lhs,Ty rhs){return lhs<rhs?lhs:rhs;}
+	Ty min(Ty lhs,Ty rhs){return lhs<rhs?lhs:rhs;}
 	template<typename Ty>
-	inline Ty max(Ty lhs,Ty rhs){return lhs>rhs?lhs:rhs;}
+	Ty max(Ty lhs,Ty rhs){return lhs>rhs?lhs:rhs;}
 
 	//声明Ooura FFT 相关函数
 	extern "C" {
@@ -31,11 +31,8 @@ namespace Math {
 		extern void rdft(int, int, double*);
 	}
 
-	static const uint32_t maxuint = (uint32_t)-1;//最大的unsigned int
-	static const uint64_t maxull = (uint64_t)-1;
-
-
-	uint64_t double_to_ull(double);//比强制转型快1倍
+	static const uint32_t maxuint = static_cast<uint32_t>(-1);//最大的unsigned int
+	static const uint64_t maxull  = static_cast<uint64_t>(-1);
 
 	uint32_t quicklog2(uint32_t x);
 	uint32_t quicklog2(int x);
@@ -58,7 +55,7 @@ namespace Math {
 	bool is_power_of_2(uint32_t x);
 
 	template<typename Ty>
-	inline Ty sqr(const Ty& val) { return val * val; }
+	Ty sqr(const Ty& val) { return val * val; }
 
 	static const int _10k[10] = { 1,10,100,1000,10000,100000,1000000,10000000,bintjw,1 };
 

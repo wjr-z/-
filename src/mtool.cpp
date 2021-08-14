@@ -1,4 +1,6 @@
 #include <io.h>
+#include <fstream>
+#include <sstream>
 #include "mtool.h"
 
 namespace Math {
@@ -86,5 +88,18 @@ namespace Math {
 		}
 		return filePath;
 	}
+
+	std::string readFiles(const std::string&filename) {
+		std::ifstream in(filename, std::ios::binary);
+		std::ostringstream tmp;
+		tmp<<in.rdbuf();
+		return tmp.str();
+	}
+
+	void writeFiles(const std::string& filename, const std::string& str) {
+		std::ofstream out(filename,std::ios::binary);
+		out.write(str.c_str(),str.length());
+	}
+
 
 }

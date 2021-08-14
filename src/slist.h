@@ -574,7 +574,7 @@ namespace Math {
 		}
 
 		void insert(iterator Pos, const Ty& Val) {
-			iterator1 Pos1 = GetIterator1(Pos);
+			auto Pos1 = GetIterator1(Pos);
 			Pos1->emplace(Pos.Pos2, slist_node<Ty>(Val, Pos1));
 			++Size;
 		}

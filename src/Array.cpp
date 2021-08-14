@@ -5,7 +5,9 @@ namespace Math {
 		resize(1);
 	}
 
-	Array::Array(const Array& other)noexcept = default;
+	Array::Array(const Array& other)noexcept :vec(other.vec),Size(other.Size) {
+		
+	}
 
 	Array::Array(Array&& other)noexcept
 		:vec(std::move(other.vec)), Size(other.Size) {
@@ -19,6 +21,8 @@ namespace Math {
 		Size = other.Size;
 		return*this;
 	}
+
+	Array::~Array()noexcept = default;
 
 	const int* Array::begin() const {
 		return &vec[0];
@@ -297,26 +301,26 @@ namespace Math {
 		arr[0] = 0;
 		for (size_t i = 0; i < len - 7; i += 8) {
 			const uint64_t now =
-				double_to_ull(a[i << 1] + 0.5) +
-				double_to_ull(a[(i + 1) << 1] + 0.5) * 10 +
-				double_to_ull(a[(i + 2) << 1] + 0.5) * 100 +
-				double_to_ull(a[(i + 3) << 1] + 0.5) * 1000 +
-				double_to_ull(a[(i + 4) << 1] + 0.5) * 10000 +
-				double_to_ull(a[(i + 5) << 1] + 0.5) * 100000 +
-				double_to_ull(a[(i + 6) << 1] + 0.5) * 1000000 +
-				double_to_ull(a[(i + 7) << 1] + 0.5) * 10000000 +
+				static_cast<uint64_t>(a[i << 1] + 0.5) +
+				static_cast<uint64_t>(a[(i + 1) << 1] + 0.5) * 10 +
+				static_cast<uint64_t>(a[(i + 2) << 1] + 0.5) * 100 +
+				static_cast<uint64_t>(a[(i + 3) << 1] + 0.5) * 1000 +
+				static_cast<uint64_t>(a[(i + 4) << 1] + 0.5) * 10000 +
+				static_cast<uint64_t>(a[(i + 5) << 1] + 0.5) * 100000 +
+				static_cast<uint64_t>(a[(i + 6) << 1] + 0.5) * 1000000 +
+				static_cast<uint64_t>(a[(i + 7) << 1] + 0.5) * 10000000 +
 				arr[i >> 3];
 			arr[i >> 3] = static_cast<int>(now % bintjw);
 			arr[(i >> 3) + 1] = static_cast<int>(now / bintjw);
 		}
 		arr[len >> 3] += static_cast<int>(
-			double_to_ull(a[(len - 7) << 1] + 0.5) +
-			double_to_ull(a[(len - 6) << 1] + 0.5) * 10 +
-			double_to_ull(a[(len - 5) << 1] + 0.5) * 100 +
-			double_to_ull(a[(len - 4) << 1] + 0.5) * 1000 +
-			double_to_ull(a[(len - 3) << 1] + 0.5) * 10000 +
-			double_to_ull(a[(len - 2) << 1] + 0.5) * 100000 +
-			double_to_ull(a[(len - 1) << 1] + 0.5) * 1000000);
+			static_cast<uint64_t>(a[(len - 7) << 1] + 0.5) +
+			static_cast<uint64_t>(a[(len - 6) << 1] + 0.5) * 10 +
+			static_cast<uint64_t>(a[(len - 5) << 1] + 0.5) * 100 +
+			static_cast<uint64_t>(a[(len - 4) << 1] + 0.5) * 1000 +
+			static_cast<uint64_t>(a[(len - 3) << 1] + 0.5) * 10000 +
+			static_cast<uint64_t>(a[(len - 2) << 1] + 0.5) * 100000 +
+			static_cast<uint64_t>(a[(len - 1) << 1] + 0.5) * 1000000);
 		size_t Size = c.size();
 		while (Size > 1 && !c.save_at(Size - 1))
 			--Size;
@@ -384,18 +388,18 @@ namespace Math {
 		arr[0] = 0;
 		for (size_t i = 0; i < len - 3; i += 4) {
 			const uint64_t now =
-				double_to_ull(a[i << 1] + 0.5) +
-				double_to_ull(a[(i + 1) << 1] + 0.5) * 100 +
-				double_to_ull(a[(i + 2) << 1] + 0.5) * 10000 +
-				double_to_ull(a[(i + 3) << 1] + 0.5) * 1000000 +
+				static_cast<uint64_t>(a[i << 1] + 0.5) +
+				static_cast<uint64_t>(a[(i + 1) << 1] + 0.5) * 100 +
+				static_cast<uint64_t>(a[(i + 2) << 1] + 0.5) * 10000 +
+				static_cast<uint64_t>(a[(i + 3) << 1] + 0.5) * 1000000 +
 				arr[i >> 2];
 			arr[i >> 2] = static_cast<int>(now % bintjw);
 			arr[(i >> 2) + 1] = static_cast<int>(now / bintjw);
 		}
 		arr[len >> 2] += static_cast<int>(
-			double_to_ull(a[(len - 3) << 1] + 0.5) +
-			double_to_ull(a[(len - 2) << 1] + 0.5) * 100 +
-			double_to_ull(a[(len - 1) << 1] + 0.5) * 10000);
+			static_cast<uint64_t>(a[(len - 3) << 1] + 0.5) +
+			static_cast<uint64_t>(a[(len - 2) << 1] + 0.5) * 100 +
+			static_cast<uint64_t>(a[(len - 1) << 1] + 0.5) * 10000);
 		size_t Size = c.size();
 		while (Size > 1 && !c.save_at(Size - 1))
 			--Size;
@@ -452,11 +456,11 @@ namespace Math {
 		arr[0] = 0;
 		for (size_t i = 0; i < len - 1; i += 2) {
 			const uint64_t now =
-				double_to_ull(a[i << 1] + 0.5) + double_to_ull(a[(i + 1) << 1] + 0.5) * 10000 + arr[i >> 1];
+				static_cast<uint64_t>(a[i << 1] + 0.5) + static_cast<uint64_t>(a[(i + 1) << 1] + 0.5) * 10000 + arr[i >> 1];
 			arr[i >> 1] = static_cast<int>(now % bintjw);
 			arr[(i >> 1) + 1] = static_cast<int>(now / bintjw);
 		}
-		arr[len >> 1] += static_cast<int>(double_to_ull(a[(len - 1) << 1] + 0.5));
+		arr[len >> 1] += static_cast<int>(static_cast<uint64_t>(a[(len - 1) << 1] + 0.5));
 
 		size_t Size = c.size();
 		while (Size > 1 && !c.save_at(Size - 1))
@@ -478,7 +482,9 @@ namespace Math {
 		resize(1);
 	}
 
-	Array2::Array2(const Array2& other)noexcept = default;
+	Array2::Array2(const Array2& other)noexcept :vec(other.vec),Size(other.Size) {
+		
+	}
 
 	Array2::Array2(Array2&& other)noexcept
 		:vec(std::move(other.vec)), Size(other.Size) {
@@ -493,6 +499,8 @@ namespace Math {
 		return*this;
 	}
 
+	Array2::~Array2()noexcept = default;
+	
 	const uint32_t* Array2::begin() const {
 		return &vec[0];
 	}
@@ -739,7 +747,8 @@ namespace Math {
 		cdft(s << 1, 1, a);
 		for (size_t i = 0; i < s; ++i) {
 			const double sa = a[i << 1], sb = a[i << 1 | 1];
-			a[i << 1] = sa * sa - sb * sb, a[i << 1 | 1] = 2 * sa * sb;
+			a[i << 1] = sa * sa - sb * sb;
+			a[i << 1 | 1] = 2 * sa * sb;
 		}
 		cdft(s << 1, -1, a);
 		const double invs = 1.0 / static_cast<double>(s);
@@ -748,14 +757,14 @@ namespace Math {
 		c.resize((len >> 3) + 1);
 		c.save_at(0) = 0;
 		for (size_t i = 0; i < len - 7; i += 8) {
-			const uint64_t now = double_to_ull(a[i << 1] + 0.5)
-				+ (double_to_ull(a[(i + 1) << 1] + 0.5) << 4)
-				+ (double_to_ull(a[(i + 2) << 1] + 0.5) << 8)
-				+ (double_to_ull(a[(i + 3) << 1] + 0.5) << 12)
-				+ (double_to_ull(a[(i + 4) << 1] + 0.5) << 16)
-				+ (double_to_ull(a[(i + 5) << 1] + 0.5) << 20)
-				+ (double_to_ull(a[(i + 6) << 1] + 0.5) << 24)
-				+ (double_to_ull(a[(i + 7) << 1] + 0.5) << 28)
+			const uint64_t now = static_cast<uint64_t>(a[i << 1] + 0.5)
+				+ (static_cast<uint64_t>(a[(i + 1) << 1] + 0.5) << 4)
+				+ (static_cast<uint64_t>(a[(i + 2) << 1] + 0.5) << 8)
+				+ (static_cast<uint64_t>(a[(i + 3) << 1] + 0.5) << 12)
+				+ (static_cast<uint64_t>(a[(i + 4) << 1] + 0.5) << 16)
+				+ (static_cast<uint64_t>(a[(i + 5) << 1] + 0.5) << 20)
+				+ (static_cast<uint64_t>(a[(i + 6) << 1] + 0.5) << 24)
+				+ (static_cast<uint64_t>(a[(i + 7) << 1] + 0.5) << 28)
 				+ c.at(i >> 3);
 			c.at(i >> 3) = now & maxuint;
 			c.at((i >> 3) + 1) = now >> 32;
@@ -831,10 +840,10 @@ namespace Math {
 		c.resize((len >> 2) + 1);
 		c.at(0) = 0;
 		for (size_t i = 0; i < len - 3; i += 4) {
-			const uint64_t now = double_to_ull(a[i << 1] + 0.5)
-				+ (double_to_ull(a[(i + 1) << 1] + 0.5) << 8)
-				+ (double_to_ull(a[(i + 2) << 1] + 0.5) << 16)
-				+ (double_to_ull(a[(i + 3) << 1] + 0.5) << 24)
+			const uint64_t now = static_cast<uint64_t>(a[i << 1] + 0.5)
+				+ (static_cast<uint64_t>(a[(i + 1) << 1] + 0.5) << 8)
+				+ (static_cast<uint64_t>(a[(i + 2) << 1] + 0.5) << 16)
+				+ (static_cast<uint64_t>(a[(i + 3) << 1] + 0.5) << 24)
 				+ c.at(i >> 2);
 			c.at(i >> 2) = now & maxuint;
 			c.at((i >> 2) + 1) = now >> 32;
@@ -890,11 +899,11 @@ namespace Math {
 		arr[0] = 0;
 
 		for (size_t i = 0; i < len - 1; i += 2) {
-			const uint64_t now = double_to_ull(a[i << 1] + 0.5) + (double_to_ull(a[(i + 1) << 1] + 0.5) << 16) + arr[i >> 1];
+			const uint64_t now = static_cast<uint64_t>(a[i << 1] + 0.5) + (static_cast<uint64_t>(a[(i + 1) << 1] + 0.5) << 16) + arr[i >> 1];
 			arr[i >> 1] = static_cast<uint32_t>(now);
 			arr[(i >> 1) + 1] = now >> 32;
 		}
-		arr[len >> 1] += double_to_ull(a[(len - 1) << 1] + 0.5);
+		arr[len >> 1] += static_cast<uint64_t>(a[(len - 1) << 1] + 0.5);
 		size_t Size = c.size();
 		while (Size > 1 && !c.save_at(Size - 1))
 			--Size;

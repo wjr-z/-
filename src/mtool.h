@@ -3,12 +3,7 @@
 
 #include <algorithm>
 #include <chrono>
-#include <iostream>
 #include <map>
-#include <set>
-#include <string>
-#include <utility>
-#include <vector>
 #include "bint.h"
 
 namespace Math {
@@ -180,16 +175,9 @@ namespace Math {
 
 	std::vector<std::string> getFiles(const std::string& path);
 
-	template<typename Ty>
-	void printAll(Ty Start, Ty End) {
-		while(Start<End)
-			std::cout<<*Start<<std::endl,++Start;
-	}
+	std::string readFiles(const std::string&filename);
 
-	template<typename Ty>
-	void printAll(Ty inSTL) {
-		printAll(inSTL.begin(),inSTL.end());
-	}
+	void writeFiles(const std::string&filename,const std::string&str);
 
 }
 #endif

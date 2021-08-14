@@ -40,7 +40,7 @@ namespace Math {
 	/*---使用vector---*/
 
 #define USE_ALLOCATOR
-
+	
 #if defined(_ITERATOR_DEBUG_LEVEL) && _ITERATOR_DEBUG_LEVEL!=0
 #undef USE_ALLOCATOR
 #endif
@@ -67,6 +67,7 @@ namespace Math {
 		Array(Array&& other)noexcept;
 		Array& operator=(const Array& other)noexcept;
 		Array& operator=(Array&& other)noexcept;
+		~Array()noexcept;
 		const int* begin()const;
 		const int* end()const;
 		int* begin();
@@ -130,7 +131,7 @@ namespace Math {
 	class Array2_func;
 	//ungisned int 
 	//每一个存储2^32进制数，即32个二进制数
-	class Array2 {
+	class alignas(8) Array2 {
 		friend reference2;
 		friend Array2_func;
 	private:
@@ -149,6 +150,7 @@ namespace Math {
 		Array2(Array2&& other)noexcept;
 		Array2& operator=(const Array2& other)noexcept;
 		Array2& operator=(Array2&& other)noexcept;
+		~Array2()noexcept;
 		const uint32_t* begin()const;
 		const uint32_t* end()const;
 		uint32_t* begin();

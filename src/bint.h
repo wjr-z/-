@@ -1,7 +1,7 @@
 #ifndef BINT_H
 #define BINT_H
 
-#include <iomanip>
+#include <istream>
 
 #include "Array.h"
 
@@ -10,13 +10,9 @@ namespace Math {
 	using std::istream;
 	using std::ostream;
 	using std::endl;
-
+	
 	/*---biginter类(10bit)---*/
 	/*---每一位对10^8取模的动态扩展大整数类---*/
-
-
-#define BINT_ZERO bint()
-#define BINT2_ZERO bint2()
 
 	/*---友元函数声明---*/
 
@@ -206,7 +202,6 @@ namespace Math {
 		static bint quickdivide(const bint&, const bint&);
 		/*---低精度除法---*/
 		static bint divideint(const bint&, int);
-		static void divideint(bint&&, int);
 		/*---Karatsuba算法---*/
 		/*---复杂度为O(n*m^0.517)---*/
 		/*---当m<=64时使用暴力乘法---*/
@@ -228,7 +223,7 @@ namespace Math {
 		/*---初始化为other的[L,R]元素---*/
 		void assign(const bint& other, const size_t& L, const size_t& R);
 		bool is_zero() const;
-		bool ispositive() const;
+		bool is_positive() const;
 		bint() noexcept;
 		~bint() noexcept;
 		explicit bint(const int& val) noexcept;
@@ -412,7 +407,7 @@ namespace Math {
 	* 因为10-bit平时使用会更便捷，因此我可能会优先完善10-bit
 	*/
 
-	class bint2 {
+	class alignas(8) bint2 {
 	private:
 		Array2 vec; //以2^32为进制
 		bool positive; //positive为true表示为正数，否则为负数

@@ -1,9 +1,9 @@
 #include "PollardRho.h"
 #include "math_func.h"
-#include <vector>
-using std::vector;
 
 namespace Math {
+
+	using std::vector;
 
 	static int modpow(int a, int b, int mod) {
 		int ans = 1;
