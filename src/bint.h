@@ -7,6 +7,8 @@
 
 namespace Math {
 
+//#define BINTDEBUG
+
 	using std::istream;
 	using std::ostream;
 	using std::endl;
@@ -422,7 +424,7 @@ namespace Math {
 		void savedel(size_t);
 
 		static void quickadd(bint2&, const bint2&, bool);
-		static void addint(bint2&, int, bool);
+		static void addint(bint2&, unsigned int, bool);
 
 		static bint2 largedivide(const bint2&, const bint2&);
 		static bint2 smalldivide(const bint2&, const bint2&);
@@ -430,15 +432,15 @@ namespace Math {
 		static bint2 quickdivide(const bint2&, const bint2&);
 
 		static bint2 del(const bint2&, const bint2&, bool);
-		static void quickdel(bint2&, const bint2&, bool, int = 0);
+		static void quickdel(bint2&, const bint2&, bool);
 
-		static void delint(bint2& a, int b, bool _positive);
+		static void delint(bint2& a, unsigned int b, bool _positive);
 		static void quickmul(bint2& a, const bint2&);
 		static void mulint(const bint2& a, int b, bint2& c);
 		bint get10bit() const;
 		void clear();
 	public:
-		void assign(const bint2& other, const int& L, const int& R);
+		void assign(const bint2& other, size_t L, size_t R);
 		bool ispositive() const;
 		bool iszero() const;
 		bint2() noexcept;

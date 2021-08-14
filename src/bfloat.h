@@ -67,7 +67,7 @@ namespace Math {
 
 	//------------------------------------------------------------------//
 
-	class bfloat {
+	class alignas(8) bfloat {
 	public:
 		static int floatlim;
 	private:
@@ -88,50 +88,18 @@ namespace Math {
 	public:
 		bool is_zero() const;
 		bool is_positive() const;
-		bfloat() :exp(0) {
-
-		}
-		explicit bfloat(const int& Val) : base(Val), exp(0) {
-			maintain();
-		}
-		explicit bfloat(const double& val) :exp(0) {
-			assign(val);
-		}
-		explicit bfloat(const char* s) :exp(0) {
-			assign(s);
-		}
-		explicit bfloat(const std::string& s) :exp(0) {
-			assign(s);
-		}
-		bfloat(const bfloat& other) :base(other.base), exp(other.exp) {
-
-		}
-		bfloat(const bint& a, const int& index = 0) :base(a), exp(index) {
-
-		}
-		bfloat& operator=(const int& Val) {
-			base = Val;
-			exp = 0;
-			return*this;
-		}
-		bfloat& operator=(const double& val) {
-			assign(val);
-			return*this;
-		}
-		bfloat& operator=(const char* s) {
-			assign(s);
-			return*this;
-		}
-		bfloat& operator=(const std::string& s) {
-			assign(s);
-			return*this;
-		}
-		bfloat& operator=(const bfloat& other) {
-			if (this == &other)return*this;
-			base = other.base;
-			exp = other.exp;
-			return*this;
-		}
+		bfloat();
+		explicit bfloat(const int& Val);
+		explicit bfloat(const double& val);
+		explicit bfloat(const char* s);
+		explicit bfloat(const std::string& s);
+		bfloat(const bfloat& other);
+		bfloat(const bint& a, const int& index = 0);
+		bfloat& operator=(const int& Val);
+		bfloat& operator=(const double& val);
+		bfloat& operator=(const char* s) ;
+		bfloat& operator=(const std::string& s);
+		bfloat& operator=(const bfloat& other);
 
 		size_t length() const;
 		void relength(const int&);
@@ -210,8 +178,8 @@ namespace Math {
 		friend bint floor(const bfloat& x);
 
 	#ifdef TEST
-		void add() { ++base; }
-		void del() { --base; }
+		void add() ;
+		void del() ;
 
 	#endif
 	};

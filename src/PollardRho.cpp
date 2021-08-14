@@ -5,7 +5,7 @@ namespace Math {
 
 	using std::vector;
 
-	static int modpow(int a, int b, int mod) {
+	static int mod_pow(int a, int b, int mod) {
 		int ans = 1;
 		while (b) {
 			if (b & 1)ans = a * 1ll * ans % mod;
@@ -15,7 +15,7 @@ namespace Math {
 	}
 
 	static bool witness(int n, int seed, int d, int r) {
-		seed = modpow(seed, d, n);
+		seed = mod_pow(seed, d, n);
 		if (seed == 1)return true;
 		for (int i = 0; i < r; ++i) {
 			if (seed == n - 1)return true;
@@ -55,17 +55,17 @@ namespace Math {
 		if (x == 4)
 			return 2;
 		while (true) {
-			int c = randint(1, x - 1);
-			auto f = [=](const int& a) { return (a * 1ll * a + c) % x; };
-			int t, r, p(1), d;
-			t = r = randint(1, x - 1);
+			const int c = randint(1, x - 1);
+			auto f = [=](const int& a) { return static_cast<int>((a * 1ll * a + c) % x); };
+			int r, p(1);
+			int t = r = randint(1, x - 1);
 			int i = 0, j = 1;
 			while (++i) {//开始玄学生成
 				r = f(r);
-				p = (p * Math::abs(r - t)) % x;
+				p = (p * abs(r - t)) % x;
 				if (t == r || !p)break;
 				if (!(i & 127) || i == j) {//我们不仅在等127次之后gcd我们还会倍增的来gcd
-					d = Math::gcd(p, x);
+					int d = gcd(p, x);
 					if (d > 1)return d;
 					if (i == j) {
 						t = r; j <<= 1;
@@ -111,7 +111,9 @@ namespace Math {
 	}
 
 	static long long LLMul(long long a, long long b, long long p) {
-		long long Val = a * b - (long long)((long double)a * b / static_cast<double>(p)) * p;
+		const long long Val = a * b - 
+			static_cast<long long>(static_cast<long double>(a) * static_cast<long double>(b)
+				/ static_cast<double>(p)) * p;
 		return (Val % p + p) % p;
 	}
 

@@ -159,7 +159,7 @@ namespace Math {
 	}
 
 	uint32_t randuint() {
-		static std::mt19937 mt_rand(time(NULL));
+		static std::mt19937 mt_rand(static_cast<unsigned int>(time(nullptr)));
 		return mt_rand();
 	}
 

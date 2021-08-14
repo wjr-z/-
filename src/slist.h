@@ -29,6 +29,10 @@ namespace Math {
 		slist_node(const Ty& Val, const iterator1& linked)
 			:Val(Val), linked(linked) {
 		}
+		slist_node(Ty&&Val,const iterator1&linked)
+			:Val(std::move(Val)),linked(linked) {
+			
+		}
 		slist_node(const slist_node& other)noexcept
 			:Val(other.Val), linked(other.linked) {
 		}
@@ -55,7 +59,7 @@ namespace Math {
 	class slist_iterator
 		: public std::iterator<std::random_access_iterator_tag, int> {
 
-		template<typename Ty>
+		template<typename _Ty>
 		friend class slist;
 
 	private:
@@ -83,7 +87,8 @@ namespace Math {
 		iterator1 GetIterator1()const noexcept {
 			//当为容器尾部时需要返回--end()
 			//其余时候返回节点指向的第一层list迭代器即可
-			return isEnd() ? --Point->List.end() : Pos2->linked;
+			if(!isEnd())return Pos2->linked;
+			return --Point->List.end();
 		}
 	public:
 		slist_iterator(slist<Ty>* Point, const iterator2& Pos2)noexcept
@@ -99,13 +104,14 @@ namespace Math {
 		}
 
 		slist_iterator(slist_iterator&& Pos)noexcept
-			:Point(std::move(Pos.Point)), Pos2(std::move(Pos.Pos2)) {
+			:Point(Pos.Point), Pos2(std::move(Pos.Pos2)) {
+			
 		}
 
 		~slist_iterator() {}
 
 		bool operator==(const slist_iterator& other)const {
-			return Pos2._Ptr == other.Pos2._ptr;
+			return Pos2._Ptr == other.Pos2._Ptr;
 		}
 
 		bool operator!=(const slist_iterator& other)const {
@@ -135,7 +141,7 @@ namespace Math {
 		}
 
 		slist_iterator& operator++() {
-			iterator1 Pos1 = GetIterator1();
+			auto Pos1 = GetIterator1();
 			++Pos2;
 			if (isEnd()) return *this;
 			if (Pos2 == Pos1->end()) {
@@ -259,7 +265,7 @@ namespace Math {
 	class slist_const_iterator
 		: public std::iterator<std::random_access_iterator_tag, int> {
 
-		template<typename Ty>
+		template<typename _Ty>
 		friend class slist;
 
 	private:
@@ -375,10 +381,10 @@ namespace Math {
 	template<typename Ty>
 	class slist {
 
-		template<typename Ty>
+		template<typename _Ty>
 		friend class slist_iterator;
 
-		template<typename Ty>
+		template<typename _Ty>
 		friend class slist_const_iterator;
 
 	public:
@@ -395,7 +401,7 @@ namespace Math {
 
 		//第一层维护块，第二层维护块内节点
 		std::list<std::list<node>>List;
-		size_t Size;
+		size_t ListSize;
 
 		//将块内节点指向的第一层迭代器统一修改
 		static void Linked(iterator2 _First, iterator2 _Last, iterator1 LinkedFa) {
@@ -412,10 +418,10 @@ namespace Math {
 		void psplit(iterator1 pos) {
 			const size_t NowSize = pos->size();
 			//对于大于sqrt(2)*Size的块进行分裂
-			if (NowSize * NowSize < 2 * Size) return;
+			if (NowSize * NowSize < 2 * ListSize) return;
 
-			//分裂成大小在sqrt(2)/2 * Size ~ sqrt(2)*Size 的块
-			const int BlockSize = std::sqrt(2 * Size) / 2 + 1;
+			//分裂成大小在sqrt(2)/2 * ListSize ~ sqrt(2)*ListSize 的块
+			const int BlockSize = std::sqrt(2 * ListSize) / 2 + 1;
 			//分裂出的块大小
 			int BloCnt = NowSize / BlockSize;
 
@@ -444,9 +450,9 @@ namespace Math {
 		void nsplit(iterator1 pos) {
 			//同上
 			const size_t NowSize = pos->size();
-			if (NowSize * NowSize < 2 * Size) return;
+			if (NowSize * NowSize < 2 * ListSize) return;
 
-			const int BlockSize = std::sqrt(2 * Size) / 2 + 1;
+			const int BlockSize = std::sqrt(2 * ListSize) / 2 + 1;
 			int BloCnt = NowSize / BlockSize;
 
 			while (BloCnt > 1) {
@@ -466,12 +472,12 @@ namespace Math {
 
 		//试图和后面的块进行合并
 		void pmerge(const iterator1& pos) {
-			//当前块和后一个块均小于sqrt(Size)/2即可合并
+			//当前块和后一个块均小于sqrt(ListSize)/2即可合并
 			iterator1 npos = pos;
 			++npos;
 			if (npos == List.end())return;
 			const size_t NowSize = pos->size(), NxtSize = npos->size();
-			if (2 * NowSize * NowSize > Size || 2 * NxtSize * NxtSize > Size)return;
+			if (2 * NowSize * NowSize > ListSize || 2 * NxtSize * NxtSize > ListSize)return;
 
 			Linked(npos->begin(), npos->end(), pos);
 			pos->splice(pos->end(), *npos);
@@ -481,12 +487,12 @@ namespace Math {
 		}
 
 		void nmerge(const iterator1& pos) {
-			//当前块和前一个块均小于sqrt(Size)/2即可合并
+			//当前块和前一个块均小于sqrt(ListSize)/2即可合并
 			iterator1 ppos = pos;
 			if (pos == List.begin())return;
 			--ppos;
 			const size_t NowSize = pos->size(), NxtSize = ppos->size();
-			if (2 * NowSize * NowSize > Size || 2 * NxtSize * NxtSize > Size)return;
+			if (2 * NowSize * NowSize > ListSize || 2 * NxtSize * NxtSize > ListSize)return;
 
 			Linked(ppos->begin(), ppos->end(), pos);
 			pos->splice(pos->end(), *ppos);
@@ -496,14 +502,22 @@ namespace Math {
 		}
 
 		void initial() {
-			Size = 0;
+			ListSize = 0;
 			List.emplace_back(std::list<node>());
 		}
 
 		void ierase(const iterator1& Pos) {
-			if (!Pos->empty() || !Size)return;
+			if (!Pos->empty() || !ListSize)return;
 			List.erase(Pos);
 		}
+
+		template<typename... _Valty>
+		void _Emplace(iterator Where, _Valty&&..._Val) {
+			auto Pos1 = GetIterator1(Where);
+			Pos1->emplace(Where.Pos2, slist_node<Ty>(std::forward<_Valty>(_Val)..., Pos1));
+			++ListSize;
+		}
+	
 	public:
 
 		slist() {
@@ -536,7 +550,7 @@ namespace Math {
 			maintain();
 		}
 
-		slist(slist&&other)noexcept : List(std::move(other.List)),Size(other.Size){
+		slist(slist&&other)noexcept : List(std::move(other.List)),ListSize(other.ListSize){
 			
 		}
 
@@ -553,16 +567,34 @@ namespace Math {
 		slist& operator= (slist&& other)noexcept {
 			if(this==&other)return *this;
 			List=std::move(other.List);
-			Size=other.Size;
+			ListSize=other.ListSize;
 			return *this;
 		}
 
-		void push_back(const Ty& val) {
-			insert(end(), val);
+		template<typename... _Valty>
+		void emplace_back(_Valty&&...val) {
+			_Emplace(end(),std::forward<_Valty>(val)...);
+		}
+
+		void push_back(Ty&&val) {
+			_Emplace(end(),std::move(val));
+		}
+
+		void push_back(const Ty&val) {
+			_Emplace(end(), val);
+		}
+
+		template<typename... _Valty>
+		void emplace_front(_Valty&&...val) {
+			_Emplace(begin(),std::forward<_Valty>(val)...);
+		}
+
+		void push_front(Ty&&val) {
+			_Emplace(begin(),std::move(val));
 		}
 
 		void push_front(const Ty& val) {
-			insert(begin(), val);
+			_Emplace(begin(), val);
 		}
 
 		void pop_back() {
@@ -573,10 +605,30 @@ namespace Math {
 			erase(begin());
 		}
 
-		void insert(iterator Pos, const Ty& Val) {
-			auto Pos1 = GetIterator1(Pos);
-			Pos1->emplace(Pos.Pos2, slist_node<Ty>(Val, Pos1));
-			++Size;
+		template<typename... _Valty>
+		void emplace(iterator Where, _Valty&&... val) {
+			_Emplace(Where,std::forward<_Valty>(val)...);
+		}
+
+		void insert(iterator Pos, Ty&& val) {
+			_Emplace(Pos, std::move(val));
+		}
+
+		void insert(iterator Pos, const Ty& val) {
+			_Emplace(Pos,val);
+		}
+
+		void insert(iterator Pos,std::initializer_list<Ty> List) {
+			for(auto i : List) {
+				insert(Pos,i);
+			}
+		}
+
+		template<typename iter>
+		void insert(iterator Pos,iter _Begin,iter _End) {
+			for(auto i = _Begin;i!=_End;++i) {
+				insert(Pos,*i);
+			}
 		}
 
 		iterator erase(iterator Pos) {
@@ -585,9 +637,17 @@ namespace Math {
 			iterator1 Pos1 = GetIterator1(Pos);
 
 			Pos1->erase(Pos.Pos2);
-			--Size;
+			--ListSize;
 			ierase(Pos1);
 			return Nxt;
+		}
+
+		iterator erase(iterator _Begin,iterator _End) {
+			auto it = _Begin;
+			while(it!=_End) {
+				it=erase(it);
+			}
+			return it;
 		}
 
 		iterator begin() {
@@ -614,23 +674,49 @@ namespace Math {
 			return *begin();
 		}
 
-		size_t size()const { return Size; }
+		size_t size()const { return ListSize; }
 
 		value_type& operator[](size_t index) {
-			if((index<<1)>Size)return *(end()-(Size-index));
+			if((index<<1)>ListSize)return *(end()-(ListSize-index));
 			return *(begin() + index);
 		}
 
+		void sort() {
+			Ty*arr=new Ty[ListSize];
+			size_t j=0;
+			for(auto i=begin();i!=end();++i) {
+				arr[j++]=*i;
+			}
+			std::sort(arr,arr+ListSize);
+			j=0;
+			for(auto i=begin();i!=end();++i) {
+				*i=arr[j++];
+			}
+			delete[]arr;
+		}
+
+		void unique() {
+			for(auto i=begin();i!=end();) {
+				auto j = i;
+				++j;
+				while(j!=end()&&*j==*i) {
+					j=erase(j);
+				}
+				i=j;
+				
+			}
+		}
+
 		void maintain() {
-			std::list<node>* Now = new std::list<node>;
-			const size_t bloSize = std::sqrt(Size);
+			auto Now = new std::list<node>;
+			const size_t bloSize = std::sqrt(ListSize);
 			size_t NowSize = 0;
-			std::list<std::list<node>>* NewList = new std::list<std::list<node>>;
+			auto NewList = new std::list<std::list<node>>;
 
-			iterator1 Pos1 = List.begin();
-			iterator2 Pos2 = Pos1->begin();
+			auto Pos1 = List.begin();
+			auto Pos2 = Pos1->begin();
 
-			for (size_t i = 0; i < Size; ++i) {
+			for (size_t i = 0; i < ListSize; ++i) {
 				Now->emplace_back(*Pos2);
 				++NowSize;
 				if (NowSize == bloSize) {
@@ -645,7 +731,7 @@ namespace Math {
 				}
 				if (++Pos2 == Pos1->end()) {
 					++Pos1;
-					if (i < Size - 1)Pos2 = Pos1->begin();
+					if (i < ListSize - 1)Pos2 = Pos1->begin();
 				}
 			}
 			if (NowSize) {

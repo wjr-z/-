@@ -15,7 +15,7 @@ extern int mode;
 
 namespace Math {
 
-	constexpr int bintjw=100000000;
+	enum{ bintjw = 100000000 };
 
 	template<typename Ty>
 	Ty abs(Ty x){return x>=0?x:-x;}

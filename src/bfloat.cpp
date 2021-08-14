@@ -116,7 +116,59 @@ namespace Math {
 		return base.is_positive();
 	}
 
+	bfloat::bfloat() :exp(0) {
 
+	}
+
+	bfloat::bfloat(const int& Val) : base(Val), exp(0) {
+		maintain();
+	}
+
+	bfloat::bfloat(const double& val) : exp(0) {
+		assign(val);
+	}
+
+	bfloat::bfloat(const char* s) : exp(0) {
+		assign(s);
+	}
+
+	bfloat::bfloat(const std::string& s) : exp(0) {
+		assign(s);
+	}
+
+	bfloat::bfloat(const bfloat& other) : base(other.base), exp(other.exp) {
+
+	}
+
+	bfloat::bfloat(const bint& a, const int& index) : base(a), exp(index) {
+
+	}
+
+	bfloat& bfloat::operator=(const int& Val) {
+		base = Val;
+		exp = 0;
+		return*this;
+	}
+
+	bfloat& bfloat::operator=(const double& val) {
+		assign(val);
+		return*this;
+	}
+	bfloat& bfloat::operator=(const char* s) {
+		assign(s);
+		return*this;
+	}
+	bfloat& bfloat::operator=(const std::string& s) {
+		assign(s);
+		return*this;
+	}
+	bfloat& bfloat::operator=(const bfloat& other) {
+		if (this == &other)return*this;
+		base = other.base;
+		exp = other.exp;
+		return*this;
+	}
+	
 	size_t bfloat::length() const {
 		return base.length();
 	}
@@ -607,5 +659,9 @@ namespace Math {
 		return qpow(EXP, _Floor) * sqrtEXP * exp(x - _Floor - 0.5);
 	}
 
+#ifdef TEST
+	void bfloat::add() { ++base; }
+	void bfloat::del() { --base; }
+#endif
 }
 

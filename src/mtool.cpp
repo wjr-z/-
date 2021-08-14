@@ -13,17 +13,23 @@ namespace Math {
 		return nowtime;
 	}
 	double timereference::testTime(const mclock::time_point& start, const mclock::time_point& end) {
-		return std::chrono::duration_cast<mmis>(end - start).count() / 1000.0;
+		return static_cast<double>(std::chrono::duration_cast<mmis>(end - start).count()) *0.001;
+	}
+
+	timereference::timereference(mclock::time_point TimePoint) :TimePoint(TimePoint) {}
+
+	double operator-(const timereference& lhs, const timereference& rhs) {
+		return timereference::testTime(rhs.TimePoint, lhs.TimePoint);
 	}
 
 	void bucketsort(uint32_t* Start, uint32_t* End) {
 		static uint32_t tong[65536];
-		const uint32_t n = End - Start;
+		const auto n = static_cast<const uint32_t>(End - Start);
 		if (n <= 500) {
 			std::sort(Start, End);
 			return;
 		}
-		uint32_t* copy = new uint32_t[n];
+		const auto copy = new uint32_t[n];
 		if (n <= 32768) {
 			for (int i = 0; i < 4; ++i) {
 				memset(tong, 0, sizeof(uint32_t) << 8);
@@ -78,8 +84,7 @@ namespace Math {
 		if (!_access(path.c_str(), 0))
 			getFiles(path, filePath);
 		struct _finddata_t fileinfo{};
-		intptr_t hFile;
-		if ((hFile = _findfirst(path.c_str(), &fileinfo)) != -1) {
+		if ((_findfirst(path.c_str(), &fileinfo)) != -1) {
 			if (!(fileinfo.attrib & _A_SUBDIR)) {
 				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0) {
 					filePath.push_back(path);
@@ -90,7 +95,7 @@ namespace Math {
 	}
 
 	std::string readFiles(const std::string&filename) {
-		std::ifstream in(filename, std::ios::binary);
+		const std::ifstream in(filename, std::ios::binary);
 		std::ostringstream tmp;
 		tmp<<in.rdbuf();
 		return tmp.str();
@@ -98,7 +103,7 @@ namespace Math {
 
 	void writeFiles(const std::string& filename, const std::string& str) {
 		std::ofstream out(filename,std::ios::binary);
-		out.write(str.c_str(),str.length());
+		out.write(str.c_str(),static_cast<std::streamsize>(str.length()));
 	}
 
 

@@ -3,6 +3,10 @@
 #include <iomanip>
 #include <iostream>
 
+#ifdef BINTDEBUG
+using std::cout;
+#endif
+
 #ifdef QUICK
 #include <unordered_map>
 #endif
@@ -446,11 +450,12 @@ namespace Math {
 	}
 
 	bint bint::divideint(const bint& A, int B) {
+		if(!B)return A;
 		bint ans;
 		size_t Size = A.size();
 		const bool tmp = !(A.positive ^ (B >= 0));
 		B = Math::abs(B);
-
+		const uint64_t mask=static_cast<uint64_t>(B)-1ull;
 		int mp = -1;
 		if (is_power_of_2(B))
 			mp = _minx(B);
@@ -479,7 +484,7 @@ namespace Math {
 				for (size_t i = Size - 1; ~i; --i) {
 					copyA = copyA * bintjw + A.at(i);
 					ans.save_at(i) = copyA >> mp;
-					copyA &= (B - 1);
+					copyA &= mask;
 				}
 				while (Size > 1 && !ans.save_at(Size - 1))
 					--Size;
@@ -1674,7 +1679,7 @@ namespace Math {
 		a.positive = (!a ? true : _positive);
 	}
 
-	void bint2::addint(bint2& a, int b, const bool positive) {
+	void bint2::addint(bint2& a, unsigned int b, const bool positive) {
 		if (b > (a.at(0) ^ maxuint)) //Òç³ö
 			a.saveadd(1);
 		a.at(0) += b;
@@ -1745,7 +1750,7 @@ namespace Math {
 			--i;
 			--j;
 		}while (i >= n);
-		int Size = ans.size();
+		size_t Size = ans.size();
 		while (Size > 1 && !ans.save_at(Size - 1))
 			--Size;
 		ans.resize(Size);
@@ -1785,13 +1790,13 @@ namespace Math {
 		return c;
 	}
 
-	void bint2::quickdel(bint2& a, const bint2& b, const bool _positive, int head) {
+	void bint2::quickdel(bint2& a, const bint2& b, const bool _positive) {
 		if (a.vec < b.vec) {
 			a = del(b, a, !_positive);
 			return;
 		}
 		const size_t m = b.size();
-		for (int i = m - 1; i >= head; --i) {
+		for (size_t i = m - 1; ~i; --i) {
 			if (a.at(i) < b.at(i))
 				a.savedel(i + 1);
 			a.save_at(i) -= b.at(i);
@@ -1807,7 +1812,7 @@ namespace Math {
 			a.positive = true;
 	}
 
-	void bint2::delint(bint2& a, int b, const bool _positive) {
+	void bint2::delint(bint2& a, unsigned int b, const bool _positive) {
 		a.positive = _positive;
 		if (a.at(0) >= b) {
 			a.at(0) -= b;
@@ -1816,8 +1821,8 @@ namespace Math {
 		a.savedel(1);
 		a.at(0) += maxuint - b + 1;
 
-		int tail = a.size();
-		while (!a.save_at(tail - 1))
+		size_t tail = a.size();
+		while (tail>1&&!a.save_at(tail - 1))
 			--tail;
 		a.resize(tail);
 		a.positive = _positive;
@@ -1975,10 +1980,10 @@ namespace Math {
 
 	void bint2::maintain() { vec.maintain(); }
 
-	void bint2::assign(const bint2& other, const int& L, const int& R) {
-		const int Size = other.size();
-		const int l = min(L, Size), r = min(R, Size);
-		resize(max(1, r - l));
+	void bint2::assign(const bint2& other, size_t L, size_t R) {
+		const size_t Size = other.size();
+		const size_t l = min(L, Size), r = min(R, Size);
+		resize(max(static_cast<size_t>(1), r - l));
 		this->save_at(0) = 0;
 		for (int i = l; i < r; ++i)
 			this->save_at(i - l) = other.at(i);
@@ -1990,8 +1995,9 @@ namespace Math {
 		bool tmp = true;
 		for (size_t i = Size - 1; ~i; --i) {
 			uint32_t HEAD;
-			if (tmp)HEAD = randull() % (other.at(i) + 1);
-			else HEAD = randuint();
+			if(tmp&&other.at(i)!=maxuint) {
+				HEAD = randuint() % (other.at(i) + 1);
+			}else HEAD = randuint();
 			if (HEAD != other.at(i))tmp = false;
 			at(i) = HEAD;
 		}
@@ -2114,9 +2120,9 @@ namespace Math {
 		(positive == f)
 			? (positive
 				   ? delint(*this, b, true)
-				   : delint(*this, b, false))
+				   : delint(*this, -b, false))
 			: (positive
-				   ? addint(*this, b, true)
+				   ? addint(*this, -b, true)
 				   : addint(*this, b, false));
 		return *this;
 	}
@@ -2443,11 +2449,11 @@ namespace Math {
 
 	bint2 randbint2(size_t n) {
 		bint2 ans(0);
-		size_t Size = (n - 1) >> 5;
+		const size_t Size = (n - 1) >> 5;
 		for (size_t i = 0; i < Size; ++i)
 			ans.at(i) = randuint();
 		for (size_t i = Size << 5; i < n - 1; ++i)
-			ans[i] = randint(0, 1);
+			ans[i] = randuint()&1;
 		ans[n - 1] = true;
 		return ans;
 	}

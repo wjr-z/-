@@ -235,14 +235,14 @@ namespace Math {
 		const size_t Length = n + m - 1;
 
 		const int* test1 = A.begin(), * test2 = B.begin();
-
+		const auto division=static_cast<uint64_t>(bintjw);
 		for (size_t i = 0, j; i < n; ++i) {
-			const uint64_t AA = static_cast<uint64_t>(test1[i]);
+			const auto AA = static_cast<uint64_t>(test1[i]);
 			for (j = 0; j < m; ++j) {
 				const uint64_t val = mid[i + j] + AA * test2[j];
 
-				mid[i + j + 1] += val / bintjw;
-				mid[i + j] = val % bintjw;
+				mid[i + j + 1] += static_cast<uint32_t>(val / division);
+				mid[i + j] = static_cast<uint32_t>(val % division);
 			}
 		}
 
@@ -266,7 +266,7 @@ namespace Math {
 		double* a = new double[s << 1];
 		const int* va = A.begin(), * vb = B.begin();
 		for (size_t i = 0; i < n; i += 8) {
-			uint32_t val = va[i >> 3];
+			auto val = static_cast<uint32_t>(va[i >> 3]);
 			for (size_t j = 0; j < 8; ++j) {
 				const uint32_t q = val % 10;
 				val /= 10;
@@ -277,7 +277,7 @@ namespace Math {
 		for (size_t i = (n << 1); i < (s << 1); ++i)
 			a[i] = 0;
 		for (size_t i = 0; i < m; i += 8) {
-			uint32_t val = vb[i >> 3];
+			auto val = static_cast<uint32_t>(vb[i >> 3]);
 			for (size_t j = 0; j < 8; ++j) {
 				const uint32_t q = val % 10;
 				val /= 10;
@@ -557,7 +557,7 @@ namespace Math {
 
 	void Array2::setbool(const size_t& index, const bool val) {
 		const size_t pos = index >> 5;
-		const int x = index & 31;
+		const int x = static_cast<int>(index & 31);
 		at(pos) ^= ((at(pos) >> x & 1) ^ val) << x;//将第index位设置为1
 	}
 

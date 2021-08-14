@@ -11,6 +11,7 @@ namespace Math {
 	class timereference;
 
 	timereference GetTime();
+	double operator-(const timereference& lhs, const timereference& rhs);
 	class timereference {
 	private:
 		typedef std::chrono::high_resolution_clock mclock;
@@ -22,10 +23,8 @@ namespace Math {
 		static mclock::time_point NowTime();
 		static double testTime(const mclock::time_point& start, const mclock::time_point& end);
 	public:
-		timereference(mclock::time_point TimePoint):TimePoint(TimePoint){}
-		friend double operator-(const timereference& lhs, const timereference& rhs) {
-			return testTime(rhs.TimePoint,lhs.TimePoint);
-		}
+		timereference(mclock::time_point TimePoint);
+		friend double operator-(const timereference& lhs, const timereference& rhs);
 	};
 
 	template<typename Fn>
@@ -120,6 +119,61 @@ namespace Math {
 		}return true;
 	}
 
+	template<typename iter1,typename iter2>
+	bool check(iter1 _LeftBegin,iter1 _LeftEnd,iter2 _RightBegin,iter2 _RightEnd) {
+		while(_LeftBegin!=_LeftEnd&&_RightBegin!=_RightEnd) {
+			if(*_LeftBegin!=*_RightBegin)return false;
+			++_LeftBegin;
+			++_RightBegin;
+		}
+		if(_LeftBegin!=_LeftEnd||_RightBegin!=_RightEnd)return false;
+		return true;
+	}
+
+	template<typename iter1, typename iter2>
+	std::string scheck(iter1 _LeftBegin, iter1 _LeftEnd, iter2 _RightBegin, iter2 _RightEnd,int ShowLimit=32) {
+		std::string ERROR;
+		int ERROR_SIZE=0;
+		bool find_error=false;
+		int pos=0;
+		int Show=0;
+		while (_LeftBegin != _LeftEnd && _RightBegin != _RightEnd) {
+			if (*_LeftBegin != *_RightBegin) {
+				if(!find_error) {
+					ERROR+="错误： 元素不等\n";
+					ERROR+="元素不等位置\n";
+				}
+				if (Show < ShowLimit) {
+					if (Show) {
+						if ((Show & 15))ERROR += " ";
+						else ERROR += '\n';
+					}
+					++Show;
+					ERROR += std::to_string(pos);
+
+				}
+				find_error = true, ++ERROR_SIZE;
+			}
+			++_LeftBegin;
+			++_RightBegin;
+			++pos;
+		}
+		if (find_error) {
+			if(ERROR_SIZE>Show) {
+				ERROR+="\n共有"+std::to_string(ERROR_SIZE)+"处错误，"+
+					"已列举出前"+std::to_string(Show)+"处不等位置";
+			}
+			ERROR += '\n';
+		}
+		if (_LeftBegin != _LeftEnd || _RightBegin != _RightEnd) {
+			if(!find_error)ERROR+="错误：";
+			ERROR += "长度不等";
+		}
+		if(ERROR.empty())return "正确";
+		
+		return ERROR;
+	}
+
 	template<typename Ty>
 	bool check(const Ty&head,const Ty&nxt) {
 		return head==nxt;
@@ -166,6 +220,7 @@ namespace Math {
 		for(auto it=rev.begin(),End=rev.end();it!=End;++it)
 			copyrev[i++]=*it;
 		qswap(Start,End,copyrev);
+		delete copyrev;
 	}
 
 	//暂且只支持数值排序

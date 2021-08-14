@@ -153,14 +153,14 @@ namespace lz77 {
 
 	void writebuf(std::string& str, uint32_t& buf, uint32_t& bufsize) {
 		while (bufsize >= 8) {
-			str.push_back(buf >> (bufsize - 8));
+			str.push_back(static_cast<char>(buf >> (bufsize - 8)));
 			bufsize -= 8;
 		}
 	}
 
 	void writebuf(uint8_t*& op, uint32_t& buf, uint32_t& bufsize) {
 		while (bufsize >= 8) {
-			*(op++) = buf >> (bufsize - 8);
+			*(op++) = static_cast<uint8_t>(buf >> (bufsize - 8));
 			bufsize -= 8;
 		}
 	}
@@ -176,15 +176,14 @@ namespace lz77 {
 		for (uint32_t i = 2; i < (1 << 16); ++i)
 			lz77log2[i] = lz77log2[i >> 1] + 1;
 	}
-	uint8_t quicklog2(uint32_t x){
+	uint32_t quicklog2(uint32_t x){
 		if ((x < (1 << 16)))
 			return lz77log2[x];
-		else
-			return lz77log2[x >> 16] + 16;
+		return lz77log2[x >> 16] + 16;
 	}
 
 	void writegamma(uint8_t*& op, uint32_t& buf, uint32_t& bufsize, uint32_t val) {
-		uint8_t log2val = quicklog2(val);
+		uint32_t log2val = quicklog2(val);
 		buf = buf << (log2val + 1) | (((1 << log2val) - 1) << 1);
 		bufsize += log2val + 1;
 		writebuf(op, buf, bufsize);
@@ -193,14 +192,14 @@ namespace lz77 {
 		writebuf(op, buf, bufsize);
 	}
 	void writedelta(uint8_t*& op, uint32_t& buf, uint32_t& bufsize, uint32_t val) {
-		uint8_t log2val = quicklog2(val);
+		uint32_t log2val = quicklog2(val);
 		writegamma(op, buf, bufsize, log2val + 1);
 		buf = buf << log2val | (val - (1 << log2val));
 		bufsize += log2val;
 		writebuf(op, buf, bufsize);
 	}
 	void writegamma(std::string& op, uint32_t& buf, uint32_t& bufsize, uint32_t val) {
-		uint8_t log2val = quicklog2(val);
+		uint32_t log2val = quicklog2(val);
 		buf = buf << (log2val + 1) | (((1 << log2val) - 1) << 1);
 		bufsize += log2val + 1;
 		writebuf(op, buf, bufsize);
@@ -209,29 +208,30 @@ namespace lz77 {
 		writebuf(op, buf, bufsize);
 	}
 	void writedelta(std::string& op, uint32_t& buf, uint32_t& bufsize, uint32_t val) {
-		uint8_t log2val = quicklog2(val);
+		uint32_t log2val = quicklog2(val);
 		writegamma(op, buf, bufsize, log2val + 1);
 		buf = buf << log2val | (val - (1 << log2val));
 		bufsize += log2val;
 		writebuf(op, buf, bufsize);
 	}
 
-	uint32_t getbit(const uint8_t*& ql, uint8_t& bit, uint8_t& bitsize, uint32_t& i) {
-		if (!bitsize)
+	bool getbit(const uint8_t*& ql, uint8_t& bit, uint8_t& bitsize, uint32_t& i) {
+		if (!bitsize) {
 			bit = *(ql++), bitsize = 8;
+		}
 		--bitsize;
 		++i;
-		return (bit >> bitsize) & 1;
+		return (bit >> bitsize) & 1u;
 	}
 	uint8_t getbyte(const uint8_t*& ql, uint8_t& bit, uint8_t& bitsize, uint32_t& i) {
 		if (!bitsize)bit = *(ql++), bitsize = 8;
-		uint8_t val = (bit << (8 - bitsize));
+		auto val = static_cast<uint8_t>(bit << (8u - bitsize));
 		bit = *(ql++);
 		val |= (bit >> bitsize);
 		i += 8;
 		return val;
 	}
-	uint32_t getkbit(const uint8_t*& ql, uint8_t k, uint8_t& bit, uint8_t& bitsize, uint32_t& i) {
+	uint32_t getkbit(const uint8_t*& ql, uint32_t k, uint8_t& bit, uint8_t& bitsize, uint32_t& i) {
 		uint32_t val = 0;
 		if (k >= 8) {
 			while (k >= 8) {
@@ -240,31 +240,31 @@ namespace lz77 {
 			}
 		}
 		while (k) {
-			val = val << 1 | getbit(ql, bit, bitsize, i);
+			val = val << 1 | static_cast<uint32_t>(getbit(ql, bit, bitsize, i));
 			--k;
 		}
 		return val;
 	}
 
 	uint32_t readgamma(const uint8_t*& ql, uint8_t& bit, uint8_t& bitsize, uint32_t& i) {
-		uint8_t logmatch = 0;
+		uint32_t logmatch = 0;
 		while (getbit(ql, bit, bitsize, i))++logmatch;
-		return getkbit(ql, logmatch, bit, bitsize, i) + (1 << logmatch);
+		return getkbit(ql, logmatch, bit, bitsize, i) + (1u << logmatch);
 	}
 	uint32_t readdelta(const uint8_t*& ql, uint8_t& bit, uint8_t& bitsize, uint32_t& i) {
-		uint8_t logmatch = readgamma(ql, bit, bitsize, i);
+		uint32_t logmatch = readgamma(ql, bit, bitsize, i);
 		return getkbit(ql, logmatch, bit, bitsize, i) + (1 << logmatch);
 	}
 
 	std::string compress(const std::string& arr) {
-		uint32_t Length = arr.length();
+		const auto Length = static_cast<uint32_t>(arr.length());
 
 		if(Length>=3&&arr.substr(0,3)=="wjr")return arr;
 
 		std::string str;
 		str.append("wjr");
 
-		const uint8_t* ql = (const uint8_t*)arr.c_str();
+		const uint8_t* ql = (uint8_t*)arr.c_str();
 
 		uint32_t buf = 0;
 		uint32_t bufsize = 0;
@@ -337,11 +337,11 @@ namespace lz77 {
 
 	int compress(const void* input, int length, void* output) {
 
-		uint32_t Length = length;
+		const auto Length = static_cast<uint32_t>(length);
 
-		const uint8_t* ql = (const uint8_t*)input;
+		const auto* ql = static_cast<const uint8_t*>(input);
 
-		uint8_t* op = (uint8_t*)output;
+		auto op = static_cast<uint8_t*>(output);
 		//uint8_t*op_limit=op+length;
 		*(op++) = 'w';
 		*(op++) = 'j';
@@ -362,7 +362,7 @@ namespace lz77 {
 
 			j = i;
 			match_length = 0;
-			while (j < Length && !(match = longestmatch(ql, j, Length, offset))) {
+			while (j < Length && !((match = longestmatch(ql, j, Length, offset)))) {
 				lz77_push(ql, j);
 				++j;
 				++match_length;
@@ -414,14 +414,13 @@ namespace lz77 {
 			pop_List(ql, i);
 	#endif
 
-		return op - (uint8_t*)output;
+		return static_cast<int>(op - static_cast<uint8_t*>(output));
 	}
 
 	std::string decompress(const std::string& arr) {
 		std::string str;
-		uint32_t Length;
-		Length = arr.length();
-		const uint8_t* ql = (const uint8_t*)arr.c_str();
+		uint32_t Length = static_cast<uint32_t>(arr.length());
+		const uint8_t* ql = (uint8_t*)arr.c_str();
 		if (Length<3||arr.substr(0,3)!="wjr")return arr;
 		ql += 3;
 
@@ -437,14 +436,14 @@ namespace lz77 {
 			switch (match) {
 			case 1: {
 				if (i + 7 >= bufLength)break;
-				str.push_back(getbyte(ql, bit, bitsize, i));
+				str.push_back(static_cast<char>(getbyte(ql, bit, bitsize, i)));
 				++head;
 				break;
 			}
 			case 8: {
 				match = readgamma(ql, bit, bitsize, i) + MATCH_LIMIT;
 				for (uint32_t j = 0; j < match; ++j) {
-					str.push_back(getbyte(ql, bit, bitsize, i));
+					str.push_back(static_cast<char>(getbyte(ql, bit, bitsize, i)));
 					++head;
 				}
 				break;
@@ -454,7 +453,8 @@ namespace lz77 {
 				offset = getkbit(ql, WINDOW_SIZE_BIT, bit, bitsize, i) + 1;
 
 				for (uint32_t j = 0; j < match; ++j) {
-					str.push_back(str[head - offset]), ++head;
+					str.push_back(str[head - offset]);
+					++head;
 				}
 				break;
 			}
@@ -465,15 +465,15 @@ namespace lz77 {
 	int decompress(const void* input, int length, void* output) {
 		if(!length||input==nullptr)return 0;
 
-		uint32_t Length = length;
+		const auto Length = static_cast<uint32_t>(length);
 
-		const uint8_t* ql = (const uint8_t*)input;
+		const auto* ql = static_cast<const uint8_t*>(input);
 
 		if (length<3||(*(ql++) != (uint8_t)'w' || (*ql++) != (uint8_t)'j' || (*ql++) != (uint8_t)'r')) {
-			memcpy(output, input, length);
+			memcpy(output, input, static_cast<size_t>(Length));
 			return length;
 		}
-		uint8_t* op = (uint8_t*)output;
+		auto op = static_cast<uint8_t*>(output);
 
 		uint32_t bufLength = Length << 3;
 		bufLength -= 24;
@@ -505,7 +505,7 @@ namespace lz77 {
 			}
 			}
 		}
-		return op - (uint8_t*)output;
+		return static_cast<int>(op - static_cast<uint8_t*>(output));
 	}
 }
 

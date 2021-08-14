@@ -161,7 +161,7 @@ namespace Math {
 	chunk_alloc(const size_t& size, int& nobjs) {
 		char* result;
 		size_t total_bytes = size * nobjs;
-		const size_t bytes_left = end_free - start_free;
+		const auto bytes_left = static_cast<size_t>(end_free - start_free);
 
 		if (bytes_left >= total_bytes) {
 			result = start_free;
@@ -169,7 +169,7 @@ namespace Math {
 			return (result);
 		}
 		if (bytes_left >= size) {
-			nobjs = bytes_left / size;
+			nobjs = static_cast<int>(bytes_left / size);
 			total_bytes = size * nobjs;
 			result = start_free;
 			start_free += total_bytes;
@@ -192,7 +192,7 @@ namespace Math {
 			//Try to make do with what we have. That can't
 			//hurt. We do not try smaller requests, since that tends
 			//to result in disaster on multi-process machines.
-			for (int i = size; i <= __MAX_BYTES; i += __ALIGN) {
+			for (int i = static_cast<int>(size); i <= __MAX_BYTES; i += __ALIGN) {
 				my_free_list = free_list + FREELIST_INDEX(i);
 				p = *my_free_list;
 				if (0 != p) {
@@ -266,6 +266,11 @@ namespace Math {
 
 	template <typename _Ty>
 	class Allocator {
+	private:
+		static const size_t& getSize() {
+			static const size_t TySize = sizeof(_Ty);
+			return TySize;
+		}
 	public:
 		typedef _Ty value_type;
 		typedef _Ty* pointer;
@@ -275,18 +280,12 @@ namespace Math {
 		typedef size_t size_type;
 		typedef ptrdiff_t difference_type;
 
-		static const size_t& getSize() {
-			static const size_t TySize = sizeof(_Ty);
-			return TySize;
-		}
-
-	public:
 		[[nodiscard]] static _Ty* allocate() {
 			return static_cast<_Ty*>(alloc::allocate(getSize()));
 		}
 
 		[[nodiscard]] static _Ty* allocate(const size_t& n) {
-			if (n == 0) return 0;
+			if (n == 0) return nullptr;
 			return static_cast<_Ty*>(alloc::allocate(getSize() * n));
 		}
 
