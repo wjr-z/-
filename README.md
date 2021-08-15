@@ -155,7 +155,7 @@ void printAll(Ty inSTL);//每行输出一个STL内的元素
 
 实现有iterator迭代器
 
-与list用法相似，部分还未实现
+与list用法相似，部分功能尚未实现
 
 与list不同的是可以快速访问所有位置，均摊O(sqrt(n))
 

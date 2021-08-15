@@ -7,64 +7,18 @@
 using namespace Math;
 using namespace std;
 
-int n=1e6;
-
-const int N=1e6+10;
-int aa[N],bb[N];
-
-void imerge(int*_Begin,int*_Mid,int*_End,int*val) {
-	int*Val=val;
-	auto _Left=_Begin;
-	auto _Right=_Mid;
-	while(_Left!=_Mid&&_Right!=_End) {
-		if(*_Left<*_Right)
-			*Val=*_Left,++_Left;
-		else *Val=*_Right,++_Right;
-		++Val;
-	}
-	while(_Left!=_Mid)
-		*Val=*_Left,++_Left,++Val;
-	while(_Right!=_End)
-		*Val=*_Right,++_Right,++Val;
-	Val=val;
-	_Left=_Begin;
-	_Right=_Mid;
-	while(_Left!=_Mid)
-		*_Left=*Val,++_Left,++Val;
-	while(_Right!=_End)
-		*_Right=*Val,++_Right,++Val;
-}
-int*msort(int*_Begin,int size,int*val) {
-	switch (size) {
-	case 0:return _Begin;
-	case 1:return _Begin+1;
-	default:break;
-	}
-	int *_Mid=msort(_Begin,size/2,val);
-	int *_End=msort(_Mid,size-size/2,val);
-	imerge(_Begin,_Mid,_End,val);
-	return _End;
-}
-void isort(int*_Begin,int*_End) {
-	int*val=new int[_End-_Begin];
-	msort(_Begin,_End-_Begin,val);
-	delete[]val;
-}
-
 int main() {
 
 	ios::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
 	
-	return 0;
-	
 	bint a, b, c;
 	a = qpow(bint(1234), 56);
 
 	cout << qtime(
 		[&a,&c]() {
-			for (int i = 0; i < 1000000; ++i)
+			for (int i = 0; i < 1000000; ++i) 
 				c = a * a;
 		}
 	) << endl;

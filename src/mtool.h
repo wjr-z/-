@@ -102,7 +102,7 @@ namespace Math {
 
 	//º¯Êýµ÷ÓÃÊ÷
 	template<typename Fn, typename... Args>
-	void crun(Fn fx, Args... List) {
+	void crun(Fn fx, Args&&... List) {
 		fx(std::forward<Args>(List)...);
 		for (auto i : con<Fn>::head[fx])
 			crun(i, std::forward<Args>(List)...);
@@ -179,7 +179,7 @@ namespace Math {
 		return head==nxt;
 	}
 	template<typename Ty,typename... Args>
-	bool check(const Ty&head,const Ty&nxt,Args ...toBeTest) {
+	bool check(const Ty&head,const Ty&nxt,Args...toBeTest) {
 		if(head!=nxt)return false;
 		return check(nxt,toBeTest...);
 	}

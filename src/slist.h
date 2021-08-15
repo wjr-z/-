@@ -141,9 +141,9 @@ namespace Math {
 		}
 
 		slist_iterator& operator++() {
-			auto Pos1 = GetIterator1();
 			++Pos2;
-			if (isEnd()) return *this;
+			if(isEnd())return *this;
+			auto Pos1=Pos2->linked;
 			if (Pos2 == Pos1->end()) {
 				//到达当前块的尾部+1位置，应该跳到下一块
 				Pos2 = (++Pos1)->begin();
@@ -681,29 +681,30 @@ namespace Math {
 			return *(begin() + index);
 		}
 
+		bool empty()const {
+			return ListSize==0;
+		}
+
 		void sort() {
 			Ty*arr=new Ty[ListSize];
 			size_t j=0;
-			for(auto i=begin();i!=end();++i) {
-				arr[j++]=*i;
-			}
+			for(auto it=begin();it!=end();++it) 
+				arr[j++]=std::move(*it);
 			std::sort(arr,arr+ListSize);
 			j=0;
-			for(auto i=begin();i!=end();++i) {
-				*i=arr[j++];
-			}
+			for(auto it=begin();it!=end();++it) 
+				*it=std::move(arr[j++]);
 			delete[]arr;
 		}
 
 		void unique() {
-			for(auto i=begin();i!=end();) {
-				auto j = i;
-				++j;
-				while(j!=end()&&*j==*i) {
-					j=erase(j);
+			for(auto it=begin();it!=end();) {
+				auto Nxt = it;
+				++Nxt;
+				while(Nxt!=end()&&*Nxt==*it) {
+					Nxt=erase(Nxt);
 				}
-				i=j;
-				
+				it=Nxt;
 			}
 		}
 
