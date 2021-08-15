@@ -708,6 +708,52 @@ namespace Math {
 			}
 		}
 
+		iterator lower_bound(const Ty&Val) {
+			iterator1 Pos1=List.begin();
+			while(Pos1!=List.end()) {
+				psplit(Pos1);
+				pmerge(Pos1);
+				iterator2 Pos2=Pos1->end();
+				--Pos2;
+				if(Pos2->Val>=Val) {
+					while(Pos2!=Pos1->begin()) {
+						--Pos2;
+						if(Pos2->Val<Val) {
+							++Pos2;
+							break;
+						}
+					}
+					return iterator(this,Pos2);
+				}
+				++Pos1;
+			}
+			
+			return end();
+		}
+
+		iterator upper_bound(const Ty& Val) {
+			iterator1 Pos1 = List.begin();
+			while (Pos1 != List.end()) {
+				psplit(Pos1);
+				pmerge(Pos1);
+				iterator2 Pos2 = Pos1->end();
+				--Pos2;
+				if (Pos2->Val > Val) {
+					while (Pos2 != Pos1->begin()) {
+						--Pos2;
+						if (Pos2->Val <= Val) {
+							++Pos2;
+							break;
+						}
+					}
+					return iterator(this, Pos2);
+				}
+				++Pos1;
+			}
+
+			return end();
+		}
+
 		void maintain() {
 			auto Now = new std::list<node>;
 			const size_t bloSize = std::sqrt(ListSize);
