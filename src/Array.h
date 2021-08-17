@@ -9,6 +9,12 @@
 #include "Allocator.h"
 #include "math_func.h"
 
+#define USE_ALLOCATOR
+
+#if defined(_ITERATOR_DEBUG_LEVEL) && _ITERATOR_DEBUG_LEVEL!=0
+#undef USE_ALLOCATOR
+#endif
+
 namespace Math {
 	using std::vector;
 
@@ -39,12 +45,6 @@ namespace Math {
 	/*---Array类---*/
 	/*---使用vector---*/
 
-#define USE_ALLOCATOR
-	
-#if defined(_ITERATOR_DEBUG_LEVEL) && _ITERATOR_DEBUG_LEVEL!=0
-#undef USE_ALLOCATOR
-#endif
-
 	class reference;
 	class Array_func;
 
@@ -52,14 +52,12 @@ namespace Math {
 		friend reference;
 		friend Array_func;
 	private:
-	#ifndef USE_ALLOCATOR //DEBUG版本
-		vector<int>vec;
-	#endif
 	#ifdef USE_ALLOCATOR
 		vector<int, Allocator<int>>vec;
+	#else
+		vector<int>vec;
 	#endif
-		size_t Size;
-		void setv(const size_t& index, const int& val);
+		void set_val(const size_t& index, const int& val);
 		int atv(const size_t& index)const;
 	public:
 		Array(const size_t& index = 1)noexcept;
@@ -73,7 +71,7 @@ namespace Math {
 		int* begin();
 		int* end();
 		bool is_zero()const;
-		const size_t& size() const;
+		size_t size() const;
 		size_t capacity()const;
 		size_t length()const;
 		void resize(const size_t& index);

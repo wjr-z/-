@@ -1,54 +1,31 @@
-﻿#include <bits/stdc++.h>
+﻿
+#include <bits/stdc++.h>
 #include "src/bint.h"
 #include "src/mtool.h"
-
-#include "src/slist.h"
+#include "src/PollardRho.h"
 
 using namespace Math;
 using namespace std;
 
-#define pri(x) (#x)
-#include <map>
+
 int main() {
 
 	ios::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
 
-	slist<int>wjr;
 
-	set<int>wjr2;
-
-	int n=100000;
-	for (int i = 0; i < n; ++i) {
-		auto g=randuint();
-		wjr.push_back(g);
-		wjr2.insert(g);
+	while(true) {
+		bint x;
+		x=randbint(30);
+		
+		cout<<x<<endl;
+		auto G=qtime([&x](){pollard_rho(x);});
+		cout<<G<<endl;
 	}
 
-	wjr.sort();
-	wjr.maintain();
-
-	cout<<qtime(
-		[&wjr]() {
-			int cnt=0;
-			for(int i=0;i<1000;++i)
-				cnt+=*wjr.lower_bound(randuint());
-			cout<<cnt<<endl;
-		}
-	)<<endl;
-
-	cout << qtime(
-		[&wjr2]() {
-			int cnt = 0;
-			for (int i = 0; i < 1000; ++i)
-				cnt += *wjr2.lower_bound(randuint());
-			cout << cnt << endl;
-		}
-	) << endl;
-	
 	return 0;
-	
+
 	bint a, b, c;
 	
 	a = qpow(bint(1234), 56);

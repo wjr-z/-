@@ -1,7 +1,8 @@
-#include <io.h>
-#include <fstream>
-#include <sstream>
 #include "mtool.h"
+
+#include <fstream>
+#include <io.h>
+#include <sstream>
 
 namespace Math {
 

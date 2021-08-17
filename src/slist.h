@@ -59,7 +59,7 @@ namespace Math {
 	class slist_iterator
 		: public std::iterator<std::random_access_iterator_tag, int> {
 
-		template<typename _Ty>
+		template<typename Aty>
 		friend class slist;
 
 	private:
@@ -265,7 +265,7 @@ namespace Math {
 	class slist_const_iterator
 		: public std::iterator<std::random_access_iterator_tag, int> {
 
-		template<typename _Ty>
+		template<typename Aty>
 		friend class slist;
 
 	private:
@@ -381,10 +381,10 @@ namespace Math {
 	template<typename Ty>
 	class slist {
 
-		template<typename _Ty>
+		template<typename Aty>
 		friend class slist_iterator;
 
-		template<typename _Ty>
+		template<typename Aty>
 		friend class slist_const_iterator;
 
 	public:
@@ -511,10 +511,10 @@ namespace Math {
 			List.erase(Pos);
 		}
 
-		template<typename... _Valty>
-		void _Emplace(iterator Where, _Valty&&..._Val) {
+		template<typename... Valty>
+		void _Emplace(iterator Where, Valty&&...val) {
 			auto Pos1 = GetIterator1(Where);
-			Pos1->emplace(Where.Pos2, slist_node<Ty>(std::forward<_Valty>(_Val)..., Pos1));
+			Pos1->emplace(Where.Pos2, slist_node<Ty>(std::forward<Valty>(val)..., Pos1));
 			++ListSize;
 		}
 	
@@ -571,9 +571,9 @@ namespace Math {
 			return *this;
 		}
 
-		template<typename... _Valty>
-		void emplace_back(_Valty&&...val) {
-			_Emplace(end(),std::forward<_Valty>(val)...);
+		template<typename... Valty>
+		void emplace_back(Valty&&...val) {
+			_Emplace(end(),std::forward<Valty>(val)...);
 		}
 
 		void push_back(Ty&&val) {
@@ -584,9 +584,9 @@ namespace Math {
 			_Emplace(end(), val);
 		}
 
-		template<typename... _Valty>
-		void emplace_front(_Valty&&...val) {
-			_Emplace(begin(),std::forward<_Valty>(val)...);
+		template<typename... Valty>
+		void emplace_front(Valty&&...val) {
+			_Emplace(begin(),std::forward<Valty>(val)...);
 		}
 
 		void push_front(Ty&&val) {
@@ -605,9 +605,9 @@ namespace Math {
 			erase(begin());
 		}
 
-		template<typename... _Valty>
-		void emplace(iterator Where, _Valty&&... val) {
-			_Emplace(Where,std::forward<_Valty>(val)...);
+		template<typename... Valty>
+		void emplace(iterator Where, Valty&&... val) {
+			_Emplace(Where,std::forward<Valty>(val)...);
 		}
 
 		void insert(iterator Pos, Ty&& val) {
@@ -810,8 +810,7 @@ namespace Math {
 			}
 			printf("\n");
 		}
-
-
+		
 	};
 
 }

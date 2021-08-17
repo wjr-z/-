@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <chrono>
 #include <map>
+#include <string>
+
 #include "bint.h"
 
 namespace Math {
@@ -74,17 +76,7 @@ namespace Math {
 	}
 
 	template<typename Fn>
-	void connect(Fn fx1, Fn fx2);
-
-	template<typename Fn, typename... Args>
-	void crun(Fn fx, Args... List);
-
-	template<typename Fn>
 	class con {
-		template<typename Fn>
-		friend void connect(Fn fx1, Fn fx2);
-		template<typename Fn, typename... Args>
-		friend void crun(Fn fx, Args... List);
 	public:
 		static std::map<Fn, std::vector<Fn>>head;
 		static void connect(Fn fx1, Fn fx2) {
@@ -120,25 +112,25 @@ namespace Math {
 	}
 
 	template<typename iter1,typename iter2>
-	bool check(iter1 _LeftBegin,iter1 _LeftEnd,iter2 _RightBegin,iter2 _RightEnd) {
-		while(_LeftBegin!=_LeftEnd&&_RightBegin!=_RightEnd) {
-			if(*_LeftBegin!=*_RightBegin)return false;
-			++_LeftBegin;
-			++_RightBegin;
+	bool check(iter1 left_begin,iter1 left_end,iter2 right_begin,iter2 right_end) {
+		while(left_begin!=left_end&&right_begin!=right_end) {
+			if(*left_begin!=*right_begin)return false;
+			++left_begin;
+			++right_begin;
 		}
-		if(_LeftBegin!=_LeftEnd||_RightBegin!=_RightEnd)return false;
+		if(left_begin!=left_end||right_begin!=right_end)return false;
 		return true;
 	}
 
 	template<typename iter1, typename iter2>
-	std::string scheck(iter1 _LeftBegin, iter1 _LeftEnd, iter2 _RightBegin, iter2 _RightEnd,int ShowLimit=32) {
+	std::string scheck(iter1 left_begin, iter1 left_end, iter2 right_begin, iter2 right_end,int ShowLimit=32) {
 		std::string ERROR;
 		int ERROR_SIZE=0;
 		bool find_error=false;
 		int pos=0;
 		int Show=0;
-		while (_LeftBegin != _LeftEnd && _RightBegin != _RightEnd) {
-			if (*_LeftBegin != *_RightBegin) {
+		while (left_begin != left_end && right_begin != right_end) {
+			if (*left_begin != *right_begin) {
 				if(!find_error) {
 					ERROR+="错误： 元素不等\n";
 					ERROR+="元素不等位置\n";
@@ -154,8 +146,8 @@ namespace Math {
 				}
 				find_error = true, ++ERROR_SIZE;
 			}
-			++_LeftBegin;
-			++_RightBegin;
+			++left_begin;
+			++right_begin;
 			++pos;
 		}
 		if (find_error) {
@@ -165,7 +157,7 @@ namespace Math {
 			}
 			ERROR += '\n';
 		}
-		if (_LeftBegin != _LeftEnd || _RightBegin != _RightEnd) {
+		if (left_begin != left_end || right_begin != right_end) {
 			if(!find_error)ERROR+="错误：";
 			ERROR += "长度不等";
 		}
@@ -217,7 +209,7 @@ namespace Math {
 		int n = rev.size();
 		if(n!=End-Start)return ;
 		int*copyrev=new int[n],i=0;
-		for(auto it=rev.begin(),End=rev.end();it!=End;++it)
+		for(auto it=rev.begin(),end=rev.end();it!=end;++it)
 			copyrev[i++]=*it;
 		qswap(Start,End,copyrev);
 		delete copyrev;

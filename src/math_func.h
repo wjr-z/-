@@ -34,25 +34,58 @@ namespace Math {
 	static const uint32_t maxuint = static_cast<uint32_t>(-1);//最大的unsigned int
 	static const uint64_t maxull  = static_cast<uint64_t>(-1);
 
-	uint32_t quicklog2(uint32_t x);
-	uint32_t quicklog2(int x);
-	uint32_t quicklog2(uint64_t x);
-	uint32_t quicklog2(long long x);
+	uint32_t qlog2(uint32_t x);
+	uint32_t qlog2(int x);
+	uint32_t qlog2(uint64_t x);
+	uint32_t qlog2(long long x);
 
-	uint32_t quicklog10(uint32_t x);
-	uint32_t quicklog10(int x);
-	uint32_t quicklog10(uint64_t x);
-	uint32_t quicklog10(long long x);
+	uint32_t qlog10(uint32_t x);
+	uint32_t qlog10(int x);
+	uint32_t qlog10(uint64_t x);
+	uint32_t qlog10(long long x);
 
-	int findnumber1(uint32_t);
-	int findnumber1(int);
-	int findnumber1(uint64_t);
-	int findnumber1(long long);
+	template<typename Ty>
+	unsigned int findNumber(Ty n) {
+	#ifdef QUICK
+		static const char* const bitsperbyte
+			= "\0\1\1\2\1\2\2\3\1\2\2\3\2\3\3\4"
+			"\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
+			"\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
+			"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+			"\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
+			"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+			"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+			"\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
+			"\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
+			"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+			"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+			"\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
+			"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+			"\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
+			"\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
+			"\4\5\5\6\5\6\6\7\5\6\6\7\6\7\7\x8";
+		return bitsperbyte[n & 255] +
+			bitsperbyte[(n >> 8) & 255] +
+			bitsperbyte[(n >> 16) & 255] +
+			bitsperbyte[n >> 24];
+	#else
+		n = (n & 0x55555555) + ((n >> 1) & 0x55555555);
+		n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
+		n = (n & 0x0f0f0f0f) + ((n >> 4) & 0x0f0f0f0f);
+		n = (n & 0x00ff00ff) + ((n >> 8) & 0x00ff00ff);
+		n = (n & 0x0000ffff) + ((n >> 16) & 0x0000ffff);
+		return n;
+	#endif
+	}
 
-	int lowbit(int x);
-	long long lowbit(long long x);
+	template<typename Ty>
+	constexpr Ty lowbit(Ty x){return x&-x;}
+	
 	int _minx(uint32_t x);//最小的1所在位置
-	bool is_power_of_2(uint32_t x);
+	template<typename Ty>
+	constexpr bool isPowTwo(Ty x) {
+		return (x!=0)&&!(x&(x-1));
+	}
 
 	template<typename Ty>
 	Ty sqr(const Ty& val) { return val * val; }
@@ -61,10 +94,12 @@ namespace Math {
 
 	bool isrightint(const char*);
 	bool isrightdouble(const char*);
+	
 	uint32_t randuint();
 	int randint(int, int);
 	uint64_t randull();
 	long long randll(long long,long long );
+	
 	int gcd(int, int);
 	long long gcd(long long, long long);
 

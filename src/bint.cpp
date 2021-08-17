@@ -444,7 +444,7 @@ namespace Math {
 		if (A.vec < B.vec)return bint();
 		const size_t n = A.size(), m = B.size();
 		if (m == 1)return divideint(A, B.at(0) * (B.positive ? 1 : -1)); //低精度除法
-		if (m <= ((static_cast<uint64_t>(quicklog2(n)) + 16) << 1)) return knuthdivide(A, B); //m比较小直接用O(m*(n-m))算法
+		if (m <= ((static_cast<uint64_t>(qlog2(n)) + 16) << 1)) return knuthdivide(A, B); //m比较小直接用O(m*(n-m))算法
 		if (m * 5 >= 3 * n)return largedivide(A, B);
 		return smalldivide(A, B);
 	}
@@ -457,7 +457,7 @@ namespace Math {
 		B = Math::abs(B);
 		const uint64_t mask=static_cast<uint64_t>(B)-1ull;
 		int mp = -1;
-		if (is_power_of_2(B))
+		if (isPowTwo(B))
 			mp = _minx(B);
 		if (~mp) {
 			switch (Size) {
@@ -648,7 +648,7 @@ namespace Math {
 		}
 
 		int mp = -1;
-		if (is_power_of_2(static_cast<uint32_t>(copyb)))
+		if (isPowTwo(static_cast<uint32_t>(copyb)))
 			mp = _minx(static_cast<uint32_t>(copyb));
 
 		uint64_t Val = 0;
@@ -940,8 +940,7 @@ namespace Math {
 		bool tmp = true;
 		for (size_t i = Size - 1; ~i; --i) {
 			int HEAD;
-			if (tmp)
-				HEAD = randint(0, other.at(i));
+			if (tmp)HEAD = randint(0, other.at(i));
 			else HEAD = randint(0, bintjw - 1);
 			if (HEAD != other.at(i))tmp = false;
 			at(i) = HEAD;
@@ -972,11 +971,11 @@ namespace Math {
 
 	bool operator<(const bint& lhs, int rhs) {
 		if (lhs.positive != (rhs >= 0))return !lhs.positive;
-		bool tmp = !lhs.positive;
+		const bool tmp = !lhs.positive;
 		rhs = abs(rhs);
 		switch (lhs.size()) {
 		case 1: return (lhs.at(0) < rhs) ^ tmp;
-		case 2: return (lhs.at(1) <= 100 && lhs.at(0) + lhs.at(1) * bintjw < rhs) ^ tmp;
+		case 2: return (lhs.at(1)<=100&&lhs.at(0) + lhs.at(1) *1ll* bintjw < rhs) ^ tmp;
 		default: return tmp;
 		}
 	}
@@ -996,7 +995,7 @@ namespace Math {
 		case 1:
 			return lhs.at(0) == rhs;
 		case 2:
-			return (lhs.at(1) < 100) && (lhs.at(0) + lhs.at(1) * bintjw) == rhs;
+			return lhs.at(1)<=100&&(lhs.at(0) + lhs.at(1) *1ll* bintjw) == rhs;
 		default:
 			return false;
 		}
@@ -1012,11 +1011,11 @@ namespace Math {
 
 	bool operator<=(const bint& lhs, int rhs) {
 		if (lhs.positive != (rhs >= 0))return !lhs.positive;
-		bool tmp = !lhs.positive;
+		const bool tmp = !lhs.positive;
 		rhs = abs(rhs);
 		switch (lhs.size()) {
 		case 1: return (lhs.at(0) <= rhs) ^ tmp;
-		case 2: return (lhs.at(1) <= 100 && (lhs.at(0) + lhs.at(1) * bintjw) <= rhs) ^ tmp;
+		case 2: return (lhs.at(1)<=100 &&(lhs.at(0) + lhs.at(1) *1ll* bintjw) <= rhs) ^ tmp;
 		default: return tmp;
 		}
 	}
@@ -1058,7 +1057,7 @@ namespace Math {
 	}
 
 	bint& bint::operator+=(const int& b) {
-		bool f = b >= 0;
+		const bool f = b >= 0;
 		(positive == f)
 			? addint(*this, Math::abs(b))
 			: delint(*this, Math::abs(b));
@@ -1069,6 +1068,7 @@ namespace Math {
 		(positive == b.positive)
 			? quickdel(*this, b)
 			: quickadd(*this, b);
+		
 		return *this;
 	}
 
@@ -1101,18 +1101,18 @@ namespace Math {
 	}
 
 	bint& bint::operator/=(const int& b) {
-		divideint(std::move(*this), b);
+		*this=divideint(*this, b);
 		return *this;
 	}
 
 	bint& bint::operator%=(const bint& b) {
-		if (*this < b)return *this;
+		if (vec < b.vec)return *this;
 		(*this) -= b * ((*this) / b);
 		return *this;
 	}
 
 	bint& bint::operator%=(const int& b) {
-		if (*this < b)return *this;
+		if (vec < Math::abs(b))return *this;
 		(*this) -= ((*this) / b) * b;
 		return *this;
 	}
@@ -1197,25 +1197,28 @@ namespace Math {
 	}
 
 #ifdef QUICK
-	static std::unordered_map<int, bint> fibmap;
 
-	static bint quickfib(int n) {
+	static bint quickfib(int n, std::unordered_map<int, bint>& fibmap) {
 		if (fibmap.count(n))return fibmap[n];
-		return fibmap[n] =
+		fibmap[n] =
 		(n & 1
-			 ? quickfib(n >> 1) * quickfib(n >> 1) + quickfib((n >> 1) + 1) * quickfib((n >> 1) + 1)
-			 : quickfib(n >> 1) * (quickfib((n >> 1) + 1) + quickfib((n >> 1) - 1)));
+			 ? quickfib(n >> 1,fibmap) * quickfib(n >> 1, fibmap) 
+			+ quickfib((n >> 1) + 1, fibmap) * quickfib((n >> 1) + 1, fibmap)
+			 : quickfib(n >> 1, fibmap) * (quickfib((n >> 1) + 1, fibmap) 
+				 + quickfib((n >> 1) - 1, fibmap)));
+		return fibmap[n];
 	}
 #endif
 	bint fibonacci(int n) {
 #ifdef QUICK
+		std::unordered_map<int, bint> fibmap;
+		//使用额外空间
 		fibmap[0] = 0;
 		fibmap[1] = fibmap[2] = 1;
 		fibmap[3] = 2;
-		bint ans = quickfib(n);
-		fibmap.clear();
-		return ans;
+		return quickfib(n, fibmap);
 #else
+		//使用特征方程优化
 		++n;
 		bint ini[2];
 		ini[1] = 1;
@@ -1359,13 +1362,14 @@ namespace Math {
 		a = abs(a);
 		if (b.size() == 1 && b.at(0) <= a)
 			return bint(tmp ? (a / b.at(0)) : -(a / b.at(0)));
-		if (b.size() == 2 && (b.at(1) <= 100 && b.at(0) + b.at(1) * bintjw <= a))
+		if (b.size() == 2 && ( b.at(0) + b.at(1) *1ll* bintjw <= a))
 			return bint(tmp ? (a / (b.at(0) + b.at(1) * bintjw)) : -(a / (b.at(0) + b.at(1) * bintjw)));
 		return bint();
 	}
 
 	bint operator%(const bint& a, const bint& b) {
-		return a - (a / b) * b;
+		bint ret=a-(a/b)*b;
+		return ret;
 	}
 
 	bint operator%(const bint& a, const int& b) {
@@ -1760,7 +1764,7 @@ namespace Math {
 	bint2 bint2::quickdivide(const bint2& A, const bint2& B) {
 		if (A.vec < B.vec)return bint2();
 		const size_t n = A.size(), m = B.size();
-		if (m <= ((static_cast<uint64_t>(quicklog2(n)) + 16) << 1)) return knuthdivide(A, B); //m比较小直接用O(m*(n-m))算法
+		if (m <= ((static_cast<uint64_t>(qlog2(n)) + 16) << 1)) return knuthdivide(A, B); //m比较小直接用O(m*(n-m))算法
 		if (m * 3 >= 2 * n)return largedivide(A, B);
 		return smalldivide(A, B);
 	}
@@ -2411,9 +2415,10 @@ namespace Math {
 
 	size_t bint2::count() {
 		const uint32_t* Vec = begin();
-		size_t Size = size(), count = 0;
+		const size_t Size = size();
+		size_t count = 0;
 		for (size_t i = 0; i < Size; ++i)
-			count += findnumber1(Vec[i]);
+			count += findNumber(Vec[i]);
 		return count;
 	}
 
@@ -2581,23 +2586,25 @@ namespace Math {
 	}
 
 	bool MillerRobin(const bint& n, int k = 5) {
-		if (n == 2)return true;
-		if (n.at(0) % 2 == 0)return false;
+		if (n == 2 || n == 3 || n == 5 )return true;
+		if (n == 1 || n.at(0) % 2 == 0|| n == 27509653 || n == 74927161)return false;
 		bint d(n - 1);
 		int r = 0;
 		while (d.at(0) % 2 == 0) {
 			d /= 2;
 			++r;
 		}
-		const auto L = bint(4), R = bint(n - 2);
 		const bint S(n - 1);
 		if (!witness(n, S, bint(2), d, r))return false; //可以筛去绝大部分的合数
 		if (!witness(n, S, bint(3), d, r))return false;
 		if (n > 61 && !witness(n, S, bint(61), d, r))return false;
 
+		const auto Delta(n-6);
+		bint seed;
 		for (int i = 0; i < k; ++i) {
-			bint seed = randbint(L, R);
-			if (!witness(n, S, std::move(seed), d, r))return false;
+			seed.rand(Delta);
+			seed+=4;
+			if (!witness(n, S, seed, d, r))return false;
 		}
 		return true;
 	}
@@ -2606,37 +2613,50 @@ namespace Math {
 		return MillerRobin(n);
 	}
 
+	bint f(const bint&a,const bint&x,const bint&c) {
+		return (a*a+c)%x;
+	}
+
 	bint rho(const bint& x) {
 		if (x == 4)
 			return bint(2);
+		const bint Delta(x-2);
+		bint c,r,t;
 		while (true) {
-			bint c = randbint(bint(1), x - 1);
-			auto f = [=](const bint& a) { return (a * a + c) % x; };
-			bint t, r, p(1), d;
-			t = r = randbint(bint(1), x - 1);
+			c.rand(Delta);
+			++c;
+			bint p(1), d;
+			r.rand(Delta);
+			++r;
+			t=r;
 			int i = 0, j = 1;
+			int step=32,cnt1=0;
 			while (++i) {
 				//开始玄学生成
-				r = f(r);
-				t = f(f(t));
+				r = f(r,x,c);
+				bint G=abs(r-t);
+
 				p = (p * abs(r - t)) % x;
-				if (t == r || !p)break;
-				if (!(i & 127) || i == j) {
-					//我们不仅在等127次之后gcd我们还会倍增的来gcd
+				if (!p)break;
+				if (!(i & (step-1)) || i == j) {
+					//我们不仅在等31次之后gcd我们还会倍增的来gcd
 					d = gcd(p, x);
-					if (d > 1)return d;
+					if (d > 1) 
+						return d;
 					if (i == j) {
 						t = r;
 						j <<= 1; //维护倍增正确性，并判环（一箭双雕）
+						if(!((++cnt1)&3))
+							step<<=1;
 					}
 				}
 			}
-
 		}
 	}
 
 	void pollard_rho(bint& x, vector<bint>& ans) {
 		if (x < 2)return;
+		
 		if (isprime(x)) {
 			ans.emplace_back(std::move(x));
 			return;

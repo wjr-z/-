@@ -14,109 +14,61 @@ static const int debruijn[32] = {
 
 namespace Math {
 
-	uint32_t quicklog2(uint32_t x) {
+	uint32_t qlog2(uint32_t x) {
 		uint32_t ans = 0;
 		if (x >> 16) { ans |= 16; x >>= 16; }
-		if (x >> 8) { ans |= 8; x >>= 8; }
-		if (x >> 4) { ans |= 4; x >>= 4; }
+		if (x >> 8)  { ans |= 8;  x >>= 8;  }
+		if (x >> 4)  { ans |= 4;  x >>= 4;  }
 		return ans | tabel[x];
 	}
 
-	uint32_t quicklog2(int x) {
-		return quicklog2(static_cast<uint32_t>(x));
+	uint32_t qlog2(int x) {
+		return qlog2(static_cast<uint32_t>(x));
 	}
 
-	uint32_t quicklog2(uint64_t x) {
+	uint32_t qlog2(uint64_t x) {
 		uint32_t ans = 0;
 		if (x >> 32) { ans |= 32; x >>= 32; }
 		if (x >> 16) { ans |= 16; x >>= 16; }
-		if (x >> 8) { ans |= 8; x >>= 8; }
-		if (x >> 4) { ans |= 4; x >>= 4; }
+		if (x >> 8)  { ans |= 8;  x >>= 8;  }
+		if (x >> 4)  { ans |= 4;  x >>= 4;  }
 		return ans | tabel[x];
 	}
 
-	uint32_t quicklog2(long long x) {
-		return quicklog2(static_cast<uint64_t>(x));
+	uint32_t qlog2(long long x) {
+		return qlog2(static_cast<uint64_t>(x));
 	}
 
-	uint32_t quicklog10(uint32_t x) {
+	uint32_t qlog10(uint32_t x) {
 		uint32_t ans = 0;
 		if (x >= bintjw) { ans += 8; x /= bintjw; }
-		if (x >= 10000) { ans += 4; x /= 10000; }
-		if (x >= 100) { ans += 2; x /= 100; }
-		if (x >= 10) ++ans;
+		if (x >= 10000)  { ans += 4; x /= 10000;  }
+		if (x >= 100)    { ans += 2; x /= 100;    }
+		if (x >= 10)     ++ans;
 		return ans;
 	}
 
-	uint32_t quicklog10(int x) {
-		return quicklog10(static_cast<uint32_t>(x));
+	uint32_t qlog10(int x) {
+		return qlog10(static_cast<uint32_t>(x));
 	}
 
-	uint32_t quicklog10(uint64_t x) {
+	uint32_t qlog10(uint64_t x) {
 		uint32_t ans = 0;
 		if (x >= 10000000000000000ll) { ans += 16; x /= 10000000000000000ll; }
-		if (x >= bintjw) { ans += 8; x /= bintjw; }
-		if (x >= 10000) { ans += 4; x /= 10000; }
+		if (x >= 100000000) { ans += 8; x /= bintjw; }
+		if (x >= 10000)     { ans += 4; x /= 10000;  }
 		if (x >= 100) { ans += 2; x /= 100; }
-		if (x >= 10)++ans;
+		if (x >= 10)  ++ans;
 		return ans;
 	}
 
-	uint32_t quicklog10(long long x) {
-		return quicklog10(static_cast<uint64_t>(x));
+	uint32_t qlog10(long long x) {
+		return qlog10(static_cast<uint64_t>(x));
 	}
-
-	int findnumber1(uint32_t n) {
-	#ifdef QUICK
-		static const char* const bitsperbyte 
-		  = "\0\1\1\2\1\2\2\3\1\2\2\3\2\3\3\4"
-			"\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
-			"\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
-			"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
-			"\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
-			"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
-			"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
-			"\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
-			"\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
-			"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
-			"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
-			"\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
-			"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
-			"\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
-			"\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
-			"\4\5\5\6\5\6\6\7\5\6\6\7\6\7\7\x8";
-		return bitsperbyte[n&255]+ 
-			bitsperbyte[(n>>8)&255]+
-			bitsperbyte[(n>>16)&255]+
-			bitsperbyte[n>>24];
-	#else
-		n = (n & 0x55555555) + ((n >> 1) & 0x55555555);
-		n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
-		n = (n & 0x0f0f0f0f) + ((n >> 4) & 0x0f0f0f0f);
-		n = (n & 0x00ff00ff) + ((n >> 8) & 0x00ff00ff);
-		n = (n & 0x0000ffff) + ((n >> 16) & 0x0000ffff);
-		return n;
-	#endif
-	}
-	int findnumber1(int n) {
-		return findnumber1(static_cast<uint32_t>(n));
-	}
-	int findnumber1(uint64_t n) {
-		return findnumber1(static_cast<uint32_t>(n >> 32))+findnumber1(static_cast<uint32_t>(n));
-	}
-	int findnumber1(long long n) {
-		return findnumber1(static_cast<uint64_t>(n));
-	}
-
-	int lowbit(int x) { return x & -x; }
-
-	long long lowbit(long long x) { return x & -x; }
 
 	int _minx(uint32_t x) { 
 		return debruijn[((x&(~x+1)) * 0x077CB531U) >> 27]; 
 	}
-
-	bool is_power_of_2(uint32_t x) { return !(x & x - 1); }
 
 	bool isrightint(const char* s) {
 		size_t Length = strlen(s);

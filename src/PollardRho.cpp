@@ -1,4 +1,8 @@
 #include "PollardRho.h"
+
+#include <iostream>
+#include <ostream>
+
 #include "math_func.h"
 
 namespace Math {
@@ -33,15 +37,13 @@ namespace Math {
 			d /= 2;
 			++r;
 		}
-		int seed;
 		if (!witness(n, 2, d, r))return false;
 		if (!witness(n, 3, d, r))return false;
 		if (n > 62 && !witness(n, 61, d, r))return false;
 		//上面3个实测可以筛去1e8以内绝大多数合数，只剩两个伪素数，因此在上面判掉
 		if (n > bintjw) {
 			for (int i = 0; i < k; ++i) {
-				seed = Math::randint(4, n - 2);
-				if (!witness(n, seed, d, r))return false;
+				if (!witness(n, Math::randint(4, n - 2), d, r))return false;
 			}
 		}
 		return true;
@@ -56,7 +58,7 @@ namespace Math {
 			return 2;
 		while (true) {
 			const int c = randint(1, x - 1);
-			auto f = [=](const int& a) { return static_cast<int>((a * 1ll * a + c) % x); };
+			auto f = [&c,&x](const int& a) { return static_cast<int>((a * 1ll * a + c) % x); };
 			int r, p(1);
 			int t = r = randint(1, x - 1);
 			int i = 0, j = 1;
@@ -64,7 +66,7 @@ namespace Math {
 				r = f(r);
 				p = (p * abs(r - t)) % x;
 				if (t == r || !p)break;
-				if (!(i & 127) || i == j) {//我们不仅在等127次之后gcd我们还会倍增的来gcd
+				if (!(i & 31) || i == j) {
 					int d = gcd(p, x);
 					if (d > 1)return d;
 					if (i == j) {
@@ -111,10 +113,13 @@ namespace Math {
 	}
 
 	static long long LLMul(long long a, long long b, long long p) {
-		const long long Val = a * b - 
-			static_cast<long long>(static_cast<long double>(a) * static_cast<long double>(b)
-				/ static_cast<double>(p)) * p;
-		return (Val % p + p) % p;
+		long long ans = 0;
+		while (b) {
+			if (b & 1)ans = (ans + a) % p;
+			a = (a + a) % p;
+			b >>= 1;
+		}
+		return ans;
 	}
 
 	static long long modpow(long long a, long long b, long long mod) {
@@ -157,7 +162,7 @@ namespace Math {
 	}
 
 	bool isprime(long long n) {
-		if (!(n>>32))return isprime((int)n);
+		if (!(n>>30))return isprime((int)n);
 		return MillerRobin(n);
 	}
 
@@ -166,20 +171,23 @@ namespace Math {
 			return 2;
 		while (true) {
 			long long c = randll(1, x - 1);
-			auto f = [=](long long a) { return (LLMul(a, a, x) + c) % x; };
-			long long t, r, p(1), d;
-			t = r = randll(1, x - 1);
+			auto f = [&c,&x](long long a) { return (LLMul(a, a, x) + c) % x; };
+			long long r, p(1);
+			long long t = r = randll(1, x - 1);
 			int i = 0, j = 1;
+			int step = 31, cnt1 = 0;
 			while (++i) {//开始玄学生成
 				r = f(r);
 				p = LLMul(p, Math::abs(r - t), x);
-				if (t == r || !p)break;
-				if (!(i & 127) || i == j) {//我们不仅在等127次之后gcd我们还会倍增的来gcd
-					d = Math::gcd(p, x);
+				if ( !p)break;
+				if (!(i & (step-1)) || i == j) {//我们不仅在等127次之后gcd我们还会倍增的来gcd
+					long long d = Math::gcd(p, x);
 					if (d > 1)return d;
 					if (i == j) {
 						t = r;
 						j <<= 1;
+						if (!((++cnt1) & 3))
+							step <<= 1;
 					}
 				}
 			}

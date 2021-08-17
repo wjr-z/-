@@ -52,18 +52,18 @@ namespace Math {
 		}
 	};
 
-	template <typename _Ty>
-	void Deque<_Ty>::push_back(const _Ty& val) {
+	template <typename Ty>
+	void Deque<Ty>::push_back(const Ty& val) {
 		tail.push_back(val);
 	}
 
-	template <typename _Ty>
-	void Deque<_Ty>::push_front(const _Ty& val) {
+	template <typename Ty>
+	void Deque<Ty>::push_front(const Ty& val) {
 		head.push_back(val);
 	}
 
-	template <typename _Ty>
-	void Deque<_Ty>::pop_back() {
+	template <typename Ty>
+	void Deque<Ty>::pop_back() {
 		if (!tail.empty()) {
 			tail.pop_back();
 			return;
@@ -75,8 +75,8 @@ namespace Math {
 		tail.pop_back();
 	}
 
-	template <typename _Ty>
-	void Deque<_Ty>::pop_front() {
+	template <typename Ty>
+	void Deque<Ty>::pop_front() {
 		if (!head.empty()) {
 			head.pop_back();
 			return;
