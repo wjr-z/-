@@ -92,8 +92,8 @@ namespace Math {
 	bint gcd(bint,bint);
 	bint randbint(const bint& L, const bint& R);
 	bint randbint(size_t);
-	bint randprime(const bint& L, const bint& R); //获取一个[L,R]的随机素数
-	bint randprime(size_t); //获取一个长度为n的随机素数
+	bint rand_prime(const bint& L, const bint& R); //获取一个[L,R]的随机素数
+	bint rand_prime(size_t); //获取一个长度为n的随机素数
 	void swap(bint&, bint&) noexcept;
 
 	ostream& operator<<(ostream& out, const bint2& x);

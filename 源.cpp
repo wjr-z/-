@@ -18,35 +18,33 @@ bint modpow(bint a, bint b, const bint& mod) {
 	return ans;
 }
 
+bool vised[10010];
+
+int prime[10010];
+
+void initial() {
+	int n=10000;
+	for(int i=2;i<=n;++i) {
+		if(!vised[i])prime[++prime[0]]=i;
+		if(prime[0]==1002) {
+			break;
+		}
+		for(int j=1;j<=prime[0]&&i*prime[j]<=n;++j) {
+			vised[i*prime[j]]=true;
+			if(i%prime[j]==0)break;
+		}
+	}
+	printf("3");
+	for(int i=4;i<=1002;++i) {
+		printf(",%d",prime[i]);
+	}
+}
+
 int main() {
 
 	ios::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
-
-	bint x,y,z;
-
-	z=randbint(1000);
-	
-	while(1) {
-		x=randbint(1000);
-		y=randbint(1000);
-		auto G=GetTime();
-		modpow(x,y,z);
-		cout<<GetTime()-G<<' ';
-		
-	}
-
-	return 0;
-
-	int T=0;
-	auto sta=GetTime();
-	while(++T<=10000) {
-		bint x=randprime(1024);
-		cout<<x<<endl;
-	}
-	cout<<GetTime()-sta<<endl;
-	return 0;
 
 	bint a, b, c;
 	

@@ -1,8 +1,5 @@
 #include "PollardRho.h"
 
-#include <iostream>
-#include <ostream>
-
 #include "math_func.h"
 
 namespace Math {
