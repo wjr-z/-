@@ -89,7 +89,7 @@ namespace Math {
 	bint qpow(int, bint);
 
 	bint abs(bint);
-	bint gcd(const bint&, const bint&);
+	bint gcd(bint,bint);
 	bint randbint(const bint& L, const bint& R);
 	bint randbint(size_t);
 	bint randprime(const bint& L, const bint& R); //获取一个[L,R]的随机素数
@@ -168,7 +168,7 @@ namespace Math {
 
 	bint sqrt(const bint&);
 	bint2 sqrt(const bint2&);
-	bool isprime(const bint&); //大数判别质数
+	bool is_prime(const bint&); //大数判别质数
 	std::vector<bint> pollard_rho(bint);
 	bint max_prime(const bint& x);
 
@@ -217,7 +217,6 @@ namespace Math {
 		bint2 get2bit() const;
 		void clear();
 		void resize(const size_t&);
-		size_t size() const;
 		void reserve(const size_t&);
 		void pop_back();
 		bint(const size_t&, int);
@@ -250,6 +249,8 @@ namespace Math {
 		size_t length() const;
 		void relength(const size_t&);
 		void reverse(size_t = 0);
+
+		size_t size() const;
 
 		int at(const size_t&) const;
 		int& at(const size_t&);

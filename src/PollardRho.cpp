@@ -31,17 +31,13 @@ namespace Math {
 	static bool MillerRobin(int n, const int k = 5) {
 		if (n == 2 || n == 3 || n == 5)return true;
 		if (n == 1 || !(n & 1) || n == 27509653 || n == 74927161)return false;
-		int d = n - 1;
-		int r = 0;
-		while (d % 2 == 0) {
-			d /= 2;
-			++r;
-		}
+		const int r = _minx(n-1);
+		const int d=(n-1)>>r;
 		if (!witness(n, 2, d, r))return false;
 		if (!witness(n, 3, d, r))return false;
 		if (n > 62 && !witness(n, 61, d, r))return false;
 		//上面3个实测可以筛去1e8以内绝大多数合数，只剩两个伪素数，因此在上面判掉
-		if (n > bintjw) {
+		if (n > 100000000) {
 			for (int i = 0; i < k; ++i) {
 				if (!witness(n, Math::randint(4, n - 2), d, r))return false;
 			}
@@ -49,7 +45,7 @@ namespace Math {
 		return true;
 	}
 
-	bool isprime(int n) {
+	bool is_prime(int n) {
 		return MillerRobin(n);
 	}
 
@@ -58,19 +54,23 @@ namespace Math {
 			return 2;
 		while (true) {
 			const int c = randint(1, x - 1);
-			auto f = [&c,&x](const int& a) { return static_cast<int>((a * 1ll * a + c) % x); };
+			auto f = [&c,&x](int a) { return static_cast<int>((a * 1ll * a + c) % x); };
 			int r, p(1);
 			int t = r = randint(1, x - 1);
 			int i = 0, j = 1;
+			int step=32,cnt1=0;
 			while (++i) {//开始玄学生成
 				r = f(r);
-				p = (p * abs(r - t)) % x;
-				if (t == r || !p)break;
-				if (!(i & 31) || i == j) {
+				p = (p *1ll* abs(r - t)) % x;
+				if (!p)break;
+				if (!(i & (step-1)) || i == j) {
 					int d = gcd(p, x);
 					if (d > 1)return d;
 					if (i == j) {
-						t = r; j <<= 1;
+						t = r;
+						j <<= 1;
+						if(!((++cnt1)&3))
+							step<<=1;
 					}
 				}
 			}
@@ -80,7 +80,7 @@ namespace Math {
 
 	static void pollard_rho(int x, vector<int>& ans) {
 		if (x < 2)return;
-		if (isprime(x)) {
+		if (is_prime(x)) {
 			ans.push_back(x);
 			return;
 		}
@@ -96,7 +96,7 @@ namespace Math {
 	}
 	static void max_pollard_rho(int x, int& Max) {
 		if (x < 2 || x <= Max)return;
-		if (isprime(x)) {
+		if (is_prime(x)) {
 			Max = Max >= x ? Max : x;
 			return;
 		}
@@ -161,8 +161,8 @@ namespace Math {
 		return true;
 	}
 
-	bool isprime(long long n) {
-		if (!(n>>30))return isprime((int)n);
+	bool is_prime(long long n) {
+		if (!(n>>30))return is_prime((int)n);
 		return MillerRobin(n);
 	}
 
@@ -197,7 +197,7 @@ namespace Math {
 
 	static void pollard_rho(long long x, vector<long long>& ans) {
 		if (x < 2)return;
-		if (isprime(x)) {
+		if (is_prime(x)) {
 			ans.push_back(x);
 			return;
 		}
@@ -214,7 +214,7 @@ namespace Math {
 
 	static void max_pollard_rho(long long x, long long& Max) {
 		if (x < 2 || x <= Max)return;
-		if (isprime(x)) {
+		if (is_prime(x)) {
 			Max = Max >= x ? Max : x;
 			return;
 		}

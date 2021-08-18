@@ -1,7 +1,10 @@
 #include "math_func.h"
 
 #include <ctime>
+#include <iostream>
 #include <random>
+
+#include "bint.h"
 
 int mode;
 
@@ -117,7 +120,7 @@ namespace Math {
 
 	int randint(int L, int R) {
 		if (L > R)std::swap(L, R);
-		return L+(int)(randuint() % (R - L + 1));
+		return L+static_cast<int>(randuint() % (R - L + 1));
 	}
 
 	uint64_t randull() {
@@ -132,13 +135,13 @@ namespace Math {
 	int gcd(int x, int y) {
 		if (x == 0) return y;
 		if (y == 0) return x;
-		int i, j;
-		for (i = 0; !(x & 1); ++i)x >>= 1;
-		for (j = 0; !(y & 1); ++j)y >>= 1;
+		int i=_minx(x), j=_minx(y);
+		x>>=i,y>>=j;
 		if (j < i) i = j;
 		while (true) {
 			if (x < y)x ^= y^= x ^= y;
-			if (!(x -= y)) return y << i;
+			if (!(x -= y)) 
+				return y << i;
 			while (!(x & 1))x >>= 1;
 		}
 	}

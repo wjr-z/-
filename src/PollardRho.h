@@ -5,11 +5,11 @@
 
 namespace Math {
 
-	bool isprime(int);//int判别质数
+	bool is_prime(int);//int判别质数
 	std::vector<int>pollard_rho(int);
 	int max_prime(int);
 
-	bool isprime(long long);
+	bool is_prime(long long);
 	std::vector<long long>pollard_rho(long long);
 	long long max_prime(long long);
 

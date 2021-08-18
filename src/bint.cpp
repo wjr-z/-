@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <iostream>
 
+#include "mtool.h"
+
 #ifdef BINTDEBUG
 using std::cout;
 #endif
@@ -107,14 +109,16 @@ namespace Math {
 			bint c(b, a.positive);
 			int* vc = c.begin();
 			const int* va = a.begin();
+			int jw=0;
 			for (size_t i = 0; i < n; ++i) {
-				vc[i] += va[i];
+				vc[i] += va[i]+jw;
+				jw=0;
 				if (vc[i] >= bintjw) {
 					vc[i] -= bintjw;
-					++vc[i + 1];
+					jw=1;
 				}
 			}
-
+			vc[n]+=jw;
 
 			for (size_t tail = n; tail < m && vc[tail] >= bintjw; ++tail) {
 				//答案最多是m+1位
@@ -127,14 +131,16 @@ namespace Math {
 
 		int* tst = a.begin();
 		const int* vb = b.begin();
+		int jw=0;
 		for (size_t i = 0; i < m - 1; ++i) {
-			tst[i] += vb[i];
+			tst[i] += vb[i]+jw;
+			jw=0;
 			if (tst[i] >= bintjw) {
 				tst[i] -= bintjw;
-				++tst[i + 1];
+				jw=1;
 			}
 		}
-		tst[m - 1] += vb[m - 1];
+		tst[m - 1] += vb[m - 1]+jw;
 		if (tst[m - 1] >= bintjw) {
 			tst[m - 1] -= bintjw;
 			++a.at(m);
@@ -157,13 +163,16 @@ namespace Math {
 		if (n < m) {
 			//若a比b小，则优化失败，转为朴素加法
 			bint c(std::move(b), a.positive);
+			int jw=0;
 			for (size_t i = 0; i < n; ++i) {
-				c.save_at(i) += a.save_at(i);
+				c.save_at(i) += a.save_at(i)+jw;
+				jw=0;
 				if (c.save_at(i) >= bintjw) {
 					c.save_at(i) -= bintjw;
-					++c.save_at(i + 1);
+					jw=1;
 				}
 			}
+			c.save_at(n)+=jw;
 			for (size_t tail = n; tail < m && c.save_at(tail) >= bintjw; ++tail) {
 				//答案最多是m+1位
 				c.save_at(tail) -= bintjw;
@@ -172,14 +181,16 @@ namespace Math {
 			a = std::move(c);
 			return;
 		} //a比b大，则只用进行b的位数次加法
+		int jw=0;
 		for (size_t i = 0; i < m - 1; ++i) {
-			a.save_at(i) += b.at(i);
+			a.save_at(i) += b.at(i)+jw;
+			jw=0;
 			if (a.save_at(i) >= bintjw) {
 				a.save_at(i) -= bintjw;
-				++a.save_at(i + 1);
+				jw=1;
 			}
 		}
-		a.save_at(m - 1) += b.at(m - 1);
+		a.save_at(m - 1) += b.at(m - 1)+jw;
 		if (a.save_at(m - 1) >= bintjw) {
 			a.save_at(m - 1) -= bintjw;
 			++a.at(m);
@@ -362,7 +373,7 @@ namespace Math {
 		copyA.assign(A, mid, n); //舍去2m-n-2位
 		copyB.assign(B, mid, m);
 		++copyA; //得到大于答案的近似解
-		bint ans = copyA / copyB;
+		bint ans = quickdivide(copyA,copyB);
 
 		if (Math::abs(A) < Math::abs(B) * ans) //误差在1
 			--ans;
@@ -376,10 +387,10 @@ namespace Math {
 		bint copyA;
 		const bint copyB(Math::abs(B));
 		copyA.assign(A, mid, n);
-		bint ans = copyA / copyB;
+		bint ans = quickdivide(copyA,copyB);
 		const bint mo = Math::abs(A) - (ans * copyB).quick_mul_10k(mid << 3);
 		ans.quick_mul_10k(mid << 3);
-		ans += mo / copyB;
+		ans += quickdivide(mo,copyB);
 		ans.positive = !(A.positive ^ B.positive);
 		return ans;
 	}
@@ -395,9 +406,9 @@ namespace Math {
 
 		if (copyB.at(copyB.size() - 1) < (bw >> 1)) {
 			const int a = bw >> 1, b = copyB.at(copyB.size() - 1);
-			const int K = (a + b - 1) / b;
-			r *= K;
-			copyB *= K;
+			const int k = (a + b - 1) / b;
+			r *= k;
+			copyB *= k;
 		}
 
 		const size_t n = copyB.size(), m = r.size() - copyB.size();
@@ -432,10 +443,10 @@ namespace Math {
 		}
 		while (i >= n);
 
-		size_t Size = ans.size();
-		while (Size > 1 && !ans.save_at(Size - 1))
-			--Size;
-		ans.resize(Size);
+		size_t size = ans.size();
+		while (size > 1 && !ans.save_at(size - 1))
+			--size;
+		ans.resize(size);
 		ans.positive = !(A.positive ^ B.positive);
 		return ans;
 	}
@@ -575,7 +586,7 @@ namespace Math {
 
 	void bint::TOOM_COOK_3(const bint& lhs, const bint& rhs, bint& ans) {
 		const size_t lena = lhs.size(), lenb = rhs.size(), largest = max(lena, lenb);
-		if (largest <= 64) {
+		if (largest <= 128) {
 			if (!lhs || !rhs)
 				return;
 			Array_func::SlowMul(lhs.vec, rhs.vec, ans.vec);
@@ -975,7 +986,7 @@ namespace Math {
 		rhs = abs(rhs);
 		switch (lhs.size()) {
 		case 1: return (lhs.at(0) < rhs) ^ tmp;
-		case 2: return (lhs.at(1)<=100&&lhs.at(0) + lhs.at(1) *1ll* bintjw < rhs) ^ tmp;
+		case 2: return (lhs.at(1)<=22&&lhs.at(0) + lhs.at(1) *1ll* bintjw < rhs) ^ tmp;
 		default: return tmp;
 		}
 	}
@@ -995,7 +1006,7 @@ namespace Math {
 		case 1:
 			return lhs.at(0) == rhs;
 		case 2:
-			return lhs.at(1)<=100&&(lhs.at(0) + lhs.at(1) *1ll* bintjw) == rhs;
+			return lhs.at(1)<=22&&(lhs.at(0) + lhs.at(1) *1ll* bintjw) == rhs;
 		default:
 			return false;
 		}
@@ -1015,7 +1026,7 @@ namespace Math {
 		rhs = abs(rhs);
 		switch (lhs.size()) {
 		case 1: return (lhs.at(0) <= rhs) ^ tmp;
-		case 2: return (lhs.at(1)<=100 &&(lhs.at(0) + lhs.at(1) *1ll* bintjw) <= rhs) ^ tmp;
+		case 2: return (lhs.at(1)<=22 &&(lhs.at(0) + lhs.at(1) *1ll* bintjw) <= rhs) ^ tmp;
 		default: return tmp;
 		}
 	}
@@ -1368,7 +1379,7 @@ namespace Math {
 	}
 
 	bint operator%(const bint& a, const bint& b) {
-		bint ret=a-(a/b)*b;
+		bint ret=a-(a / b)*b;
 		return ret;
 	}
 
@@ -1402,7 +1413,7 @@ namespace Math {
 	}
 
 	void bint::quick_mul_10() {
-		size_t Length = size();
+		const size_t Length = size();
 		vec.reserve(Length + 1);
 		if (vec.save_at(Length - 1) >= 10000000)
 			vec.at(Length) = vec.save_at(Length - 1) / 10000000;
@@ -1435,8 +1446,13 @@ namespace Math {
 		positive ^= 1;
 	}
 
-	bint gcd(const bint& a, const bint& b) {
-		return !b ? a : gcd(b, a % b);
+	bint gcd(bint a, bint b) {
+		bint ans;
+		while (!b.is_zero()) {
+			std::swap(a, b);
+			b %= a;
+		}
+		return a;
 	}
 
 	bint randbint(const bint& L, const bint& R) {
@@ -1464,15 +1480,15 @@ namespace Math {
 			else if (ans < R)++ans;
 			else return bint(-1);
 		}
-		if (!isprime(ans)) {
+		if (!is_prime(ans)) {
 			bint ans2 = ans;
 			while (ans2 > L) {
 				ans2 -= 2;
-				if (isprime(ans2))return ans2;
+				if (is_prime(ans2))return ans2;
 			}
 			while (ans < R) {
 				ans += 2;
-				if (isprime(ans))return ans;
+				if (is_prime(ans))return ans;
 			}
 			return bint(-1);
 		}
@@ -1481,17 +1497,19 @@ namespace Math {
 
 	bint randprime(size_t n) {
 		bint ans(randbint(n));
+		int step=0;
 		if (ans.at(0) % 2 == 0)
 			++ans;
-		if (!isprime(ans)) {
+		if (!is_prime(ans)) {
 			bint ans2 = ans;
 			while (ans2.length() == n) {
 				ans2 -= 2;
-				if (isprime(ans2))return ans2;
+				std::cout<<++step<<endl;
+				if (is_prime(ans2))return ans2;
 			}
 			while (true) {
 				ans += 2;
-				if (isprime(ans))return ans;
+				if (is_prime(ans))return ans;
 			}
 		}
 		return ans;
@@ -2559,16 +2577,12 @@ namespace Math {
 		return ans[now];
 	}
 
-	bint modpow(bint a, bint b, const bint& mod) {
+	bint modpow(bint a,bint b, const bint& mod) {
 		bint ans(1);
-		while (!b.is_zero()) {
-			if (b.at(0) & 1) {
-				ans *= a;
-				ans %= mod;
-			}
-			a *= a;
-			a %= mod;
-			b >>= 1;
+		while(!b.is_zero()) {
+			if(b.at(0)&1)ans=ans*a%mod;
+			a=a*a%mod;
+			b/=2;
 		}
 		return ans;
 	}
@@ -2578,16 +2592,20 @@ namespace Math {
 		if (seed == 1)return true;
 		for (int i = 0; i < r; ++i) {
 			if (seed == S)return true;
-			seed *= seed;
-			seed %= n;
+			seed=seed * seed % n;
 			if (seed == 1)return false;
 		}
 		return false;
 	}
 
-	bool MillerRobin(const bint& n, int k = 5) {
-		if (n == 2 || n == 3 || n == 5 )return true;
-		if (n == 1 || n.at(0) % 2 == 0|| n == 27509653 || n == 74927161)return false;
+	bool MillerRobin(const bint& n, const int k = 1) {
+		if(n.length()==1) {
+			const int nn=n.toint();
+			if(nn==2||nn==3||nn==5)return true;
+			if(nn==1||nn== 27509653|| nn==74927161)return false;
+		}
+		if(n.at(0)%2==0||n.at(0)%5==0)return false;
+		
 		bint d(n - 1);
 		int r = 0;
 		while (d.at(0) % 2 == 0) {
@@ -2598,18 +2616,17 @@ namespace Math {
 		if (!witness(n, S, bint(2), d, r))return false; //可以筛去绝大部分的合数
 		if (!witness(n, S, bint(3), d, r))return false;
 		if (n > 61 && !witness(n, S, bint(61), d, r))return false;
-
-		const auto Delta(n-6);
+		const auto delta(n-6);
 		bint seed;
 		for (int i = 0; i < k; ++i) {
-			seed.rand(Delta);
+			seed.rand(delta);
 			seed+=4;
 			if (!witness(n, S, seed, d, r))return false;
 		}
 		return true;
 	}
 
-	bool isprime(const bint& n) {
+	bool is_prime(const bint& n) {
 		return MillerRobin(n);
 	}
 
@@ -2634,8 +2651,7 @@ namespace Math {
 			while (++i) {
 				//开始玄学生成
 				r = f(r,x,c);
-				bint G=abs(r-t);
-
+				
 				p = (p * abs(r - t)) % x;
 				if (!p)break;
 				if (!(i & (step-1)) || i == j) {
@@ -2656,8 +2672,7 @@ namespace Math {
 
 	void pollard_rho(bint& x, vector<bint>& ans) {
 		if (x < 2)return;
-		
-		if (isprime(x)) {
+		if (is_prime(x)) {
 			ans.emplace_back(std::move(x));
 			return;
 		}
@@ -2675,7 +2690,7 @@ namespace Math {
 
 	void max_pollard_rho(bint x, bint& Max) {
 		if (x < 2 || x <= Max)return;
-		if (isprime(x)) {
+		if (is_prime(x)) {
 			Max = Max >= x ? Max : x;
 			return;
 		}

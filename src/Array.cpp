@@ -410,7 +410,7 @@ namespace Math {
 		const size_t len = n + m - 1;
 		const uint32_t bit = qlog2(len - 1) + 1;
 		const size_t s = 1ull << bit;
-		double* a = new double[s << 1];
+		const auto a = new double[s << 1];
 
 		const int* test1 = A.begin(), * test2 = B.begin();
 
@@ -423,6 +423,7 @@ namespace Math {
 
 		for (size_t i = (n << 1); i < (s << 1); ++i)
 			a[i] = 0;
+		
 		for (size_t i = 0; i < m; i += 2) {
 			const uint32_t q = static_cast<uint32_t>(test2[i >> 1] / 10000),
 				p = test2[i >> 1] - q * 10000;
@@ -431,6 +432,7 @@ namespace Math {
 			a[(i + 1) << 1] += q * 0.5;
 			a[(i + 1) << 1 | 1] -= q * 0.5;
 		}
+		
 		cdft(s << 1, 1, a);
 
 		for (size_t i = 0; i < s; ++i) {
@@ -457,19 +459,19 @@ namespace Math {
 		}
 		arr[len >> 1] += static_cast<int>(static_cast<uint64_t>(a[(len - 1) << 1] + 0.5));
 
-		size_t Size = c.size();
-		while (Size > 1 && !c.save_at(Size - 1))
-			--Size;
-		if (Size != c.size())c.resize(Size);
+		size_t size = c.size();
+		while (size > 1 && !c.save_at(size - 1))
+			--size;
+		if (size != c.size())c.resize(size);
 
 		delete[]a;
 	}
 
 	void FFT_Array_func::FFTQuickMul(const Array& A, const Array& B, Array& c) {
 		//保证 k*k*n <= 1e11 k 为 每个元素的最大大小
-		const size_t Size = A.size() + B.size();
-		if (Size <= 100000)FFTQuickMul4(A, B, c);
-		else if (Size <= 1000000000)FFTQuickMul2(A, B, c);
+		const size_t size = A.size() + B.size();
+		if (size <= 100000)FFTQuickMul4(A, B, c);
+		else if (size <= 1000000000)FFTQuickMul2(A, B, c);
 		else FFTQuickMul1(A, B, c);
 	}
 

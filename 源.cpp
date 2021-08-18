@@ -8,35 +8,55 @@ using namespace Math;
 using namespace std;
 
 
+bint modpow(bint a, bint b, const bint& mod) {
+	bint ans(1);
+	while (!b.is_zero()) {
+		if (b.at(0) & 1)ans = ans * a % mod;
+		a = a * a % mod;
+		b /= 2;
+	}
+	return ans;
+}
+
 int main() {
 
 	ios::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
 
+	bint x,y,z;
 
-	while(true) {
-		bint x;
-		x=randbint(30);
+	z=randbint(1000);
+	
+	while(1) {
+		x=randbint(1000);
+		y=randbint(1000);
+		auto G=GetTime();
+		modpow(x,y,z);
+		cout<<GetTime()-G<<' ';
 		
-		cout<<x<<endl;
-		auto G=qtime([&x](){pollard_rho(x);});
-		cout<<G<<endl;
 	}
 
 	return 0;
 
+	int T=0;
+	auto sta=GetTime();
+	while(++T<=10000) {
+		bint x=randprime(1024);
+		cout<<x<<endl;
+	}
+	cout<<GetTime()-sta<<endl;
+	return 0;
+
 	bint a, b, c;
 	
-	a = qpow(bint(1234), 56);
-
+	a = qpow(bint(12345), 5678);
 	cout << qtime(
 		[&a,&c]() {
-			for (int i = 0; i < 1000000; ++i) 
+			for (int i = 0; i < 1000; ++i) 
 				c = a * a;
 		}
 	) << endl;
-
 	return 0;
 
 	FILE* stream1;
