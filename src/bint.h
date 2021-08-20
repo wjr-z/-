@@ -1,4 +1,15 @@
 #ifndef BINT_H
+/**
+ * 大整数类，包含十进制(bint)、二进制(bint2)
+ * 用法与int基本相似，不支持隐式构造
+ * 自带is_prime判断素数，效率暂不是很高
+ * pollard_rho用于质因数分解，暂对10^30以内的数分解很快，极少数分解较慢
+ * rand_prime(n)生成n位质数
+ * factorial求阶乘
+ * fibonacci求斐波那契数，效率很高
+ * sqrt求平方根
+ * bint2额外支持位运算，可以用作动态大小bitset
+ */
 #define BINT_H
 
 #include <istream>
@@ -7,16 +18,12 @@
 
 namespace Math {
 
-//#define BINTDEBUG
+	/*用于bint构造、赋值等的DEBUG*/
+	//#define BINTDEBUG
 
 	using std::istream;
 	using std::ostream;
 	using std::endl;
-	
-	/*---biginter类(10bit)---*/
-	/*---每一位对10^8取模的动态扩展大整数类---*/
-
-	/*---友元函数声明---*/
 
 	//------------------------------------------------------------------//
 	
@@ -25,8 +32,6 @@ namespace Math {
 
 	ostream& operator<<(ostream&, const bint&);
 	istream& operator>>(istream&, bint&);
-
-	/*使用了左值引用和右值引用，以最优化速度*/
 
 	bool operator<(const bint&, const bint&);
 	bool operator<(const bint&, int);

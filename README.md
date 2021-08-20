@@ -145,10 +145,10 @@ std::vector<std::string> getFiles(const std::string& path);
 
 ```C++
 template<typename Ty>
-void printAll(Ty Start, Ty End);//每行输出一个元素
-template<typename Ty>
-void printAll(Ty inSTL);//每行输出一个STL内的元素
-//就是为了偷一点懒。
+void thread_sort(const Ty First, const Ty Last);
+template<typename Ty, typename _Pr>
+void thread_sort(const Ty First, const Ty Last, const _Pr _Pred = std::less<>());
+//使用多线程进行sort，对于大小在8000以内的使用单线程，8000~10000使用双线程，10000以上使用四线程
 ```
 
 ### slist.h

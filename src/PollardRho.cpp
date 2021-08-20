@@ -25,20 +25,16 @@ namespace Math {
 		}return false;
 	}
 
-	static bool MillerRobin(int n, const int k = 5) {
+	static bool MillerRobin(int n) {
 		if (n == 2 || n == 3 || n == 5)return true;
-		if (n == 1 || !(n & 1) || n == 27509653 || n == 74927161)return false;
+		if (n == 1 || !(n & 1) )return false;
 		const int r = _minx(n-1);
 		const int d=(n-1)>>r;
+		//int范围内仅需测试2,3,5,7
 		if (!witness(n, 2, d, r))return false;
 		if (!witness(n, 3, d, r))return false;
-		if (n > 62 && !witness(n, 61, d, r))return false;
-		//上面3个实测可以筛去1e8以内绝大多数合数，只剩两个伪素数，因此在上面判掉
-		if (n > 100000000) {
-			for (int i = 0; i < k; ++i) {
-				if (!witness(n, Math::randint(4, n - 2), d, r))return false;
-			}
-		}
+		if (!witness(n, 5, d, r))return false;
+		if (!witness(n, 7, d, r))return false;
 		return true;
 	}
 
@@ -147,13 +143,11 @@ namespace Math {
 			d >>= 1;
 			++r;
 		}
-		long long seed;
 		if (!witness(n, 2ll, d, r))return false;
 		if (!witness(n, 3ll, d, r))return false;
 		if (n > 62 && !witness(n, 61ll, d, r))return false;
 		for (int i = 0; i < k; ++i) {
-			seed = Math::randll(4, n - 2);
-			if (!witness(n, seed, d, r))return false;
+			if (!witness(n, Math::randll(4, n - 2), d, r))return false;
 		}
 		return true;
 	}

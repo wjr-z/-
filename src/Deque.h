@@ -1,4 +1,8 @@
 #ifndef DEQUE_H
+/**
+ * 双栈模拟双端队列
+ * 使用头尾vector实现deque
+ */
 #define DEQUE_H
 
 #include <vector>
