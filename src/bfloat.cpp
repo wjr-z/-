@@ -83,7 +83,7 @@ namespace Math {
 			if (base.is_zero())exp = 0;
 			return;
 		}
-		int div = max(Length - bfloat::floatlim, tail);
+		int div = std::max(Length - bfloat::floatlim, tail);
 		base.quick_divide_10k(div);
 		exp += div;
 		if (base.is_zero())exp = 0;
@@ -197,7 +197,7 @@ namespace Math {
 
 	ostream& operator<<(ostream& out, const bfloat& x) {
 		if (x.base < 0)out << '-';
-		const int tail = max(0, -x.exp);
+		const int tail = std::max(0, -x.exp);
 		const size_t Length = x.length();
 		int head = Length - 1;
 
@@ -236,12 +236,12 @@ namespace Math {
 		if (lhs.is_zero())//rhs不为0，但lhs为0
 			return rhs.is_positive(); //如果lhs是0，rhs如果为负数，返回false，否则返回true
 
-		const int _min = min(lhs.exp, rhs.exp);//都化为最小的指数进行比较
+		const int _min = std::min(lhs.exp, rhs.exp);//都化为最小的指数进行比较
 		const int py1 = lhs.exp - _min, py2 = rhs.exp - _min;//和最小指数的差值
 		const int len1 = lhs.length() + py1, len2 = rhs.length() + py2;//化为最小指数后的长度
 		if (len1 != len2) //长度不等
 			return lhs.is_positive() ^ (len1 > len2);//都是正数，且len1<len2 则返回true
-		const int _max = max(py1, py2);
+		const int _max = std::max(py1, py2);
 		for (int i = len1 - 1; i >= _max; --i)
 			if (lhs.at(i - py1) != rhs.at(i - py2))
 				return lhs.is_positive() ^ (lhs.at(i - py1) > rhs.at(i - py2));
@@ -263,12 +263,12 @@ namespace Math {
 			return lhs.is_zero();
 		if (lhs.is_zero())//r不为0，l为0
 			return false;
-		const int _min = min(lhs.exp, rhs.exp);
+		const int _min = std::min(lhs.exp, rhs.exp);
 		const int py1 = lhs.exp - _min, py2 = rhs.exp - _min;
 		const int len1 = lhs.length() + py1, len2 = rhs.length() + py2;
 		if (len1 != len2)
 			return false;//必定不同
-		const int _max = max(py1, py2);
+		const int _max = std::max(py1, py2);
 		for (int i = len1 - 1; i >= _max; --i)
 			if (lhs.at(i - py1) != rhs.at(i - py2))
 				return false;
@@ -292,12 +292,12 @@ namespace Math {
 		if (lhs.is_zero())//rhs不为0，但lhs为0
 			return rhs.is_positive(); //此时必定不相同，rhs为正数则返回true
 
-		const int _min = min(lhs.exp, rhs.exp);//都化为最小的指数进行比较
+		const int _min = std::min(lhs.exp, rhs.exp);//都化为最小的指数进行比较
 		const int py1 = lhs.exp - _min, py2 = rhs.exp - _min;//和最小指数的差值
 		const int len1 = lhs.length() + py1, len2 = rhs.length() + py2;//化为最小指数后的长度
 		if (len1 != len2) //长度不等，必定不相同，退化为比较小于
 			return lhs.is_positive() ^ (len1 > len2);//都是正数，且len1<len2 则返回true，都是负数，且len1>len2则返回true
-		const int _max = max(py1, py2);
+		const int _max = std::max(py1, py2);
 		for (int i = len1 - 1; i >= _max; --i)
 			if (lhs.at(i - py1) != rhs.at(i - py2))
 				return lhs.is_positive() ^ (lhs.at(i - py1) > rhs.at(i - py2));
@@ -535,7 +535,7 @@ namespace Math {
 			- (static_cast<int>(rhs.length()) + rhs.getexp())) > 1)
 			return false;
 		int tmp = 0;
-		if (max(lhs.length(), rhs.length()) >= bfloat::floatlim)tmp = 5;
+		if (std::max(lhs.length(), rhs.length()) >= bfloat::floatlim)tmp = 5;
 		const bfloat delta = lhs - rhs;
 		if (delta.getexp() > 0)return false;
 		return delta.getbase() <= tmp;

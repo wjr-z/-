@@ -2,9 +2,9 @@
 #include <bits/stdc++.h>
 #include "src/bint.h"
 #include "src/mtool.h"
-
 using namespace Math;
 using namespace std;
+
 int main() {
 
 	ios::sync_with_stdio(false);
@@ -12,14 +12,15 @@ int main() {
 	cout.tie(nullptr);
 	
 	bint a, b, c;
-	
-	a = qpow(bint(12345), 5678);
+	a=qpow(bint(12345),5678);
+
 	cout << qtime(
 		[&a,&c]() {
 			for (int i = 0; i < 1000; ++i) 
 				c = a * a;
 		}
 	) << endl;
+	
 	return 0;
 
 	FILE* stream1;
@@ -96,7 +97,7 @@ int main() {
 
 			cout << "  " << setw(14) << en - sta << ' ';
 			cout << setw(6) << "最优选择：";
-			double mintime = min({stime, ftime, ktime, ttime});
+			double mintime = std::min({stime, ftime, ktime, ttime});
 
 			if (mintime == stime) {
 				cout << "暴力" << ' ';

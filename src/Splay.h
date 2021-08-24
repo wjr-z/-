@@ -21,10 +21,13 @@ namespace Math {
 		}
 		Ty getval() { return val; }//获取val
 		void pushup(SplayNode* l, SplayNode* r) {//向上更新
+			
 		}
 		void pushrev(SplayNode* l, SplayNode* r) {//reverse后向上更新
+			
 		}
 		void pushdown(SplayNode* l, SplayNode* r) {//向下更新标记
+			
 		}
 		bool operator<(const SplayNode<Ty>& other)const {
 			return val < other.val;

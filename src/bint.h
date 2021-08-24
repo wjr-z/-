@@ -379,15 +379,17 @@ namespace Math {
 				c.positive = true;
 				return c;
 			}
-			const size_t n = a.size(), m = b.size(), _min = min(n, m), _max = max(n, m);
+			const size_t n = a.size(), m = b.size(), _min = std::min(n, m), _max = std::max(n, m);
 
-			if (_min <= 32 || (((1ull << min(static_cast<size_t>(30), max(static_cast<size_t>(0), (_min - 32) >> 1))) <=
+			if (_min <= 32 || (((1ull << std::min(static_cast<size_t>(30), 
+				std::max(static_cast<size_t>(0), (_min - 32) >> 1))) <=
 				_max)))
 				Array_func::SlowMul(a.vec, b.vec, c.vec);
 			else FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
 
 
-			if (_min <= 32 || (((1ull << min(static_cast<size_t>(30), max(static_cast<size_t>(0), (_min - 32) >> 1))) <=
+			if (_min <= 32 || (((1ull << std::min(static_cast<size_t>(30), 
+				std::max(static_cast<size_t>(0), (_min - 32) >> 1))) <=
 				_max)))
 				mode = 1;
 			else mode = 3;

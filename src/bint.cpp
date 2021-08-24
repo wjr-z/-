@@ -424,9 +424,9 @@ namespace Math {
 		do {
 			int q;
 			if (r.size() > n)
-				q = min(static_cast<long long>(bw) - 1, (r.save_at(n) * 1ll * bw + r.save_at(n - 1)) / tst);
+				q = std::min(static_cast<long long>(bw) - 1, (r.save_at(n) * 1ll * bw + r.save_at(n - 1)) / tst);
 			else if (r.size() > n - 1)
-				q = min(bw - 1, r.save_at(n - 1) / tst);
+				q = std::min(bw - 1, r.save_at(n - 1) / tst);
 			else q = 0;
 
 			r -= copyB * q;
@@ -545,7 +545,7 @@ namespace Math {
 	}
 
 	void bint::Karatsuba(const bint& a, const bint& b, bint& c) {
-		const size_t lena = a.size(), lenb = b.size(), _max = max(lena, lenb), _min = min(lena, lenb);
+		const size_t lena = a.size(), lenb = b.size(), _max = std::max(lena, lenb), _min = std::min(lena, lenb);
 		if (_max <= 32 || (_min << 1) <= _max) {
 			if (!a || !b)
 				return;
@@ -585,7 +585,7 @@ namespace Math {
 	}
 
 	void bint::TOOM_COOK_3(const bint& lhs, const bint& rhs, bint& ans) {
-		const size_t lena = lhs.size(), lenb = rhs.size(), largest = max(lena, lenb);
+		const size_t lena = lhs.size(), lenb = rhs.size(), largest = std::max(lena, lenb);
 		if (largest <= 128) {
 			if (!lhs || !rhs)
 				return;
@@ -627,12 +627,12 @@ namespace Math {
 			a.clear();
 			return;
 		}
-		const size_t n = a.size(), m = b.size(), Min = min(n, m), Max = max(n, m);
+		const size_t n = a.size(), m = b.size(), Min = std::min(n, m), Max = std::max(n, m);
 
 		/*---根据不同范围选择不同算法---*/
 
 		if (Min != 1) {
-			(Min <= 32 || (1ull << min(static_cast<size_t>(60), (Min - 32) >> 1)) <= Max)
+			(Min <= 32 || (1ull << std::min(static_cast<size_t>(60), (Min - 32) >> 1)) <= Max)
 				? Array_func::SlowMul(a.vec, b.vec, a.vec)
 				: FFT_Array_func::FFTQuickMul(a.vec, b.vec, a.vec);
 			a.positive = !(a.positive ^ b.positive);
@@ -754,7 +754,7 @@ namespace Math {
 
 	void bint::assign(const bint& other, const size_t& L, const size_t& R) {
 		const size_t Size = other.size();
-		const size_t l = min(L, Size), r = min(R, Size);
+		const size_t l = std::min(L, Size), r = std::min(R, Size);
 		if (l == r) {
 			clear();
 			return;
@@ -1404,7 +1404,7 @@ namespace Math {
 
 	bint qpow(const bint& a, size_t b) {
 		if (b == 1)return a;
-		bint mid = qpow(a, b >> 1);
+		const bint mid = qpow(a, b >> 1);
 		return b & 1 ? (mid * a) * mid : mid * mid;
 	}
 
@@ -1507,7 +1507,7 @@ namespace Math {
 		if (ans.at(0) % 2 == 0)
 			++ans;
 
-		int lim=min(static_cast<size_t>(iniPrime),n);
+		int lim=std::min(static_cast<size_t>(iniPrime),n);
 		
 		for (int i = 0; i < lim; ++i) {
 			qprime[i] = (ans / prime[i]) * prime[i];
@@ -1786,9 +1786,9 @@ namespace Math {
 		do {
 			long long q;
 			if (r.size() > n)
-				q = min((bw - 1), (r.save_at(n) * bw + r.save_at(n - 1)) / copyB.save_at(n - 1));
+				q = std::min((bw - 1), (r.save_at(n) * bw + r.save_at(n - 1)) / copyB.save_at(n - 1));
 			else if (r.size() > n - 1)
-				q = min(static_cast<uint32_t>(bw - 1), r.save_at(n - 1) / copyB.save_at(n - 1));
+				q = std::min(static_cast<uint32_t>(bw - 1), r.save_at(n - 1) / copyB.save_at(n - 1));
 			else q = 0;
 			r -= copyB * bint2(q);
 			while (!r.ispositive()) {
@@ -1884,9 +1884,9 @@ namespace Math {
 			a.clear();
 			return;
 		}
-		const size_t n = a.size(), m = b.size(), _min = min(n, m), _max = max(n, m);
+		const size_t n = a.size(), m = b.size(), _min = std::min(n, m), _max = std::max(n, m);
 
-		if ((_min <= 32) || (1ull << min(static_cast<size_t>(60), (_min - 32) >> 1)) <= _max)
+		if ((_min <= 32) || (1ull << std::min(static_cast<size_t>(60), (_min - 32) >> 1)) <= _max)
 			Array2_func::SlowMul(a.vec, b.vec, a.vec);
 		else FFT_Array2_func::FFTQuickMul(a.vec, b.vec, a.vec);
 
@@ -2033,8 +2033,8 @@ namespace Math {
 
 	void bint2::assign(const bint2& other, size_t L, size_t R) {
 		const size_t Size = other.size();
-		const size_t l = min(L, Size), r = min(R, Size);
-		resize(max(static_cast<size_t>(1), r - l));
+		const size_t l = std::min(L, Size), r = std::min(R, Size);
+		resize(std::max(static_cast<size_t>(1), r - l));
 		this->save_at(0) = 0;
 		for (int i = l; i < r; ++i)
 			this->save_at(i - l) = other.at(i);
@@ -2432,7 +2432,7 @@ namespace Math {
 	}
 
 	bint2& bint2::operator&=(const bint2& other) {
-		const size_t MaxSize = max(size(), other.size());
+		const size_t MaxSize = std::max(size(), other.size());
 		resize(MaxSize);
 		uint32_t* q = begin();
 		const uint32_t* r = other.begin();
@@ -2442,7 +2442,7 @@ namespace Math {
 	}
 
 	bint2& bint2::operator|=(const bint2& other) {
-		size_t MaxSize = max(size(), other.size());
+		size_t MaxSize = std::max(size(), other.size());
 		resize(MaxSize);
 		uint32_t* q = begin();
 		const uint32_t* r = other.begin();
@@ -2452,7 +2452,7 @@ namespace Math {
 	}
 
 	bint2& bint2::operator^=(const bint2& other) {
-		size_t MinSize = min(size(), other.size());
+		size_t MinSize = std::min(size(), other.size());
 		uint32_t* q = begin();
 		const uint32_t* r = other.begin();
 		for (size_t i = 0; i < MinSize; ++i)

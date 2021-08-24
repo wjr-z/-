@@ -11,23 +11,23 @@
 
 namespace Math {
 
-	class timereference;
+	class time_ref;
 
-	timereference GetTime();
-	double operator-(const timereference& lhs, const timereference& rhs);
-	class timereference {
+	time_ref GetTime();
+	double operator-(const time_ref& lhs, const time_ref& rhs);
+	class time_ref {
 	private:
-		typedef std::chrono::high_resolution_clock mclock;
-		typedef std::chrono::microseconds mmis;
+		typedef std::chrono::high_resolution_clock m_clock;
+		typedef std::chrono::microseconds m_mis;
 
-		mclock::time_point TimePoint;
+		m_clock::time_point TimePoint;
 
-		friend timereference GetTime();
-		static mclock::time_point NowTime();
-		static double testTime(const mclock::time_point& start, const mclock::time_point& end);
+		friend time_ref GetTime();
+		static m_clock::time_point NowTime();
+		static double testTime(const m_clock::time_point& start, const m_clock::time_point& end);
 	public:
-		timereference(mclock::time_point TimePoint);
-		friend double operator-(const timereference& lhs, const timereference& rhs);
+		time_ref(m_clock::time_point TimePoint);
+		friend double operator-(const time_ref& lhs, const time_ref& rhs);
 	};
 
 	template<typename Fn>
@@ -226,95 +226,5 @@ namespace Math {
 	std::string readFiles(const std::string&filename);
 
 	void writeFiles(const std::string&filename,const std::string&str);
-
-	template<typename Ty>
-	void thread_sort(const Ty First, const Ty Last) {
-		//使用多线程进行排序
-		auto head = First, tail = Last;
-		size_t m_size = 0;
-		while (head < tail) {
-			++head;
-			--tail;
-			++m_size;
-		}
-		if (m_size <= 4000)
-			return std::sort(First, Last);
-
-		if (m_size <= 5000) {
-			auto Mid = head;
-			std::thread
-				t1(std::sort<const Ty>, First, Mid),
-				t2(std::sort<const Ty>, Mid, Last);
-
-			t1.join();
-			t2.join();
-			std::inplace_merge(First, Mid, Last);
-		}else {
-			auto Mid=head;
-			auto Mid1=Mid,Mid2=Mid;
-			m_size>>=1;
-			while(m_size--) {
-				--Mid1;
-				++Mid2;
-			}
-			std::thread
-				t1(std::sort<const Ty>,First,Mid1),
-				t2(std::sort<const Ty>,Mid1,Mid),
-				t3(std::sort<const Ty>,Mid,Mid2),
-				t4(std::sort<const Ty>,Mid2,Last);
-			t1.join();
-			t2.join();
-			t3.join();
-			t4.join();
-			std::inplace_merge(First,Mid1,Mid);
-			std::inplace_merge(Mid,Mid2,Last);
-			std::inplace_merge(First,Mid,Last);
-		}
-	}
-
-	template<typename Ty, typename _Pr>
-	void thread_sort(const Ty First, const Ty Last, const _Pr _Pred = std::less<>()) {
-		auto head = First, tail = Last;
-		size_t m_size = 0;
-		while (head < tail) {
-			++head;
-			--tail;
-			++m_size;
-		}
-		if (m_size <= 10000)
-			return std::sort(First, Last, _Pred);
-
-		if (m_size <= 1000000) {
-			auto Mid = head;
-			std::thread
-				t1(std::sort<const Ty, _Pr>, First, Mid, _Pred),
-				t2(std::sort<const Ty, _Pr>, Mid, Last, _Pred);
-
-			t1.join();
-			t2.join();
-			std::inplace_merge(First, Mid, Last);
-		}
-		else {
-			auto Mid = head;
-			auto Mid1 = Mid, Mid2 = Mid;
-			m_size >>= 1;
-			while (m_size--) {
-				--Mid1;
-				++Mid2;
-			}
-			std::thread
-				t1(std::sort<const Ty, _Pr>, First, Mid1, _Pred),
-				t2(std::sort<const Ty, _Pr>, Mid1, Mid, _Pred),
-				t3(std::sort<const Ty, _Pr>, Mid, Mid2, _Pred),
-				t4(std::sort<const Ty, _Pr>, Mid2, Last, _Pred);
-			t1.join();
-			t2.join();
-			t3.join();
-			t4.join();
-			std::inplace_merge(First, Mid1, Mid);
-			std::inplace_merge(Mid, Mid2, Last);
-			std::inplace_merge(First, Mid, Last);
-		}
-	}
 }
 #endif

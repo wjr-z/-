@@ -6,21 +6,21 @@
 
 namespace Math {
 
-	timereference GetTime(){return timereference::NowTime(); }
+	time_ref GetTime(){return time_ref::NowTime(); }
 
-	timereference::mclock::time_point timereference::NowTime() {
-		static mclock::time_point nowtime;
-		nowtime = mclock::now();
+	time_ref::m_clock::time_point time_ref::NowTime() {
+		static m_clock::time_point nowtime;
+		nowtime = m_clock::now();
 		return nowtime;
 	}
-	double timereference::testTime(const mclock::time_point& start, const mclock::time_point& end) {
-		return static_cast<double>(std::chrono::duration_cast<mmis>(end - start).count()) *0.001;
+	double time_ref::testTime(const m_clock::time_point& start, const m_clock::time_point& end) {
+		return static_cast<double>(std::chrono::duration_cast<m_mis>(end - start).count()) *0.001;
 	}
 
-	timereference::timereference(mclock::time_point TimePoint) :TimePoint(TimePoint) {}
+	time_ref::time_ref(m_clock::time_point TimePoint) :TimePoint(TimePoint) {}
 
-	double operator-(const timereference& lhs, const timereference& rhs) {
-		return timereference::testTime(rhs.TimePoint, lhs.TimePoint);
+	double operator-(const time_ref& lhs, const time_ref& rhs) {
+		return time_ref::testTime(rhs.TimePoint, lhs.TimePoint);
 	}
 
 	void bucketsort(uint32_t* Start, uint32_t* End) {
