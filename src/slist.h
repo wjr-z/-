@@ -388,20 +388,22 @@ namespace Math {
 		friend class slist_const_iterator;
 
 	public:
-		using iterator       = slist_iterator<Ty>;
-		using const_iterator = slist_const_iterator<Ty>;
+		
+		using value_type      = Ty;
+		using reference       = Ty&;
+		using const_reference = const Ty&;
+		using size_type       = size_t;
+		using iterator        = slist_iterator<Ty>;
+		using const_iterator  = slist_const_iterator<Ty>;
 
 	private:
-		using node           = slist_node<Ty>;
-		using iterator1      = typename std::list<std::list<node>>::iterator;
-		using iterator2      = typename std::list<node>::iterator;
-
-		using value_type     = Ty;
-		using referece       = value_type&;
+		using node            = slist_node<Ty>;
+		using iterator1       = typename std::list<std::list<node>>::iterator;
+		using iterator2       = typename std::list<node>::iterator;
 
 		//第一层维护块，第二层维护块内节点
 		std::list<std::list<node>>List;
-		size_t ListSize;
+		size_type ListSize;
 
 		//将块内节点指向的第一层迭代器统一修改
 		static void Linked(iterator2 _First, iterator2 _Last, iterator1 LinkedFa) {
@@ -416,7 +418,7 @@ namespace Math {
 
 		//前向操作,从前往后遍历时，尝试向后分裂
 		void psplit(iterator1 pos) {
-			const size_t NowSize = pos->size();
+			const size_type NowSize = pos->size();
 			//对于大于sqrt(2)*Size的块进行分裂
 			if (NowSize * NowSize < 2 * ListSize) return;
 
@@ -431,7 +433,7 @@ namespace Math {
 				//分配当前节点到nxt块链
 				iterator2 First = pos->end(), Last = First;
 				//将nxt分配BlockSize个元素
-				size_t mid = 0;
+				size_type mid = 0;
 				while (mid < BlockSize)--First, ++mid;
 				nxt.splice(nxt.end(), *pos, First, Last);
 				--BloCnt;
@@ -449,7 +451,7 @@ namespace Math {
 		//后向操作，尝试向前分裂
 		void nsplit(iterator1 pos) {
 			//同上
-			const size_t NowSize = pos->size();
+			const size_type NowSize = pos->size();
 			if (NowSize * NowSize < 2 * ListSize) return;
 
 			const int BlockSize = std::sqrt(2 * ListSize) / 2 + 1;
@@ -459,7 +461,7 @@ namespace Math {
 				//同上
 				std::list<node> pre;
 				iterator2 First = pos->begin(), Last = First;
-				size_t mid = 0;
+				size_type mid = 0;
 				while (mid < BlockSize)++Last, ++mid;
 				pre.splice(pre.end(), *pos, First, Last);
 				--BloCnt;
@@ -476,7 +478,7 @@ namespace Math {
 			iterator1 npos = pos;
 			++npos;
 			if (npos == List.end())return;
-			const size_t NowSize = pos->size(), NxtSize = npos->size();
+			const size_type NowSize = pos->size(), NxtSize = npos->size();
 			if (2 * NowSize * NowSize > ListSize || 2 * NxtSize * NxtSize > ListSize)return;
 
 			Linked(npos->begin(), npos->end(), pos);
@@ -491,7 +493,7 @@ namespace Math {
 			iterator1 ppos = pos;
 			if (pos == List.begin())return;
 			--ppos;
-			const size_t NowSize = pos->size(), NxtSize = ppos->size();
+			const size_type NowSize = pos->size(), NxtSize = ppos->size();
 			if (2 * NowSize * NowSize > ListSize || 2 * NxtSize * NxtSize > ListSize)return;
 
 			Linked(ppos->begin(), ppos->end(), pos);
@@ -524,13 +526,13 @@ namespace Math {
 			initial();
 		}
 
-		slist(size_t Count) {
+		slist(size_type Count) {
 			initial();
 			while (Count)push_back(Ty()), --Count;
 			maintain();
 		}
 
-		slist(size_t Count, const Ty& Val) {
+		slist(size_type Count, const Ty& Val) {
 			initial();
 			while (Count)push_back(Val), --Count;
 			maintain();
@@ -666,17 +668,17 @@ namespace Math {
 			return const_iterator(this, (--List.end())->end());
 		}
 
-		referece back() {
+		reference back() {
 			return *--end();
 		}
 
-		referece front() {
+		reference front() {
 			return *begin();
 		}
 
-		size_t size()const { return ListSize; }
+		size_type size()const { return ListSize; }
 
-		value_type& operator[](size_t index) {
+		value_type& operator[](size_type index) {
 			if((index<<1)>ListSize)return *(end()-(ListSize-index));
 			return *(begin() + index);
 		}
@@ -687,7 +689,7 @@ namespace Math {
 
 		void sort() {
 			Ty*arr=new Ty[ListSize];
-			size_t j=0;
+			size_type j=0;
 			for(auto it=begin();it!=end();++it) 
 				arr[j++]=std::move(*it);
 			std::sort(arr,arr+ListSize);
@@ -756,14 +758,14 @@ namespace Math {
 
 		void maintain() {
 			auto Now = new std::list<node>;
-			const size_t bloSize = std::sqrt(ListSize);
-			size_t NowSize = 0;
+			const size_type bloSize = std::sqrt(ListSize);
+			size_type NowSize = 0;
 			auto NewList = new std::list<std::list<node>>;
 
 			auto Pos1 = List.begin();
 			auto Pos2 = Pos1->begin();
 
-			for (size_t i = 0; i < ListSize; ++i) {
+			for (size_type i = 0; i < ListSize; ++i) {
 				Now->emplace_back(*Pos2);
 				++NowSize;
 				if (NowSize == bloSize) {

@@ -1,9 +1,16 @@
 ﻿
 #include <bits/stdc++.h>
+
+#include "src/Deque.h"
 #include "src/bint.h"
 #include "src/mtool.h"
 using namespace Math;
 using namespace std;
+
+
+const int N=1e6;
+bint a[N];
+int f[N];
 
 int main() {
 
@@ -11,7 +18,72 @@ int main() {
 	cin.tie(nullptr);
 	cout.tie(nullptr);
 	
-	bint a, b, c;
+	deque<bint>a1;
+	Deque<bint>a2;
+
+	int n=N;
+	generate(a,a+n,[&n](){return randbint(100);});
+	generate(f,f+n,[](){return rand()%6;});
+
+	auto s=GetTime(),t=GetTime();
+	
+	s=GetTime();
+	for (int i = 0; i < n; ++i) {
+		int g=f[i];
+		if(g<2)
+			a1.push_back(a[i]);
+		else if(g<4)
+			a1.push_front(a[i]);
+		else if (g < 5) {
+			if(!a1.empty())
+				a1.pop_back();
+		}
+		else {
+			if (!a1.empty())
+				a1.pop_front();
+		}
+	}
+	t=GetTime();
+	cout<<t-s<<endl;
+
+	s=GetTime();
+	for(int i=0;i<n;++i) {
+		int g = f[i];
+		if (g < 2)
+			a2.push_back(a[i]);
+		else if (g < 4)
+			a2.push_front(a[i]);
+		else if(g < 5) {
+			if (!a2.empty())
+				a2.pop_back();
+		}
+		else {
+			if (!a2.empty())
+				a2.pop_front();
+		}
+	}
+	t=GetTime();
+	cout<<t-s<<endl;
+
+	bint ans;
+	s=GetTime();
+	auto p=a1.size(),q=a2.size();
+	for(int i=0;i<p;++i)
+		ans+=a1[i];
+	t=GetTime();
+	cout<<t-s<<endl;
+
+	s=GetTime();
+	for(int i=0;i<q;++i)
+		ans+=a2[i];
+	t=GetTime();
+	cout<<t-s<<endl;
+
+	cout<<ans<<endl;
+
+	return 0;
+	
+	/*bint a, b, c;
 	a=qpow(bint(12345),5678);
 
 	cout << qtime(
@@ -19,7 +91,7 @@ int main() {
 			for (int i = 0; i < 1000; ++i) 
 				c = a * a;
 		}
-	) << endl;
+	) << endl;*/
 	
 	return 0;
 
