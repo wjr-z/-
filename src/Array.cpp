@@ -223,7 +223,8 @@ namespace Math {
 
 	void Array_func::SlowMul(const Array& A, const Array& B, Array& c) {
 		const size_t n = A.size(), m = B.size();
-		uint32_t* mid = Allocator<uint32_t>::allocate(n + m);
+		Allocator<uint32_t> g;
+		uint32_t* mid = g.allocate(n + m);
 
 		memset(mid, 0, sizeof(uint32_t) * (n + m));
 
@@ -247,7 +248,7 @@ namespace Math {
 		}
 		else c.resize(Length);
 		memcpy(c.begin(), mid, sizeof(int) * Length);
-		Allocator<uint32_t>::deallocate(mid, n + m);
+		g.deallocate(mid, n + m);
 	}
 
 	/*---FFT相关,根据范围选择对应函数---*/

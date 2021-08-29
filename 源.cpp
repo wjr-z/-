@@ -1,85 +1,71 @@
-﻿
-#include <bits/stdc++.h>
+﻿#include <bits/stdc++.h>
 
 #include "src/Deque.h"
 #include "src/bint.h"
 #include "src/mtool.h"
+#include <vector>
 using namespace Math;
 using namespace std;
 
+queue<bint>a1;
+queue<bint,Deque<bint>>a2;
+int a[5]={3,3,4,5,1};
 
-const int N=1e6;
-bint a[N];
-int f[N];
-
+vector<bint>g;
+Deque<bint>w;
 int main() {
 
 	ios::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
 	
-	deque<bint>a1;
-	Deque<bint>a2;
+	int n=1e7;
 
-	int n=N;
-	generate(a,a+n,[&n](){return randbint(100);});
-	generate(f,f+n,[](){return rand()%6;});
-
-	auto s=GetTime(),t=GetTime();
+	bint*a=new bint[n];
+	generate(a,a+n,[&n](){return randbint(20);});
 	
+	auto s=GetTime(),t=s;
+
 	s=GetTime();
+	for(int i=0;i<n;++i)
+		g.push_back(a[i]);
+	t=GetTime();
+
+	cout<<t-s<<endl;
+
+	s = GetTime();
+	for (int i = 0; i < n; ++i)
+		w.push_back(a[i]);
+	t = GetTime();
+
+	cout << t - s << endl;
+
+	int ans=0;
+	s = GetTime();
+	
 	for (int i = 0; i < n; ++i) {
-		int g=f[i];
-		if(g<2)
-			a1.push_back(a[i]);
-		else if(g<4)
-			a1.push_front(a[i]);
-		else if (g < 5) {
-			if(!a1.empty())
-				a1.pop_back();
-		}
-		else {
-			if (!a1.empty())
-				a1.pop_front();
-		}
+		g.pop_back();
 	}
-	t=GetTime();
-	cout<<t-s<<endl;
+	t = GetTime();
 
-	s=GetTime();
-	for(int i=0;i<n;++i) {
-		int g = f[i];
-		if (g < 2)
-			a2.push_back(a[i]);
-		else if (g < 4)
-			a2.push_front(a[i]);
-		else if(g < 5) {
-			if (!a2.empty())
-				a2.pop_back();
-		}
-		else {
-			if (!a2.empty())
-				a2.pop_front();
-		}
-	}
-	t=GetTime();
-	cout<<t-s<<endl;
-
-	bint ans;
-	s=GetTime();
-	auto p=a1.size(),q=a2.size();
-	for(int i=0;i<p;++i)
-		ans+=a1[i];
-	t=GetTime();
-	cout<<t-s<<endl;
-
-	s=GetTime();
-	for(int i=0;i<q;++i)
-		ans+=a2[i];
-	t=GetTime();
-	cout<<t-s<<endl;
+	cout << t - s << endl;
 
 	cout<<ans<<endl;
+	ans=0;
+
+	s = GetTime();
+	for (int i = 0; i < n; ++i) {
+		w.pop_back();
+	}
+	t = GetTime();
+
+	cout << t - s << endl;
+
+	cout<<ans<<endl;
+
+	cout<<n<<endl;
+	cout<<g.capacity()<<endl;
+	cout<<w.capacity()<<endl;
 
 	return 0;
 	

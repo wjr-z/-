@@ -1,320 +1,509 @@
 #ifndef DEQUE_H
-/**
- * 双栈模拟双端队列
- * 使用头尾vector实现deque
- */
 #define DEQUE_H
 
-#include <vector>
-#include "Allocator.h"
+#include <algorithm>
+#include <iterator>
+#include <memory>
 
 namespace Math {
 
 	//双栈模拟双端队列
 	//快于deque
 
-	template<typename Ty, typename Alloc = std::allocator<Ty>>
+	template<typename Ty,typename Alloc=std::allocator<Ty>>
 	class Deque;
 
-	template<typename Ty,typename Alloc=std::allocator<Ty>>
+	template<typename Ty, typename Alloc = std::allocator<Ty>>
 	class Deque_iterator
 		: public std::iterator<std::random_access_iterator_tag, int> {
-		template<typename Ty,typename Alloc>
+		template<typename Aty, typename alloc>
 		friend class Deque;
 	public:
-		using value_type = Ty;
-		using reference = Ty&;
+		using value_type	  = Ty;
+		using reference		  = Ty&;
 		using const_reference = const Ty&;
-		using size_type = size_t;
-		
-	private:
-		using v_iterator = typename std::vector<Ty, Alloc>::iterator;
-		
-		std::vector<Ty,Alloc>* Get() {
-			auto address=&*Pos;
-			if(!point->head.empty()&&(address >= &point->head.front() && address <= &point->head.back()))
-				return &point->head;
-			return &point->tail;
-		}
-	
-	public:
-		
-		Deque_iterator(Deque<Ty,Alloc>*point,v_iterator Pos)
-			: point(point),Pos(Pos) {
+		using pointer		  = Ty*;
+		using size_type		  = size_t;
+
+		Deque_iterator(pointer Pos)
+			:Pos(Pos) {
 			
 		}
-		
 		Deque_iterator(const Deque_iterator&other)
-			:point(other.point),Pos(other.Pos) {
+			:Pos(other.Pos) {
 			
 		}
 		
+		~Deque_iterator()=default;
+
+		bool operator==(const Deque_iterator&other) {
+			return Pos==other.Pos;
+		}
+
+		bool operator!=(const Deque_iterator&other) {
+			return Pos!=other.Pos;
+		}
+
 		Deque_iterator& operator=(const Deque_iterator&other) {
-			point=other.point;
 			Pos=other.Pos;
 			return *this;
 		}
 
-		bool operator==(const Deque_iterator&other) {
-			return Pos==other.Pos&&point==other.point;
+		Deque_iterator& operator+=(const size_type index) {
+			Pos+=index;
+			return *this;
 		}
 
-		bool operator!=(const Deque_iterator&other) {
-			return Pos!=other.Pos||point!=other.point;
+		Deque_iterator& operator-=(const size_type index) {
+			Pos-=index;
+			return *this;
 		}
-		
+
+		Deque_iterator operator+(const size_type index) {
+			return Deque_iterator(Pos+index);
+		}
+
+		Deque_iterator operator-(const size_type index) {
+			return Deque_iterator(Pos-index);
+		}
+
 		Deque_iterator& operator++() {
-			auto G = Get();
-			if (G == &point->head) {
-				if (Pos != point->head.begin())
-					--Pos;
-				else Pos = point->tail.begin();
-			}
-			else ++Pos;
+			++Pos;
 			return *this;
 		}
-		
-		Deque_iterator operator++(int) {
-			Deque_iterator wjr(*this);
-			++(*this);
-			return wjr;
-		}
-		
+
 		Deque_iterator& operator--() {
-			auto G = Get();
-			if (G == &point->tail) {
-				if (Pos != point->tail.begin())
-					--Pos;
-				else Pos = point->head.begin();
-			}
-			else ++Pos;
+			--Pos;
 			return *this;
+		}
+
+		Deque_iterator operator++(int) {
+			Deque_iterator ans(*this);
+			++(*this);
+			return ans;
+		}
+
+		Deque_iterator operator--(int) {
+			Deque_iterator ans(*this);
+			--(*this);
+			return ans;
+		}
+
+		size_type operator-(const Deque_iterator&other) {
+			return Pos-other.Pos;
 		}
 
 		reference operator*() {
 			return *Pos;
 		}
-	
-	private:
 		
-		Deque<Ty,Alloc>*point;
-		v_iterator Pos;
+	private:
+		pointer Pos;
 	};
 
-	template<typename Ty, typename Alloc = std::allocator<Ty>>
-	class Deque_const_iterator
-		: public std::iterator<std::random_access_iterator_tag, int> {
-		template<typename Ty, typename Alloc>
-		friend class Deque;
-	public:
-		using value_type = Ty;
-		using reference = Ty&;
-		using const_reference = const Ty&;
-		using size_type = size_t;
-
-	private:
-		using v_iterator = typename std::vector<Ty, Alloc>::const_iterator;
-
-		const std::vector<Ty, Alloc>* Get()const {
-			auto address = &*Pos;
-			if (!point->head.empty() && (address >= &point->head.front() && address <= &point->head.back()))
-				return &point->head;
-			return &point->tail;
-		}
-
-	public:
-
-		Deque_const_iterator(const Deque<Ty, Alloc>* point, v_iterator Pos)
-			: point(point), Pos(Pos) {
-
-		}
-
-		Deque_const_iterator(const Deque_const_iterator& other)
-			:point(other.point), Pos(other.Pos) {
-
-		}
-
-		Deque_const_iterator& operator=(const Deque_const_iterator& other) {
-			point = other.point;
-			Pos = other.Pos;
-			return *this;
-		}
-
-		bool operator==(const Deque_const_iterator& other)const {
-			return Pos == other.Pos && point == other.point;
-		}
-
-		bool operator!=(const Deque_const_iterator& other)const {
-			return Pos != other.Pos || point != other.point;
-		}
-
-		Deque_const_iterator& operator++() {
-			auto G = Get();
-			if (G == &point->head) {
-				if (Pos != point->head.begin())
-					--Pos;
-				else Pos = point->tail.begin();
-			}
-			else ++Pos;
-			return *this;
-		}
-
-		Deque_const_iterator operator++(int) {
-			Deque_const_iterator wjr(*this);
-			++(*this);
-			return wjr;
-		}
-
-		Deque_const_iterator& operator--() {
-			auto G = Get();
-			if (G == &point->tail) {
-				if (Pos != point->tail.begin())
-					--Pos;
-				else Pos = point->head.begin();
-			}
-			else ++Pos;
-			return *this;
-		}
-
-		const_reference operator*()const {
-			return *Pos;
-		}
-
-	private:
-
-		const Deque<Ty, Alloc>* point;
-		v_iterator Pos;
-	};
-	
 	template <typename Ty,typename Alloc>
 	class Deque {
-		template<typename Ty,typename Alloc>
+		template<typename ty,typename alloc>
 		friend class Deque_iterator;
-		template<typename Ty, typename Alloc>
-		friend class Deque_const_iterator;
 	public:
 		
 		using value_type      = Ty;
 		using reference       = value_type&;
 		using const_reference = const value_type&;
+		using pointer		  = Ty*;
 		using size_type       = std::size_t;
 		using iterator        = Deque_iterator<Ty,Alloc>;
-		using const_iterator  = Deque_const_iterator<Ty,Alloc>;
+		//using const_iterator  = Deque_const_iterator<Ty,Alloc>;
 	
 	private:
-
-		std::vector<Ty, Alloc> head;
-		std::vector<Ty, Alloc> tail;
+		
+		pointer _Begin,_End;
+		pointer head,tail;
 
 		template<typename iter>
-		void _Construct(iter _First,iter _Last) { 
-			for(;_First!=_Last;++_First)
-				push_back(*_First);
+		void _Construct(pointer _Where,iter _First,iter _Last) {
+			auto al=Getal();
+			for(;_First!=_Last;++_Where,++_First)
+				al.construct(_Where,*_First);
 		}
-	
+
+		template<typename iter>
+		void _Move_Construct(pointer _Where, iter _First, iter _Last) {
+			auto al = Getal();
+			for (; _First != _Last; ++_Where, ++_First)
+				al.construct(_Where, std::move(*_First));
+		}
+
+		void _Destroy(pointer _First, pointer _Last) {
+			std::_Destroy_range(_First, _Last, Getal());
+		}
+
+		void tidy() {
+			_Destroy(head, tail);
+			Getal().deallocate(_Begin, capacity());
+		}
+
+		void _Ufill(pointer _Where,const size_type _Count,const Ty&Val) {
+			std::_Uninitialized_fill_n(_Where,_Count,Val,Getal());
+		}
+
+		template<typename iter>
+		void _Ucopy(iter _First,iter _Last,pointer _Dest) {
+			std::_Uninitialized_copy(_First,_Last,_Dest,Getal());
+		}
+
+
+		void _Umove(pointer _First, pointer _Last, pointer _Dest) {
+			std::_Uninitialized_move(_First,_Last,_Dest,Getal());
+		}
+
+		size_type _Calcalute_Growth(const size_type _Newsize) {
+			const size_type _Oldcapacity = capacity();
+			const size_type _Geometric = _Oldcapacity << 1;
+			if (_Geometric < _Newsize)
+				return _Newsize;
+			return _Geometric;
+		}
+
+		void _Resize_Reallocate(const size_type _Newsize,const bool type = true) {
+
+			//type 为 true 代表后面新扩展 _Newsize-size()个元素
+			//否则代表前面扩展_Newsize-size()个元素
+
+			const size_type _Oldcapacity = capacity();
+			auto al = Getal();
+			const size_type _Size = size();
+
+			//当前的size()小于一半容量时原地拷贝
+			if((_Size<<1)<_Oldcapacity&&_Newsize < _Oldcapacity) {
+				pointer _Copyhead;
+				if(type) {
+					_Copyhead = _Begin + ((_Oldcapacity - _Newsize) >> 1);
+				}else {
+					_Copyhead = _Begin + ((_Oldcapacity - _Newsize) >> 1) + _Newsize - _Size;
+				}
+				const pointer _Copytail = _Copyhead + _Size;
+				_Umove(head,tail,_Copyhead);
+
+				head = _Copyhead;
+				tail = _Copytail;
+				
+				return ;
+			}
+			
+			const size_type _Geometric = _Calcalute_Growth(_Newsize);
+			
+			const pointer _Newstk = al.allocate(_Geometric);
+
+			pointer _Newhead;
+			if (type) {
+				_Newhead = _Newstk + ((_Geometric - _Newsize) >> 1);
+			}
+			else {
+				_Newhead = _Newstk + ((_Geometric - _Newsize) >> 1) + _Newsize - _Size;
+			}
+			const pointer _Newtail = _Newhead + _Size;
+			
+			_Umove(head,tail,_Newhead);
+			tidy();
+
+			_Begin = _Newstk;
+			_End = _Newstk + _Geometric;
+			head = _Newhead;
+			tail = _Newtail;
+		}
+
+		void _Reserve(const size_type _Newsize) {
+
+			if(_Newsize<=capacity())return ;
+
+			const size_type _Geometric = _Calcalute_Growth(_Newsize);
+
+			auto al = Getal();
+
+			const pointer _Newstk = al.allocate(_Geometric);
+
+			const size_type _Size = size();
+			const pointer _Newhead = _Newstk + ((_Geometric - _Size) >> 1);
+			const pointer _Newtail = _Newhead + _Size;
+
+			_Umove(head, tail, _Newhead);
+			tidy();
+
+			_Begin = _Newstk;
+			_End = _Newstk + _Geometric;
+
+			head = _Newhead;
+			tail = _Newtail;
+		}
+
 	public:
 		
-		Deque()noexcept = default;
-		~Deque() noexcept = default;
-
-		Deque(std::initializer_list<Ty> v_list) {
-			_Construct(v_list.begin(),v_list.end());
+		Deque()
+			:_Begin(nullptr),_End(nullptr),head(nullptr),tail(nullptr) {
+			
 		}
 
-		Deque(const Deque&other) {
-			for(auto i :other)
-				push_back(i);
+		~Deque() {
+			tidy();
+		}
+
+		Deque(std::initializer_list<Ty> list)
+			:_Begin(nullptr), _End(nullptr), head(nullptr), tail(nullptr) {
+			assign(list.begin(),list.end());
+		}
+
+		Deque(const Deque&other)
+			:_Begin(nullptr), _End(nullptr), head(nullptr), tail(nullptr) {
+			assign(other.head,other.tail);
+		}
+
+		Deque(Deque&&other)noexcept
+			:_Begin(other._Begin),_End(other._End),
+			head(other.head),tail(other.tail) {
+			other._Begin=other._End=other.head=other.tail=nullptr;
+		}
+
+		Deque& operator=(const Deque&other) {
+			if(this==&other)return *this;
+			assign(other.head,other.tail);
+			return *this;
+		}
+
+		Deque& operator=(Deque&&other) noexcept{
+			_Begin=other._Begin;
+			_End=other._End;
+			head=other.head;
+			tail=other.tail;
+			other._Begin = other._End = other.head = other.tail = nullptr;
+			return *this;
 		}
 
 		template<typename iter>
 		void assign(iter _First,iter _Last) {
+			size_type _Count = static_cast<size_type>(std::distance(_First,_Last));
 			clear();
-			for(;_First!=_Last;++_First)
-				push_back(*_First);
+			if (capacity() < _Count)
+				_Resize_Reallocate(_Count);
+
+			head = _Begin + ((capacity() - _Count) >> 1);
+			tail = head + _Count;
+			_Ucopy(_First,_Last,head);
 		}
 
-		void push_back(const Ty& val) {
-			tail.push_back(val);
+		Alloc& Getal() {
+			static Alloc Al;
+			return Al;
 		}
-		
-		void push_front(const Ty& val) {
-			head.push_back(val);
+
+		size_type size()const noexcept{
+			return tail-head;
 		}
-		
-		void pop_back() {
-			if (!tail.empty()) {
-				tail.pop_back();
-				return;
-			}
-			const size_type MidSize = (head.size() + 1) >> 1;
-			tail.assign(head.begin() + 1, head.begin() + MidSize);
-			head.assign(head.begin() + MidSize, head.end());
-			std::reverse(tail.begin(), tail.end());
+
+		size_type capacity()const {
+			return _End-_Begin;
 		}
-		
+
+		bool empty()const noexcept {
+			return head==tail;
+		}
+
+		void clear() {
+			_Destroy(head,tail);
+			head = tail = _Begin + (capacity() >> 1);
+		}
+
 		void pop_front() {
-			if (!head.empty()) {
-				head.pop_back();
-				return;
+			Getal().destroy(head);
+			++head;
+		}
+
+		void pop_back() {
+			--tail;
+			Getal().destroy(tail);
+		}
+
+		void push_front(const Ty&Val) {
+			if(head==_Begin)_Resize_Reallocate(size()+1,false);
+			--head;
+			Getal().construct(head,Val);
+		}
+
+		void push_back(const Ty&Val) {
+			if(tail==_End)_Resize_Reallocate(size()+1);
+			Getal().construct(tail,Val);
+			++tail;
+		}
+
+		void resize(const size_type index) {
+			if(index<=size())return ;
+			const size_type _Delta = index - size();
+			if(tail+_Delta<=_End) {
+				_Ufill(tail,_Delta,Ty());
+				return ;
 			}
-			const size_type MidSize = (tail.size() + 1) >> 1;
-			head.assign(tail.begin() + 1, tail.begin() + MidSize);
-			tail.assign(tail.begin() + MidSize, tail.end());
-			std::reverse(head.begin(), head.end());
+			_Resize_Reallocate(index);
+			_Ufill(tail,_Delta,Ty());
 		}
 
-		reference operator[](size_type index) {
-			return index < head.size() ? head[head.size() - index - 1] : tail[index - head.size()];
+		void reserve(const size_type index) {
+			_Reserve(index);
 		}
 
-		reference front() {
-			return !head.empty()?head.back():tail.front();
+		void back_reserve(const size_type index) {
+			if(head +index <= _End)
+				return ;
+			const size_type _Newsize = size() + index - (_End-head);
+			_Resize_Reallocate(_Newsize);
+		}
+
+		void front_reserve(const size_type index) {
+			if(tail-index>=_Begin)
+				return ;
+			const size_type _Newsize = size() + index - (tail-_Begin);
+			_Resize_Reallocate(_Newsize,false);
+		}
+
+		reference operator[](const size_type index) {
+			return *(head+index);
+		}
+
+		reference front() noexcept{
+			return *head;
+		}
+
+		const_reference front() const noexcept {
+			return *head;
 		}
 
 		reference back() {
-			return !tail.empty()?tail.back():head.front();
+			return *tail;
+		}
+
+		const_reference back()const noexcept {
+			return *tail;
 		}
 
 		iterator begin() {
-			return iterator(this,head.empty()?tail.begin():--head.end());
-		}
-
-		const_iterator begin()const noexcept{
-			return const_iterator(this, head.empty() ? tail.begin() : --head.end());
+			return iterator(head);
 		}
 
 		iterator end() {
-			return iterator(this,tail.end());
+			return iterator(tail);
 		}
 
-		const_iterator end() const noexcept{
-			return const_iterator(this, tail.end());
-		}
-
-		bool empty() const{ return tail.empty() && head.empty(); }
-		
-		size_type size() const{ return head.size() + tail.size(); }
-
-		void clear() {
-			head.clear();
-			tail.clear();
-		}
-
-		void erase(size_type index) {
+		template<typename iter>
+		void insert(iterator _Where,iter _First,iter _Last) {
+			auto _Count = static_cast<size_type>(std::distance(_First,_Last));
+			const size_type _Possize=_Where.Pos-head;
 			
-			if (index < head.size())
-				head.erase(head.end() - (index + 1));
-			else
-				tail.erase(tail.begin() + (index - head.size()));
+			if(_Begin+_Count>head&&tail+_Count>_End) 
+				_Resize_Reallocate(size()+_Count);
+
+			const pointer _Wpos = head + _Possize;
+			auto _Presize = head - _Begin;
+			auto _Sufsize = _End - tail;
+			if (_Presize < _Sufsize && _Presize >= _Count) {
+				_Ufill(head-_Count,_Count,Ty());
+				_Umove(head, _Wpos, head - _Count);
+				_Ucopy( _First, _Last, _Wpos - _Count);
+				head -= _Count;
+			}
+			else {
+				_Ufill(tail,_Count,Ty());
+				_Umove(_Wpos, tail, _Wpos + _Count);
+				_Ucopy(_First, _Last,_Wpos);
+				tail += _Count;
+			}
 		}
 
-		void insert(size_type index, const Ty& val) {
-			
-			if (index < head.size())
-				head.insert(head.begin() + (head.size() - index), val);
-			else
-				tail.insert(tail.begin() + (index - head.size()), val);
+		void insert(iterator _Where,const Ty&Val) {
+			const size_type _Count = 1;
+			const size_type _Possize = _Where.Pos - head;
+
+			if (_Begin + _Count > head && tail + _Count > _End) {
+				_Resize_Reallocate(size() + _Count);
+			}
+
+			const pointer _Wpos = head + _Possize;
+			auto _Presize = head - _Begin;
+			auto _Sufsize = _End - tail;
+			auto _Move_Presize = _Wpos - head;
+			auto _Move_Sufsize = tail - _Wpos;
+			if (_Move_Presize < _Move_Sufsize && _Count <= _Presize) {
+				_Ufill(head - _Count, _Count, Ty());
+				_Umove(head, _Wpos, head - _Count);
+				*(_Wpos-_Count)=Val;
+				head -= _Count;
+			}
+			else {
+				_Ufill(tail, _Count, Ty());
+				_Umove(_Wpos, tail, _Wpos + _Count);
+				*_Wpos=Val;
+				tail += _Count;
+			}
 		}
+
+		void insert(iterator _Where, Ty&& Val) {
+			const size_type _Count = 1;
+			const size_type _Possize = _Where.Pos - head;
+
+			if (_Begin + _Count > head && tail + _Count > _End) {
+				_Resize_Reallocate(size() + _Count);
+			}
+
+			const pointer _Wpos = head + _Possize;
+			auto _Presize = head - _Begin;
+			auto _Sufsize = _End - tail;
+			if (_Presize < _Sufsize && _Presize >= _Count) {
+				_Ufill(head - _Count, _Count, Ty());
+				_Umove(head, _Wpos, head - _Count);
+				*(_Wpos - _Count) = std::move(Val);
+				head -= _Count;
+			}
+			else {
+				_Ufill(tail, _Count, Ty());
+				_Umove(_Wpos, tail, _Wpos + _Count);
+				*_Wpos = std::move(Val);
+				tail += _Count;
+			}
+		}
+
+		void erase(iterator _First,iterator _Last) {
+			const size_type _Count = _Last - _First;
+			pointer _Pos1 = _First.Pos;
+			pointer _Pos2 = _Last.Pos;
+			auto _Move_Presize = _Pos1 - head;
+			auto _Move_Sufsize = tail - _Pos2;
+			if(_Move_Presize<=_Move_Sufsize) {
+				_Umove(head,_Pos1,head+_Count);
+				_Destroy(head,head+_Count);
+				head+=_Count;
+			}else {
+				_Umove(_Pos2,tail,_Pos1);
+				_Destroy(tail-_Count,tail);
+				tail-=_Count;
+			}
+		}
+
+		void erase(iterator _Pos) {
+			const size_type _Count = 1;
+			pointer _Pos1 = _Pos.Pos;
+			pointer _Pos2 = _Pos1 + 1;
+			auto _Move_Presize = _Pos1 - head;
+			auto _Move_Sufsize = tail - _Pos2;
+			if (_Move_Presize <= _Move_Sufsize) {
+				_Umove(head, _Pos1, head + _Count);
+				_Destroy(head, head + _Count);
+				head += _Count;
+			}
+			else {
+				_Umove(_Pos2, tail, _Pos1);
+				_Destroy(tail - _Count, tail);
+				tail -= _Count;
+			}
+		}
+
 	};
 
 }

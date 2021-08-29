@@ -264,56 +264,67 @@ namespace Math {
 	//ÁîµÚ2¼‰ÅäÖÃÆ÷µÄÃû·Qžé alloc
 	typedef __default_alloc_template<false, 0> alloc;
 
-	template <typename _Ty>
+	template <typename Ty>
 	class Allocator {
 	private:
 		static const size_t& getSize() {
-			static const size_t TySize = sizeof(_Ty);
+			static const size_t TySize = sizeof(Ty);
 			return TySize;
 		}
 	public:
-		typedef _Ty value_type;
-		typedef _Ty* pointer;
-		typedef const _Ty* const_pointer;
-		typedef _Ty& reference;
-		typedef const _Ty& const_reference;
-		typedef size_t size_type;
-		typedef ptrdiff_t difference_type;
+		
+		using value_type      = Ty;
+		using reference       = Ty&;
+		using const_reference = const Ty&;
+		using pointer         = Ty*;
+		using const_pointer   = const Ty*;
+		using size_type       = size_t;
+		using difference_type = ptrdiff_t;
 
-		[[nodiscard]] static _Ty* allocate() {
-			return static_cast<_Ty*>(alloc::allocate(getSize()));
+		[[nodiscard]]
+			Ty* allocate() {
+			return static_cast<Ty*>(alloc::allocate(getSize()));
 		}
 
-		[[nodiscard]] static _Ty* allocate(const size_t& n) {
+		[[nodiscard]]
+			Ty* allocate(const size_t& n){
 			if (n == 0) return nullptr;
-			return static_cast<_Ty*>(alloc::allocate(getSize() * n));
+			return static_cast<Ty*>(alloc::allocate(getSize() * n));
 		}
 
-		static void deallocate(_Ty* ptr) {
+		void deallocate(Ty* ptr){
 			alloc::deallocate(static_cast<void*>(ptr), getSize());
 		}
 
-		static void deallocate(_Ty* ptr, const size_t& n) {
+		void deallocate(Ty* ptr, const size_t& n){
 			if (n == 0) return;
 			alloc::deallocate(static_cast<void*>(ptr), getSize() * n);
 		}
 
-		static void construct(_Ty* ptr) {
-			new(ptr)_Ty();
+		void construct(Ty* ptr) {
+			new(ptr)Ty();
 		}
 
-		static void construct(_Ty* ptr, const _Ty& value) {
-			new(ptr)_Ty(value);
+		void construct(Ty* ptr, const Ty& value){
+			new(ptr)Ty(value);
 		}
 
-		static void destroy(_Ty* ptr) {
-			ptr->~_Ty();
+		void construct(Ty*ptr,Ty&&value){
+			new(ptr)Ty(std::forward<Ty>(value));
 		}
 
-		static void destroy(_Ty* first, _Ty* last) {
+		void destroy(Ty* ptr){
+			ptr->~Ty();
+		}
+
+		void destroy(Ty* first, Ty* last){
 			for (; first != last; ++first) {
-				first->~_Ty();
+				first->~Ty();
 			}
+		}
+
+		size_t max_size()const {
+			return static_cast<size_t>(-1)/sizeof(Ty);
 		}
 
 	};
