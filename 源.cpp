@@ -3,73 +3,15 @@
 #include "src/Deque.h"
 #include "src/bint.h"
 #include "src/mtool.h"
-#include <vector>
 using namespace Math;
 using namespace std;
-
-queue<bint>a1;
-queue<bint,Deque<bint>>a2;
-int a[5]={3,3,4,5,1};
-
-vector<bint>g;
-Deque<bint>w;
 int main() {
 
 	ios::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
 	
-	int n=1e7;
-
-	bint*a=new bint[n];
-	generate(a,a+n,[&n](){return randbint(20);});
-	
-	auto s=GetTime(),t=s;
-
-	s=GetTime();
-	for(int i=0;i<n;++i)
-		g.push_back(a[i]);
-	t=GetTime();
-
-	cout<<t-s<<endl;
-
-	s = GetTime();
-	for (int i = 0; i < n; ++i)
-		w.push_back(a[i]);
-	t = GetTime();
-
-	cout << t - s << endl;
-
-	int ans=0;
-	s = GetTime();
-	
-	for (int i = 0; i < n; ++i) {
-		g.pop_back();
-	}
-	t = GetTime();
-
-	cout << t - s << endl;
-
-	cout<<ans<<endl;
-	ans=0;
-
-	s = GetTime();
-	for (int i = 0; i < n; ++i) {
-		w.pop_back();
-	}
-	t = GetTime();
-
-	cout << t - s << endl;
-
-	cout<<ans<<endl;
-
-	cout<<n<<endl;
-	cout<<g.capacity()<<endl;
-	cout<<w.capacity()<<endl;
-
-	return 0;
-	
-	/*bint a, b, c;
+	bint a, b, c;
 	a=qpow(bint(12345),5678);
 
 	cout << qtime(
@@ -77,7 +19,7 @@ int main() {
 			for (int i = 0; i < 1000; ++i) 
 				c = a * a;
 		}
-	) << endl;*/
+	) << endl;
 	
 	return 0;
 

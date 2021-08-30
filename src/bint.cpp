@@ -1405,7 +1405,11 @@ namespace Math {
 	bint qpow(const bint& a, size_t b) {
 		if (b == 1)return a;
 		const bint mid = qpow(a, b >> 1);
-		return b & 1 ? (mid * a) * mid : mid * mid;
+		bint ans= b & 1 ? (mid * a) * mid : mid * mid;
+		if(ans.at(ans.size()-1)==0) {
+			std::cout<<"wa\n";
+		}
+		return ans;
 	}
 
 	bint qpow(int a, bint b) {
