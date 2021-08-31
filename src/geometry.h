@@ -1,4 +1,8 @@
 #ifndef GEOMETRY_H
+/**
+ * 暂未完善
+ * 之后会实现向量的一系列操作
+ */
 #define GEOMETRY_H
 
 struct point {

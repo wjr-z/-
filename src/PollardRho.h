@@ -1,4 +1,7 @@
 #ifndef POLLARDRHO_H
+/**
+ * 对int/long long 实现快速质数判断或者质因数分解
+ */
 #define POLLARDRHO_H
 
 #include <vector>

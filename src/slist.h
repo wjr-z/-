@@ -1,4 +1,9 @@
 #ifndef SLIST_H
+/**
+ * 块状链表，插入、删除等复杂度与list相同
+ * 不同之处在于支持O(sqrt(n))的随机访问
+ * 因此对于大量顺序插入、少量随机访问时可选择此容器
+ */
 #define SLIST_H
 
 #include <algorithm>
@@ -54,13 +59,13 @@ namespace Math {
 		~slist_node() noexcept = default;
 	};
 
+	template<typename Ty>
+	class slist_const_iterator;
+
 	//slist迭代器
 	template<typename Ty>
 	class slist_iterator
-		: public std::iterator<std::random_access_iterator_tag, int> {
-
-		template<typename Aty>
-		friend class slist;
+		: public std::_Iterator_base0 {
 
 	private:
 		using node       = slist_node<Ty>;
@@ -71,6 +76,7 @@ namespace Math {
 		using value_type = Ty;
 		using reference  = value_type&;
 		using pointer    = value_type*;
+		using difference = size_t;
 
 	private:
 		//指向原容器
@@ -105,6 +111,11 @@ namespace Math {
 
 		slist_iterator(slist_iterator&& Pos)noexcept
 			:Point(Pos.Point), Pos2(std::move(Pos.Pos2)) {
+			
+		}
+
+		slist_iterator(const slist_const_iterator<Ty>&other)
+			:Point(other.Point),Pos2(other.Pos2) {
 			
 		}
 
@@ -172,7 +183,7 @@ namespace Math {
 			return *this;
 		}
 
-		slist_iterator& operator+=(size_t delta) {
+		slist_iterator& operator+=(difference delta) {
 			if (!delta)return *this;
 
 			//首先获取第一层list的迭代器
@@ -213,13 +224,13 @@ namespace Math {
 			return *this;
 		}
 
-		slist_iterator operator+(size_t delta) {
+		slist_iterator operator+(difference delta) {
 			slist_iterator it(*this);
 			it += delta;
 			return it;
 		}
 
-		slist_iterator& operator-=(size_t delta) {
+		slist_iterator& operator-=(difference delta) {
 			if (!delta)return *this;
 			//同+=
 			iterator1 Pos1 = GetIterator1();
@@ -250,7 +261,7 @@ namespace Math {
 			return *this;
 		}
 
-		slist_iterator operator-(size_t delta) {
+		slist_iterator operator-(difference delta) {
 			slist_iterator it(*this);
 			it -= delta;
 			return it;
@@ -263,10 +274,10 @@ namespace Math {
 
 	template<typename Ty>
 	class slist_const_iterator
-		: public std::iterator<std::random_access_iterator_tag, int> {
+		: public std::_Iterator_base0 {
 
-		template<typename Aty>
-		friend class slist;
+		template<typename Ty>
+		friend class slist_iterator;
 
 	private:
 		using node       = slist_node<Ty>;
@@ -277,6 +288,7 @@ namespace Math {
 		using value_type = Ty;
 		using reference  = const value_type&;
 		using pointer    = value_type*;
+		using difference = size_t;
 
 	private:
 		//指向原容器
@@ -626,11 +638,16 @@ namespace Math {
 			}
 		}
 
-		template<typename iter>
+		template<typename iter, std::enable_if_t<std::_Is_iterator_v<iter>, int> = 0>
 		void insert(iterator Pos,iter _Begin,iter _End) {
 			for(auto i = _Begin;i!=_End;++i) {
 				insert(Pos,*i);
 			}
+		}
+
+		void insert(iterator Pos,size_type _Count,const Ty&Val) {
+			for(;_Count;--_Count)
+				insert(Pos,Val);
 		}
 
 		iterator erase(iterator Pos) {
@@ -793,28 +810,7 @@ namespace Math {
 			List.swap(*NewList);
 			NewList->clear();
 		}
-
-		void debug(int mode = 0) {
-			switch (mode) {
-			case 0: {
-				for (auto i = begin(); i != end(); ++i) {
-					printf("%d ", *i);
-				}
-				break;
-			}
-			case 1: {
-				for (auto i : List) {
-					printf("%d ", i.size());
-				}
-				break;
-			}
-			default: ;
-			}
-			printf("\n");
-		}
-		
 	};
-
 }
 
 #endif

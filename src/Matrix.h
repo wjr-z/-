@@ -1,7 +1,9 @@
 #ifndef MATRIX_H
+/**
+ * 矩阵操作，暂且只实现了矩阵乘法
+ */
 #define MATRIX_H
 #include "bint.h"
-/*---有待完善---*/
 
 namespace Math {
 

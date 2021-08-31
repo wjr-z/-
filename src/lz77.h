@@ -1,4 +1,7 @@
 #ifndef LZ77_H
+/**
+ * 实现的lz77算法，level 1 速度更快,level 2压缩效果更好
+ */
 #define LZ77_H
 #include <string>
 

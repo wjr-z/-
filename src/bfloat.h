@@ -1,4 +1,7 @@
 #ifndef BFLOAT_H
+/**
+ * ≤ªÕÍ…∆
+ */
 #define BFLOAT_H 
 
 #include "bint.h"

@@ -1,4 +1,8 @@
 #ifndef SPLAY_H
+/**
+ * 暂不完善
+ * 使用splay维护区间，可支持对区间进行自定义操作、维护等
+ */
 #define SPLAY_H
 
 #include <algorithm>

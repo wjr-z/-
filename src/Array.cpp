@@ -153,8 +153,6 @@ namespace Math {
 	bool operator!=(const Array& _left, const Array& _right) {
 		return !(_left == _right);
 	}
-
-	reference::~reference() noexcept = default;
 	
 	reference& reference::operator=(int val)noexcept {
 		Point->set_val(Pos, val);

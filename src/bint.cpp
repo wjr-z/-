@@ -2704,7 +2704,7 @@ namespace Math {
 		}
 	}
 
-	void pollard_rho(bint& x, vector<bint>& ans) {
+	void pollard_rho(bint& x, std::vector<bint>& ans) {
 		if (x < 2)return;
 		if (is_prime(x)) {
 			ans.emplace_back(std::move(x));
@@ -2716,8 +2716,8 @@ namespace Math {
 		pollard_rho(x, ans);
 	}
 
-	vector<bint> pollard_rho(bint x) {
-		vector<bint> ans;
+	std::vector<bint> pollard_rho(bint x) {
+		std::vector<bint> ans;
 		pollard_rho(x, ans);
 		return ans;
 	}

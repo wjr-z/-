@@ -1,4 +1,9 @@
 #ifndef MTOOL_H
+/**
+ * 工具类，包括高精度时间封装
+ * 函数用时、容器元素比对
+ * 文件输入、输出封装等
+ */
 #define MTOOL_H
 
 #include <algorithm>

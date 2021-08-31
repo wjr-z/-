@@ -1,7 +1,8 @@
-/* 分为了 Array 和 Array2 ，分别对应 bint 和 bint2
-* 还有相应的一些功能性函数
-*/
 #ifndef ARRAY_H
+/**
+ * 仅用于bint/bint2的动态扩容vector
+ * 后期可能会使用更高效的数据结构代替std::vector
+ */
 #define ARRAY_H
 
 #include <vector>
@@ -16,7 +17,6 @@
 #endif
 
 namespace Math {
-	using std::vector;
 
 	/*---友元函数声明---*/
 
@@ -53,9 +53,9 @@ namespace Math {
 		friend Array_func;
 	private:
 	#ifdef USE_ALLOCATOR
-		vector<int, Allocator<int>>vec;
+		std::vector<int, Allocator<int>>vec;
 	#else
-		vector<int>vec;
+		std::vector<int>vec;
 	#endif
 		void set_val(const size_t& index, const int& val);
 		int atv(const size_t& index)const;
@@ -95,7 +95,7 @@ namespace Math {
 		Array* Point;
 		size_t Pos;
 	public:
-		~reference() noexcept;
+		~reference() noexcept = default;
 		reference& operator=(int val)noexcept;
 		reference& operator=(const reference& bitref) noexcept;
 		operator int()const;
@@ -134,10 +134,10 @@ namespace Math {
 		friend Array2_func;
 	private:
 	#ifndef USE_ALLOCATOR //DEBUG版本
-		vector<uint32_t>vec;
+		std::vector<uint32_t>vec;
 	#endif
 	#ifdef USE_ALLOCATOR
-		vector<uint32_t, Allocator<uint32_t>>vec;
+		std::vector<uint32_t, Allocator<uint32_t>>vec;
 	#endif
 		size_t Size;
 		void setbool(const size_t& index, bool val);

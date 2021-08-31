@@ -1,7 +1,8 @@
 #ifndef DEQUE_H
 /**
- * 未使用循环数组的版本
+ * 暂未使用循环数组
  * 而是将数组尽可能置于中间，前后预留空间
+ * 可能会占用更多的内存，但效率会更高
  */
 #define DEQUE_H
 
@@ -19,9 +20,8 @@ namespace Math {
 
 	template<typename Ty, typename Alloc = std::allocator<Ty>>
 	class Deque_const_iterator
-		: public std::iterator<std::random_access_iterator_tag, int> {
-		template<typename Aty, typename alloc>
-		friend class Deque;
+		: public std::_Iterator_base0 {
+	
 	public:
 		using value_type	  = Ty;
 		using reference		  = Ty&;
@@ -105,15 +105,12 @@ namespace Math {
 			return Pos;
 		}
 
-	private:
 		const_pointer Pos;
 	};
 
 	template<typename Ty, typename Alloc = std::allocator<Ty>>
 	class Deque_iterator
-		: public std::iterator<std::random_access_iterator_tag, int> {
-		template<typename Aty, typename alloc>
-		friend class Deque;
+		: public std::_Iterator_base0 {
 	public:
 		
 		using value_type	  = Ty;
@@ -203,7 +200,6 @@ namespace Math {
 			return Pos;
 		}
 		
-	private:
 		pointer Pos;
 	};
 
@@ -534,22 +530,22 @@ namespace Math {
 			return const_iterator(tail);
 		}
 
-		void swap(Deque&other) {
+		void swap(Deque&other) noexcept {
 			std::swap(_Begin,other._Begin);
 			std::swap(_End,other._End);
 			std::swap(head,other.head);
 			std::swap(tail,other.tail);
 		}
 
-		template<typename iter>
+		template<typename iter, std::enable_if_t<std::_Is_iterator_v<iter>, int> = 0>
 		void insert(iterator _Where,iter _First,iter _Last) {
 			auto _Count = static_cast<size_type>(std::distance(_First,_Last));
 			const size_type _Possize=_Where.Pos-head;
 
-			auto _Move_Presize = _Possize;
-			auto _Move_Sufsize = size() - _Move_Presize;
+			const auto _Move_Presize = _Possize;
+			const auto _Move_Sufsize = size() - _Move_Presize;
 
-			auto _Oldcapacity = capacity();
+			const auto _Oldcapacity = capacity();
 
 			if ((_Begin + _Count > head || ((_Move_Presize << 1) > _Oldcapacity)) &&
 				(tail + _Count > _End || ((_Move_Sufsize << 1) > _Oldcapacity))) {
@@ -557,8 +553,8 @@ namespace Math {
 			}
 
 			const pointer _Wpos = head + _Possize;
-			auto _Presize = head - _Begin;
-			auto _Sufsize = _End - tail;
+			const auto _Presize = head - _Begin;
+			const auto _Sufsize = _End - tail;
 			if (_Move_Presize < _Move_Sufsize && _Presize >= _Count) {
 				_Append_Move(head,_Wpos,head-_Count);
 				_Ucopy( _First, _Last, _Wpos - _Count);
@@ -575,10 +571,10 @@ namespace Math {
 			const size_type _Count = 1;
 			const size_type _Possize = _Where.Pos - head;
 
-			auto _Move_Presize = _Possize;
-			auto _Move_Sufsize = size() - _Move_Presize;
+			const auto _Move_Presize = _Possize;
+			const auto _Move_Sufsize = size() - _Move_Presize;
 
-			auto _Oldcapacity = capacity();
+			const auto _Oldcapacity = capacity();
 
 			if ((_Begin + _Count > head || ((_Move_Presize << 1) > _Oldcapacity)) &&
 				(tail + _Count > _End || ((_Move_Sufsize << 1) > _Oldcapacity))) {
@@ -586,8 +582,8 @@ namespace Math {
 			}
 
 			const pointer _Wpos = head + _Possize;
-			auto _Presize = head - _Begin;
-			auto _Sufsize = _End - tail;
+			const auto _Presize = head - _Begin;
+			const auto _Sufsize = _End - tail;
 			if (_Move_Presize < _Move_Sufsize && _Presize >= _Count) {
 				_Append_Move(head, _Wpos, head - _Count);
 				*(_Wpos - _Count) = Val;
@@ -604,10 +600,10 @@ namespace Math {
 			const size_type _Count = 1;
 			const size_type _Possize = _Where.Pos - head;
 
-			auto _Move_Presize = _Possize;
-			auto _Move_Sufsize = size() - _Move_Presize;
+			const auto _Move_Presize = _Possize;
+			const auto _Move_Sufsize = size() - _Move_Presize;
 
-			auto _Oldcapacity = capacity();
+			const auto _Oldcapacity = capacity();
 
 			if ((_Begin + _Count > head || ((_Move_Presize << 1) > _Oldcapacity)) &&
 				(tail + _Count > _End || ((_Move_Sufsize << 1) > _Oldcapacity))) {
@@ -615,8 +611,8 @@ namespace Math {
 			}
 
 			const pointer _Wpos = head + _Possize;
-			auto _Presize = head - _Begin;
-			auto _Sufsize = _End - tail;
+			const auto _Presize = head - _Begin;
+			const auto _Sufsize = _End - tail;
 			if (_Move_Presize < _Move_Sufsize && _Presize >= _Count) {
 				_Append_Move(head, _Wpos, head - _Count);
 				*(_Wpos - _Count) = std::move(Val);
@@ -632,10 +628,10 @@ namespace Math {
 		void insert(iterator _Where,const size_type _Count,const Ty&Val) {
 			const size_type _Possize = _Where.Pos - head;
 
-			auto _Move_Presize = _Possize;
-			auto _Move_Sufsize = size() - _Move_Presize;
+			const auto _Move_Presize = _Possize;
+			const auto _Move_Sufsize = size() - _Move_Presize;
 
-			auto _Oldcapacity = capacity();
+			const auto _Oldcapacity = capacity();
 
 			if ((_Begin + _Count > head || ((_Move_Presize << 1) > _Oldcapacity)) &&
 				(tail + _Count > _End || ((_Move_Sufsize << 1) > _Oldcapacity))) {
@@ -643,8 +639,8 @@ namespace Math {
 			}
 
 			const pointer _Wpos = head + _Possize;
-			auto _Presize = head - _Begin;
-			auto _Sufsize = _End - tail;
+			const auto _Presize = head - _Begin;
+			const auto _Sufsize = _End - tail;
 			if (_Move_Presize < _Move_Sufsize && _Presize >= _Count) {
 				_Append_Move(head, _Wpos, head - _Count);
 				_Ufill(_Wpos-_Count,_Count,Val);
@@ -659,10 +655,10 @@ namespace Math {
 
 		void erase(iterator _First,iterator _Last) {
 			const size_type _Count = _Last - _First;
-			pointer _Pos1 = _First.Pos;
-			pointer _Pos2 = _Last.Pos;
-			auto _Move_Presize = _Pos1 - head;
-			auto _Move_Sufsize = tail - _Pos2;
+			const pointer _Pos1 = _First.Pos;
+			const pointer _Pos2 = _Last.Pos;
+			const auto _Move_Presize = _Pos1 - head;
+			const auto _Move_Sufsize = tail - _Pos2;
 			if(_Move_Presize<=_Move_Sufsize) {
 				_Umove(head,_Pos1,head+_Count);
 				_Destroy(head,head+_Count);
@@ -674,12 +670,14 @@ namespace Math {
 			}
 		}
 
-		void erase(iterator _Pos) {
+		iterator erase(iterator _Pos) {
+			iterator _Nxt=_Pos;
+			++_Nxt;
 			const size_type _Count = 1;
-			pointer _Pos1 = _Pos.Pos;
-			pointer _Pos2 = _Pos1 + 1;
-			auto _Move_Presize = _Pos1 - head;
-			auto _Move_Sufsize = tail - _Pos2;
+			const pointer _Pos1 = _Pos.Pos;
+			const pointer _Pos2 = _Pos1 + 1;
+			const auto _Move_Presize = _Pos1 - head;
+			const auto _Move_Sufsize = tail - _Pos2;
 			if (_Move_Presize <= _Move_Sufsize) {
 				_Umove(head, _Pos1, head + _Count);
 				_Destroy(head, head + _Count);
@@ -690,10 +688,10 @@ namespace Math {
 				_Destroy(tail - _Count, tail);
 				tail -= _Count;
 			}
+			return _Nxt;
 		}
 
 	};
 
 }
-
 #endif
