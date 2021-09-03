@@ -111,13 +111,25 @@ void test() {
 		}
 	}
 }
-int main() {
 
+int main() {
+	
 	ios::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
-	
-	
+
+
+	auto a = qpow(bint(11),100);
+	auto b = qpow(bint(9),50);
+	decltype(a) c;
+	auto s=GetTime();
+
+	for(int i=0;i<100000;++i)
+		c=a/b;
+
+	auto t=GetTime();
+	cout<<t-s<<endl;
+
 	return 0;
 
 }

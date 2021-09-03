@@ -61,7 +61,7 @@ namespace Math {
 	
 	int gcd(int, int);
 	long long gcd(long long, long long);
-
+	
 }
 
 #endif

@@ -175,6 +175,7 @@ namespace Math {
 
 	class alignas(8) bint {
 		friend class bfloat;
+	
 	private:
 		Array vec; //每一位存一个int
 		bool positive; //positive为true表示为正数，否则为负数
@@ -197,10 +198,10 @@ namespace Math {
 		/*---低精度特判---*/
 		static void delint(bint&, int);
 		/*---当B的长度大于A的长度的2/3时只有1的误差---*/
-		static bint largedivide(const bint&, const bint&);
-		static bint smalldivide(const bint&, const bint&);
-		static bint knuthdivide(const bint&, const bint&);
-		static bint quickdivide(const bint&, const bint&);
+		static void largedivide(bint&, bint&);
+		static void smalldivide(bint&, bint&);
+		static void knuthdivide(bint&, bint&);
+		static void quickdivide(bint&, bint&);
 		/*---低精度除法---*/
 		static bint divideint(const bint&, int);
 		/*---Karatsuba算法---*/
@@ -312,6 +313,7 @@ namespace Math {
 		friend bint operator/(const bint&, const int&);
 		friend bint operator/(bint&&, const int&);
 		friend bint operator/(int, const bint&);
+		friend bint operator%(const bint&,const bint&);
 
 		void quick_mul_10(); //O(n)乘10，但省去了部分运算
 		bint& quick_mul_10k(const size_t&); //O(n)乘10^k

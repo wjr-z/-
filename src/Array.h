@@ -51,19 +51,11 @@ namespace Math {
 	class alignas(8) Array {
 		friend reference;
 		friend Array_func;
-	private:
-	#ifdef USE_ALLOCATOR
-		std::vector<int, Allocator<int>>vec;
-	#else
-		std::vector<int>vec;
-	#endif
-		void set_val(const size_t& index, const int& val);
-		int atv(const size_t& index)const;
 	public:
 		Array(const size_t& index = 1)noexcept;
 		Array(const Array& other)noexcept;
 		Array(Array&& other)noexcept;
-		Array& operator=(const Array& other)noexcept;
+		Array& operator=(const Array& other);
 		Array& operator=(Array&& other)noexcept;
 		~Array()noexcept;
 		const int* begin()const;
@@ -87,13 +79,23 @@ namespace Math {
 		int operator[](const size_t& index)const;
 		reference operator[](const size_t& index);
 		void swap(Array& other) noexcept;
+#ifdef USE_ALLOCATOR
+		Allocator<int>& Getal();
+#else
+		std::allocator<int>&Getal();
+#endif
+	private:
+	#ifdef USE_ALLOCATOR
+		std::vector<int, Allocator<int>>vec;
+	#else
+		std::vector<int>vec;
+	#endif
+		void set_val(const size_t& index, const int& val);
+		int atv(const size_t& index)const;
 	};
 
 	class reference {
 		friend Array;
-	private:
-		Array* Point;
-		size_t Pos;
 	public:
 		~reference() noexcept = default;
 		reference& operator=(int val)noexcept;
@@ -102,15 +104,17 @@ namespace Math {
 	private:
 		reference() noexcept;
 		reference(Array& _bint2, size_t pos);
+		Array* Point;
+		size_t Pos;
 	};
 
 	class Array_func {
-	private:
-		static const int jw = 100000000;//常规进位,10^8
 	public:
 		static void QuickMul10k(Array&, const size_t & = 1);//快速乘以10^k
 		static void QuickDivide10k(Array& a, const size_t & = 1);//快速除以10^k
 		static void SlowMul(const Array&, const Array&, Array&);//暴力乘法
+	private:
+		static const int jw = 100000000;//常规进位,10^8
 	};
 
 	class FFT_Array_func {//FFT乘法，使用了Ooura FFT，据说很快，如果有更快的会进行更换
@@ -132,21 +136,11 @@ namespace Math {
 	class alignas(8) Array2 {
 		friend reference2;
 		friend Array2_func;
-	private:
-	#ifndef USE_ALLOCATOR //DEBUG版本
-		std::vector<uint32_t>vec;
-	#endif
-	#ifdef USE_ALLOCATOR
-		std::vector<uint32_t, Allocator<uint32_t>>vec;
-	#endif
-		size_t Size;
-		void setbool(const size_t& index, bool val);
-		bool atbool(const size_t& index)const;
 	public:
 		explicit Array2(const size_t& index = 1)noexcept;
 		Array2(const Array2& other)noexcept;
 		Array2(Array2&& other)noexcept;
-		Array2& operator=(const Array2& other)noexcept;
+		Array2& operator=(const Array2& other);
 		Array2& operator=(Array2&& other)noexcept;
 		~Array2()noexcept;
 		const uint32_t* begin()const;
@@ -169,13 +163,20 @@ namespace Math {
 
 		void maintain();//用于弹出头部多余的1
 		void relength(const size_t& index);
+	private:
+	#ifndef USE_ALLOCATOR //DEBUG版本
+		std::vector<uint32_t>vec;
+	#endif
+	#ifdef USE_ALLOCATOR
+		std::vector<uint32_t, Allocator<uint32_t>>vec;
+	#endif
+		size_t Size;
+		void setbool(const size_t& index, bool val);
+		bool atbool(const size_t& index)const;
 	};
 
 	class reference2 {
 		friend Array2;
-	private:
-		Array2* Point;
-		size_t _Pos;
 	public:
 		~reference2() noexcept;
 		reference2& operator=(bool val)noexcept;
@@ -187,6 +188,8 @@ namespace Math {
 	private:
 		reference2() noexcept;
 		reference2(Array2& _bint2, size_t pos);
+		Array2* Point;
+		size_t _Pos;
 	};
 
 	class Array2_func {

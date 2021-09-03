@@ -1,5 +1,6 @@
 #include "math_func.h"
 
+#include <cstring>
 #include <ctime>
 #include <iostream>
 #include <random>

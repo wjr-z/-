@@ -1,5 +1,6 @@
 #include "bint.h"
 
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 
@@ -316,8 +317,8 @@ namespace Math {
 
 	void bint::delint(bint& a, int b) {
 		if (a.positive ? a < b : a > -b) {
-			int y;
 			switch (a.size()) {
+				int y;
 			case 1: {
 				y = b - a.save_at(0);
 				a.save_at(0) = y;
@@ -335,7 +336,7 @@ namespace Math {
 				}
 				break;
 			}
-			default: ;
+			default: break;
 			}
 			a.positive = !a.positive;
 			return;
@@ -367,46 +368,44 @@ namespace Math {
 		else a.save_at(0) -= b;
 	}
 
-	bint bint::largedivide(const bint& A, const bint& B) {
-		const size_t n = A.size(), m = B.size(), mid = 2 * m - n - 2;
-		bint copyA, copyB;
-		copyA.assign(A, mid, n); //舍去2m-n-2位
-		copyB.assign(B, mid, m);
+	void bint::largedivide(bint& A, bint& B) {
+		const size_t  mid = 2 * B.size() - A.size() - 2;
+		bint copyA(A,mid,A.size());
+		bint copyB(B,mid,B.size());
 		++copyA; //得到大于答案的近似解
-		bint ans = quickdivide(copyA,copyB);
-
-		if (Math::abs(A) < Math::abs(B) * ans) //误差在1
-			--ans;
-
-		ans.positive = !(A.positive ^ B.positive);
-		return ans;
+		quickdivide(copyA,copyB);
+		--copyB;
+		copyB.quick_mul_10k(mid<<3);
+		copyB+=bint(A,0,mid);
+		copyB-=bint(B,0,mid)*copyA;
+		if(!copyB.positive)
+			--copyA,copyB+=B;
+		A=copyA;
+		B=copyB;
 	}
 
-	bint bint::smalldivide(const bint& A, const bint& B) {
+	void bint::smalldivide(bint& A, bint& B) {
 		const size_t n = A.size(), m = B.size(), mid = (n - m) >> 1;
-		bint copyA;
-		const bint copyB(Math::abs(B));
-		copyA.assign(A, mid, n);
-		bint ans = quickdivide(copyA,copyB);
-		const bint mo = Math::abs(A) - (ans * copyB).quick_mul_10k(mid << 3);
-		ans.quick_mul_10k(mid << 3);
-		ans += quickdivide(mo,copyB);
-		ans.positive = !(A.positive ^ B.positive);
-		return ans;
+		bint copyA(A,mid,n);
+		bint mo(B);
+		quickdivide(copyA,mo);
+		copyA.quick_mul_10k(mid<<3);
+		mo.quick_mul_10k(mid<<3);
+		mo+=bint(A,0,mid);
+		quickdivide(mo,B);
+		A=copyA+mo;
 	}
 
-	bint bint::knuthdivide(const bint& A, const bint& B) {
-		//比我那个优化的暴力略快一点
+	void bint::knuthdivide(bint& A, bint& B) {
 		bint r(A), copyB(B);
-		r.abs();
-		copyB.abs();
 		bint ans;
 
 		const int bw = bintjw;
 
-		if (copyB.at(copyB.size() - 1) < (bw >> 1)) {
-			const int a = bw >> 1, b = copyB.at(copyB.size() - 1);
-			const int k = (a + b - 1) / b;
+		const int a = bw >> 1, b = copyB.at(copyB.size() - 1);
+		const int k = (a + b - 1) / b;
+
+		if (b < a) {
 			r *= k;
 			copyB *= k;
 		}
@@ -432,11 +431,13 @@ namespace Math {
 			r -= copyB * q;
 
 			while (!r.is_positive()) {
-				--q, r += copyB;
+				--q;
+				r += copyB;
 			}
-			r.quick_mul_10k(8);
-			if (j > 0)
+			if (j > 0) {
+				r.quick_mul_10k(8);
 				r.save_at(0) = copyA.save_at(j - 1);
+			}
 			ql[j] = q;
 			--i;
 			--j;
@@ -447,16 +448,26 @@ namespace Math {
 		while (size > 1 && !ans.save_at(size - 1))
 			--size;
 		ans.resize(size);
-		ans.positive = !(A.positive ^ B.positive);
-		return ans;
+		
+		A=ans;
+		B=r/k;
 	}
 
-	bint bint::quickdivide(const bint& A, const bint& B) {
-		if (A.vec < B.vec)return bint();
+	void bint::quickdivide(bint& A, bint& B) {
+		if (A.vec < B.vec) {
+			B=std::move(A);
+			A=bint();
+			return ;
+		}
 		const size_t n = A.size(), m = B.size();
-		if (m == 1)return divideint(A, B.at(0) * (B.positive ? 1 : -1)); //低精度除法
-		if (m <= ((static_cast<uint64_t>(qlog2(n)) + 16) << 1)) return knuthdivide(A, B); //m比较小直接用O(m*(n-m))算法
-		if (m * 5 >= 3 * n)return largedivide(A, B);
+		if (m == 1) {
+			const bint ans=divideint(A, B.at(0)); //低精度除法
+			B=A-ans*B.at(0);
+			A=ans;
+			return ;
+		}
+		if (m <= ((static_cast<uint64_t>(qlog2(n)) + 4)<<1)) return knuthdivide(A, B); //m比较小直接用O(m*(n-m))算法
+		if(m*5>=n*3)return largedivide(A,B);
 		return smalldivide(A, B);
 	}
 
@@ -649,13 +660,15 @@ namespace Math {
 			c.clear();
 			return;
 		}
+		
 		const size_t n = a.size();
 		bool tmp = a.positive;
 		uint64_t copyb;
 		if (b >= 0)
 			copyb = b;
 		else {
-			tmp ^= 1, copyb = -b;
+			tmp ^= 1;
+			copyb = -b;
 		}
 
 		int mp = -1;
@@ -1356,7 +1369,10 @@ namespace Math {
 	}
 
 	bint operator/(const bint& a, const bint& b) {
-		return bint::quickdivide(a, b);
+		bint ans(a),mo(b);
+		ans.abs(),mo.abs();
+		bint::quickdivide(ans,mo);
+		return bint(std::move(ans),!(a.positive^b.positive));
 	}
 
 	bint operator/(const bint& a, const int& b) {
@@ -1379,8 +1395,10 @@ namespace Math {
 	}
 
 	bint operator%(const bint& a, const bint& b) {
-		bint ret=a-(a / b)*b;
-		return ret;
+		bint ans(a),mo(b);
+		ans.abs(),mo.abs();
+		bint::quickdivide(ans,mo);
+		return bint(std::move(mo),!(a.positive^b.positive));
 	}
 
 	bint operator%(const bint& a, const int& b) {
@@ -2681,7 +2699,7 @@ namespace Math {
 			++r;
 			t=r;
 			int i = 0, j = 1;
-			int step=32,cnt1=0;
+			int step=16,cnt1=0;
 			while (++i) {
 				//开始玄学生成
 				r = f(r,x,c);

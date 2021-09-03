@@ -1,4 +1,5 @@
 #include "bfloat.h"
+#include <cstring>
 #include <string>
 namespace Math {
 

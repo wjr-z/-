@@ -14,7 +14,7 @@ namespace Math {
 
 	}
 
-	Array& Array::operator=(const Array& other)noexcept = default;
+	Array& Array::operator=(const Array& other)= default;
 
 	Array& Array::operator=(Array&& other)noexcept {
 		vec = std::move(other.vec);
@@ -110,6 +110,18 @@ namespace Math {
 		vec.swap(other.vec);
 	}
 
+#ifdef USE_ALLOCATOR
+	Allocator<int>&Array::Getal() {
+		static Allocator<int> wjr;
+		return wjr;
+	}
+#else
+	std::allocator<int>& Array::Getal() {
+		static std::allocator<int> wjr;
+		return wjr;
+	}
+#endif
+
 	void swap(Array& lhs, Array& rhs)noexcept {
 		lhs.swap(rhs);
 	}
@@ -175,43 +187,46 @@ namespace Math {
 
 	/*---bint_fuc部分实现---*/
 
-	void Array_func::QuickMul10k(Array& a, const size_t& k) {//快速乘10^k
+	void Array_func::QuickMul10k(Array& a, const size_t& k) {
+		//快速乘10^k
 		if (!k || a.is_zero())return;
-		const size_t Length = a.size();
-		a.reserve(Length + (k >> 3) + 1);
+		const size_t _Size = a.size();
+		const int mul10 = _10k[k & 7], mod10 = bintjw / mul10;
+		size_t _Delta = (k>>3) + (a.save_at(_Size-1)>=mod10);
+		a.resize(_Size + _Delta);
+		const auto _Begin = a.begin();
 		if (k & 7) {
-			const int mul10 = _10k[k & 7], mod10 = bintjw / mul10;
-			if (a.save_at(Length - 1) >= mod10) {
-				a.resize(Length + 1);
-				a.save_at(Length) = a.save_at(Length - 1) / mod10;
+			if (_Begin[_Size-1] >= mod10) {
+				_Begin[_Size]=_Begin[_Size-1]/mod10;
+				--_Delta;
 			}
-			for (size_t i = Length - 1; i; --i)
-				a.save_at(i) = (a.save_at(i) % mod10) * mul10 + a.save_at(i - 1) / mod10;
-			a.save_at(0) = (a.save_at(0) % mod10) * mul10;
+			for (size_t i = _Size - 1; i; --i)
+				_Begin[i+_Delta] = (_Begin[i] % mod10) * mul10 + _Begin[i-1] / mod10;
+			_Begin[_Delta] = (a.save_at(0) % mod10) * mul10;
+		}else {
+			std::memmove(_Begin+_Delta,_Begin,_Size*sizeof(int));
 		}
-		if (k >> 3) {
-			a.vec.insert(a.vec.begin(), k >> 3, 0);
-		}
+		std::memset(_Begin,0,sizeof(int)*_Delta);
 	}
 
 	void Array_func::QuickDivide10k(Array& a, const size_t& k) {//快速除以10^k
 		if (!k)return;
-		size_t Size = a.size();
+		size_t _Size = a.size();
 		if (k & 7) {
 			const size_t Length = a.length();
 			const int Mo = static_cast<int>(k & 7), mul10 = _10k[Mo];
 			const int mod10 = bintjw / mul10;
-			for (size_t i = 0; i < Size; ++i) {
-				a.at(i) = a.at(i) / mul10 + (i + 1 == Size ? 0 : (a.at(i + 1) % mul10) * mod10);
+			for (size_t i = 0; i < _Size; ++i) {
+				a.at(i) = a.at(i) / mul10 + (i + 1 == _Size ? 0 : (a.at(i + 1) % mul10) * mod10);
 			}
 			for (size_t i = (k & 7) < Length ? Length - (k & 7) : 0; i < Length; ++i)
 				a.set_val(i, 0);
-			while (Size > 1 && !a.save_at(Size - 1))
-				--Size;
-			a.resize(Size);
+			while (_Size > 1 && !a.save_at(_Size - 1))
+				--_Size;
+			a.resize(_Size);
 		}
 		if (k >> 3) {
-			if ((k >> 3) >= Size) {
+			if ((k >> 3) >= _Size) {
 				a.clear();
 				return;
 			}
@@ -487,7 +502,7 @@ namespace Math {
 
 	}
 
-	Array2& Array2::operator=(const Array2& other)noexcept = default;
+	Array2& Array2::operator=(const Array2& other) = default;
 
 	Array2& Array2::operator=(Array2&& other)noexcept {
 		vec = std::move(other.vec);

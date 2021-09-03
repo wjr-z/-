@@ -19,13 +19,15 @@ namespace Math {
 	class Deque;
 
 	template<typename Ty, typename Alloc = std::allocator<Ty>>
-	class Deque_const_iterator
-		: public std::_Iterator_base0 {
+	class Deque_const_iterator{
 	
 	public:
+		using iterator_category = std::random_access_iterator_tag;
+		
 		using value_type	  = Ty;
 		using reference		  = Ty&;
 		using const_reference = const Ty&;
+		using pointer = Ty*;
 		using const_pointer   = const Ty*;
 		using difference_type = size_t;
 
@@ -109,9 +111,9 @@ namespace Math {
 	};
 
 	template<typename Ty, typename Alloc = std::allocator<Ty>>
-	class Deque_iterator
-		: public std::_Iterator_base0 {
+	class Deque_iterator{
 	public:
+		using iterator_category = std::random_access_iterator_tag;
 		
 		using value_type	  = Ty;
 		using reference		  = Ty&;
@@ -250,11 +252,12 @@ namespace Math {
 				std::_Uninitialized_move(_First,_Last,_Dest,Getal());
 				return ;
 			}
-			std::_Uninitialized_move(_Dest, _Last, _Dest + (_Dest - _First), Getal());
-			std::_Uninitialized_move(_First, _Dest, _Dest, Getal());
+			size_type _Delta = _Dest - _First;
+			std::_Uninitialized_move(_Last-_Delta,_Last,_Last,Getal());
+			std::_Move_backward_unchecked(_First,_Last-_Delta,_Last);
 		}
 
-		size_type _Calcalute_Growth(const size_type _Newsize) {
+		size_type _Calculate_Growth(const size_type _Newsize) {
 			const size_type _Oldcapacity = capacity();
 			const size_type _Geometric = _Oldcapacity << 1; 
 			if (_Geometric < _Newsize)
@@ -293,7 +296,7 @@ namespace Math {
 				return ;
 			}
 			
-			const size_type _Geometric = _Calcalute_Growth(_Newsize);
+			const size_type _Geometric = _Calculate_Growth(_Newsize);
 			
 			const pointer _Newstk = al.allocate(_Geometric);
 
@@ -321,7 +324,7 @@ namespace Math {
 
 			if(_Newsize<=capacity())return ;
 
-			const size_type _Geometric = _Calcalute_Growth(_Newsize);
+			const size_type _Geometric = _Calculate_Growth(_Newsize);
 
 			auto al = Getal();
 
@@ -400,7 +403,7 @@ namespace Math {
 
 		template<typename iter>
 		void assign(iter _First,iter _Last) {
-			size_type _Count = static_cast<size_type>(std::distance(_First,_Last));
+			auto _Count = static_cast<size_type>(std::distance(_First, _Last));
 			clear();
 			if (capacity() < _Count)
 				_Resize_Reallocate(_Count);
@@ -462,11 +465,8 @@ namespace Math {
 			}
 			if (index > _Size) {
 				const size_type _Delta = index - size();
-				if (tail + _Delta <= _End) {
-					_Ufill(tail, _Delta, Ty());
-					return;
-				}
-				_Resize_Reallocate(index);
+				if(tail+_Delta > _End)
+					_Resize_Reallocate(index);
 				_Ufill(tail, _Delta, Ty());
 				tail += _Delta;
 			}
@@ -537,7 +537,7 @@ namespace Math {
 			std::swap(tail,other.tail);
 		}
 
-		template<typename iter, std::enable_if_t<std::_Is_iterator_v<iter>, int> = 0>
+		template<typename iter>
 		void insert(iterator _Where,iter _First,iter _Last) {
 			auto _Count = static_cast<size_type>(std::distance(_First,_Last));
 			const size_type _Possize=_Where.Pos-head;

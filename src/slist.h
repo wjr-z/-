@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cmath>
 #include <list>
+#include <iterator>
 
 namespace Math {
 
@@ -64,8 +65,7 @@ namespace Math {
 
 	//slist迭代器
 	template<typename Ty>
-	class slist_iterator
-		: public std::_Iterator_base0 {
+	class slist_iterator{
 
 	private:
 		using node       = slist_node<Ty>;
@@ -73,6 +73,8 @@ namespace Math {
 		using iterator2  = typename std::list<node>::iterator;
 
 	public:
+		using iterator_category = std::random_access_iterator_tag;
+		
 		using value_type = Ty;
 		using reference  = value_type&;
 		using pointer    = value_type*;
@@ -273,8 +275,7 @@ namespace Math {
 	//不能进行+=,-=
 
 	template<typename Ty>
-	class slist_const_iterator
-		: public std::_Iterator_base0 {
+	class slist_const_iterator{
 
 		template<typename Ty>
 		friend class slist_iterator;
@@ -285,6 +286,8 @@ namespace Math {
 		using iterator2  = typename std::list<node>::const_iterator;
 
 	public:
+		using iterator_category = std::random_access_iterator_tag;
+		
 		using value_type = Ty;
 		using reference  = const value_type&;
 		using pointer    = value_type*;
