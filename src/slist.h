@@ -79,8 +79,7 @@ namespace Math {
 		using reference  = value_type&;
 		using pointer    = value_type*;
 		using difference = size_t;
-
-	private:
+		
 		//指向原容器
 		slist<Ty>* Point;
 		//第二层list迭代器
@@ -98,7 +97,6 @@ namespace Math {
 			if(!isEnd())return Pos2->linked;
 			return --Point->List.end();
 		}
-	public:
 		slist_iterator(slist<Ty>* Point, const iterator2& Pos2)noexcept
 			:Point(Point), Pos2(Pos2) {
 		}
@@ -292,8 +290,6 @@ namespace Math {
 		using reference  = const value_type&;
 		using pointer    = value_type*;
 		using difference = size_t;
-
-	private:
 		//指向原容器
 		slist<Ty>* Point;
 		//第二层list迭代器
@@ -310,7 +306,6 @@ namespace Math {
 			//其余时候返回节点指向的第一层list迭代器即可
 			return isEnd() ? --Point->List.end() : Pos2->linked;
 		}
-	public:
 		slist_const_iterator(const slist<Ty>* Point, const iterator2& Pos2)noexcept
 			:Point(const_cast<slist<Ty>*>(Point)), Pos2(Pos2) {
 		}
@@ -731,11 +726,12 @@ namespace Math {
 		}
 
 		iterator lower_bound(const Ty&Val) {
-			iterator1 Pos1=List.begin();
+			if(empty())return end();
+			auto Pos1=List.begin();
 			while(Pos1!=List.end()) {
 				psplit(Pos1);
 				pmerge(Pos1);
-				iterator2 Pos2=Pos1->end();
+				auto Pos2=Pos1->end();
 				--Pos2;
 				if(Pos2->Val>=Val) {
 					while(Pos2!=Pos1->begin()) {

@@ -14,7 +14,7 @@ namespace Math {
 
 	/*用于bint构造、赋值等的DEBUG*/
 	//#define BINTDEBUG
-
+	
 	using std::istream;
 	using std::ostream;
 	using std::endl;
@@ -82,6 +82,7 @@ namespace Math {
 	bint operator%(const bint&, const bint&);
 	bint operator%(const bint&, const int&);
 	bint operator%(const int&, const bint&);
+	void divmod(bint&,bint&);
 
 	bint qpow(bint, bint);
 	bint qpow(const bint&, size_t);
@@ -91,6 +92,8 @@ namespace Math {
 	bint gcd(bint,bint);
 	bint randbint(const bint& L, const bint& R);
 	bint randbint(size_t);
+	bint modpow(bint,bint ,const bint&);
+	bint modpow(bint,bint,const bint&,const bint&);
 	bint rand_prime(const bint& L, const bint& R); //获取一个[L,R]的随机素数
 	bint rand_prime(size_t); //获取一个长度为n的随机素数
 	void swap(bint&, bint&) noexcept;
@@ -216,7 +219,6 @@ namespace Math {
 
 		bint2 get2bit() const;
 		void clear();
-		void resize(const size_t&);
 		void reserve(const size_t&);
 		void pop_back();
 		bint(const size_t&, int);
@@ -251,6 +253,7 @@ namespace Math {
 		void reverse(size_t = 0);
 
 		size_t size() const;
+		void resize(const size_t&);
 
 		int at(const size_t&) const;
 		int& at(const size_t&);
@@ -314,6 +317,7 @@ namespace Math {
 		friend bint operator/(bint&&, const int&);
 		friend bint operator/(int, const bint&);
 		friend bint operator%(const bint&,const bint&);
+		friend void divmod(bint&,bint&);
 
 		void quick_mul_10(); //O(n)乘10，但省去了部分运算
 		bint& quick_mul_10k(const size_t&); //O(n)乘10^k
@@ -328,6 +332,9 @@ namespace Math {
 		std::string tostr() const; //转为字符串
 
 		bint2 to2bit() const; //转为2进制bint
+		friend bint modpow(bint, bint, const bint&);
+		friend bint modpow(bint, bint, const bint&, const bint&);
+		
 		//用于测试三种乘法
 #ifdef TEST
 		friend bint test1(const bint& a, const bint& b) {
@@ -557,6 +564,8 @@ namespace Math {
 		friend bint2 operator|(const bint2&, const bint2&);
 		friend bint2 operator^(const bint2&, const bint2&);
 
+		bint2& operator<<=(int kz);
+		bint2& operator>>=(int kz);
 		bint2& operator&=(const bint2&);
 		bint2& operator|=(const bint2&);
 		bint2& operator^=(const bint2&);

@@ -191,7 +191,7 @@ namespace Math {
 		//¿ìËÙ³Ë10^k
 		if (!k || a.is_zero())return;
 		const size_t _Size = a.size();
-		const int mul10 = _10k[k & 7], mod10 = bintjw / mul10;
+		const int mul10 = _10k[k & 7], mod10 = _10k[8-(k&7)];
 		size_t _Delta = (k>>3) + (a.save_at(_Size-1)>=mod10);
 		a.resize(_Size + _Delta);
 		const auto _Begin = a.begin();

@@ -2,6 +2,7 @@
 
 #include "src/bint.h"
 #include "src/mtool.h"
+#include "src/slist.h"
 using namespace Math;
 using namespace std;
 
@@ -118,18 +119,15 @@ int main() {
 	cin.tie(nullptr);
 	cout.tie(nullptr);
 
+	bint wjr("123434412312482173897129837128378744784784748744747444474747747477777");
 
-	auto a = qpow(bint(11),100);
-	auto b = qpow(bint(9),50);
-	decltype(a) c;
 	auto s=GetTime();
 
-	for(int i=0;i<100000;++i)
-		c=a/b;
+	auto g= pollard_rho(wjr);
 
 	auto t=GetTime();
+
 	cout<<t-s<<endl;
-
+	
 	return 0;
-
 }
