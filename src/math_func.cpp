@@ -104,7 +104,7 @@ namespace Math {
 	}
 
 	constexpr int _minx(uint32_t x) { 
-		return debruijn[((x&(~x+1)) * 0x077CB531U) >> 27]; 
+		return debruijn[((x&((~x)+1)) * 0x077CB531U) >> 27]; 
 	}
 
 	bool isrightint(const char* s) {

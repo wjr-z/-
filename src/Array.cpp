@@ -1,7 +1,8 @@
 #include "Array.h"
 namespace Math {
 
-	Array::Array(const size_t& index)noexcept :vec(index) {
+	Array::Array(const size_t& index)noexcept
+		: vec(index) {
 		resize(1);
 	}
 
@@ -110,18 +111,6 @@ namespace Math {
 		vec.swap(other.vec);
 	}
 
-#ifdef USE_ALLOCATOR
-	Allocator<int>&Array::Getal() {
-		static Allocator<int> wjr;
-		return wjr;
-	}
-#else
-	std::allocator<int>& Array::Getal() {
-		static std::allocator<int> wjr;
-		return wjr;
-	}
-#endif
-
 	void swap(Array& lhs, Array& rhs)noexcept {
 		lhs.swap(rhs);
 	}
@@ -197,7 +186,7 @@ namespace Math {
 		const auto _Begin = a.begin();
 		if (k & 7) {
 			if (_Begin[_Size-1] >= mod10) {
-				_Begin[_Size]=_Begin[_Size-1]/mod10;
+				_Begin[_Size+_Delta-1]=_Begin[_Size-1]/mod10;
 				--_Delta;
 			}
 			for (size_t i = _Size - 1; i; --i)
@@ -489,16 +478,16 @@ namespace Math {
 		else FFTQuickMul1(A, B, c);
 	}
 
-	Array2::Array2(const size_t& index)noexcept :vec(index),Size(1) {
+	Array2::Array2(const size_t& index)noexcept :vec(index) {
 		resize(1);
 	}
 
-	Array2::Array2(const Array2& other)noexcept :vec(other.vec),Size(other.Size) {
+	Array2::Array2(const Array2& other)noexcept :vec(other.vec) {
 		
 	}
 
 	Array2::Array2(Array2&& other)noexcept
-		:vec(std::move(other.vec)), Size(other.Size) {
+		:vec(std::move(other.vec)) {
 
 	}
 
@@ -506,7 +495,6 @@ namespace Math {
 
 	Array2& Array2::operator=(Array2&& other)noexcept {
 		vec = std::move(other.vec);
-		Size = other.Size;
 		return*this;
 	}
 
@@ -517,7 +505,7 @@ namespace Math {
 	}
 
 	const uint32_t* Array2::end() const {
-		return begin() + Size;
+		return begin() + size();
 	}
 
 	uint32_t* Array2::begin() {
@@ -525,24 +513,28 @@ namespace Math {
 	}
 
 	uint32_t* Array2::end() {
-		return begin() + Size;
+		return begin() + size();
 	}
 
 	bool Array2::iszero()const {
-		if ((Size == 1 && at(0) == 0) || !Size)return true;
-		return false;
+		return (size()==1&&at(0)==0);
 	}
 
 	size_t Array2::size()const {
-		return Size;
+		return vec.size();
 	}
 
+	size_t Array2::capacity() const {
+		return vec.capacity();
+	}
+
+
 	size_t Array2::length()const {
-		return ((Size - 1) << 5) + qlog2(at(Size - 1)) + 1;
+		return ((size() - 1) << 5) + qlog2(at(size() - 1)) + 1;
 	}
 
 	void Array2::resize(const size_t& index) {
-		vec.resize(index); Size = index;
+		vec.resize(index);
 	}
 
 	void Array2::reserve(const size_t& index) {
@@ -553,62 +545,77 @@ namespace Math {
 		resize(1); save_at(0) = 0;
 	}
 
-	uint32_t& Array2::save_at(const size_t& index) {
+	void Array2::assign(const Array2& other, size_t L, size_t R) {
+		vec.assign(other.vec.begin()+L,other.vec.begin()+R);
+	}
+
+
+	uint32_t& Array2::save_at(size_t index) {
 		return vec[index];
 	}
 
-	uint32_t Array2::at(const size_t& index)const {
+	uint32_t Array2::at(size_t index)const {
 		return vec[index];
 	}
 
-	uint32_t& Array2::at(const size_t& index) {
+	uint32_t& Array2::at(size_t index) {
 		if (size() <= index)this->resize(index + 1);
 		return save_at(index);
 	}
 
-	void Array2::setbool(const size_t& index, const bool val) {
+	void Array2::setbool(size_t index, bool val) {
 		const size_t pos = index >> 5;
 		const int x = static_cast<int>(index & 31);
 		at(pos) ^= ((at(pos) >> x & 1) ^ val) << x;//将第index位设置为1
 	}
 
-	bool Array2::atbool(const size_t& index)const {
+	bool Array2::atbool(size_t index)const {
 		return (at(index >> 5) >> (index & 31) & 1);
 	}
 
-	bool Array2::operator[](const size_t& index)const {
+	bool Array2::operator[](size_t index)const {
 		return atbool(index);
 	}
 
-	reference2 Array2::operator[](const size_t& index) {
+	reference2 Array2::operator[](size_t index) {
 		return reference2(*this, index);
 	}
 
 	void Array2::maintain() {
-		while (Size > 1 && !save_at(Size - 1))
-			--Size;
-		resize(Size);
+		size_t _Size = size();
+		while(_Size>1&&!save_at(_Size - 1))
+			--_Size;
+		resize(_Size);
 	}
 
-	void Array2::relength(const size_t& index) {
-		if (!index) { this->resize(1); save_at(0) = 0; return; }
+	void Array2::relength(size_t index) {
+		if (!index) {
+			this->resize(1);
+			save_at(0) = 0;
+			return;
+		}
 		this->resize(((index - 1) >> 5) + 1);
-		if (index & 31)
-			this->save_at((index - 1) >> 5) &= ((1 << index & 31) - 1);//对于最后一个可能高位被舍去
+		if (index & 31) {
+			//对于最后一个可能高位被舍去
+			this->save_at((index - 1) >> 5) &= ((1 << (index & 31)) - 1);
+		}
 	}
 
 	bool operator<(const Array2& lhs, const Array2& rhs) {
-		if (lhs.size() != rhs.size())return lhs.size() < rhs.size();
+		if (lhs.size() != rhs.size())
+			return lhs.size() < rhs.size();
+		const auto lq=lhs.begin(),rq=rhs.begin();
 		for (size_t i = lhs.size() - 1; ~i; --i)
-			if (lhs.at(i) != rhs.at(i))
-				return lhs.at(i) < rhs.at(i);
+			if (lq[i] != rq[i])
+				return lq[i] < rq[i];
 		return false;
 	}
 
 	bool operator==(const Array2& lhs, const Array2& rhs) {
 		if (lhs.size() != rhs.size())return false;
+		const auto lq = lhs.begin(), rq = rhs.begin();
 		for (size_t i = lhs.size() - 1; ~i; --i)
-			if (lhs.at(i) != rhs.at(i))
+			if (lq[i]!=rq[i])
 				return false;
 		return true;
 	}
@@ -616,9 +623,10 @@ namespace Math {
 	bool operator<=(const Array2& lhs, const Array2& rhs) {
 		if (lhs.size() < rhs.size())return true;
 		if (lhs.size() > rhs.size())return false;
+		const auto lq = lhs.begin(), rq = rhs.begin();
 		for (size_t i = lhs.size() - 1; ~i; --i)
-			if (lhs.at(i) != rhs.at(i))
-				return lhs.at(i) < rhs.at(i);
+			if (lq[i] != rq[i])
+				return lq[i]<rq[i];
 		return true;
 	}
 
@@ -660,26 +668,31 @@ namespace Math {
 	reference2::reference2(Array2& array2, const size_t pos) : Point(&array2), _Pos(pos) {}
 
 	void Array2_func::QuickMul2k(Array2& a, size_t k) {//快速乘2^k
-		if (!k)return;
-		if (k & 31) {
-			const size_t Size = a.size();
-			a.reserve(Size + 1);
-			const uint32_t len1 = k & 31, len2 = 32 - len1, mo = (1 << len2) - 1;
-			if (a.save_at(Size - 1) >> len2)
-				a.at(Size) = a.save_at(Size - 1) >> len2;
-			for (size_t i = Size - 1; i; --i)
-				a.save_at(i) = ((a.save_at(i) & mo) << len1) + (a.save_at(i - 1) >> len2);
-			a.save_at(0) = (a.save_at(0) & mo) << len1;
-		}
+		if (a.iszero()||!k)return;
+		const size_t _Size = a.size();
+		const uint32_t len1 = k & 31 , len2 = 32 - len1, mask = (1<<len2) - 1;
+		size_t _Delta = (k>>5)+((k&31)&&((a.save_at(_Size-1)>>len2)!=0));
+		a.resize(_Size + _Delta);
+		const auto al = a.begin();
 
-		if (k >> 5) {//32倍数
-			a.vec.insert(a.vec.begin(), k >> 5, 0);
-			a.Size += k >> 5;
+		if (k & 31) {
+			if (al[_Size - 1] >> len2) {
+				al[_Size + _Delta - 1] = al[_Size - 1] >> len2;
+				--_Delta;
+			}
+			for (size_t i = _Size - 1; i; --i) {
+				al[i + _Delta] = ((al[i] & mask) << len1) + (al[i - 1] >> len2);
+			}
+			al[_Delta] = (al[0] & mask) << len1;
+		}else {
+			std::memmove(al+_Delta,al,sizeof(uint32_t)*_Size);
 		}
+		std::memset(al,0,sizeof(uint32_t)*_Delta);
 	}
 
 	void Array2_func::QuickDivide2k(Array2& a, size_t k) {//快速除以2^k，即快速右移k位
 		if (!k)return;
+		//暂未优化
 		size_t Length = a.size();
 		if (k >> 5) {
 			if (k >> 5 >= Length) {
@@ -687,7 +700,6 @@ namespace Math {
 				return;
 			}
 			a.vec.erase(a.vec.begin(), a.vec.begin() + (k >> 5));
-			a.Size -= k >> 5;
 		}
 		Length = a.size();
 		if (k & 31) {
@@ -709,19 +721,23 @@ namespace Math {
 		memset(mid, 0, sizeof(uint64_t) * (n + m));
 		const size_t Length = n + m - 1;
 
+		const auto al=A.begin(),bl=B.begin();
+
 		for (size_t i = 0; i < n; ++i)
 			for (size_t j = 0; j < m; ++j) {
-				const uint64_t val = static_cast<uint64_t>(A.at(i)) * B.at(j) + mid[i + j];
+				const uint64_t val = static_cast<uint64_t>(al[i])*bl[j] + mid[i + j];
 				mid[i + j + 1] += val >> 32;
 				mid[i + j] = static_cast<uint32_t>(val);
 			}
 
-		if (mid[Length])
-			c.resize(Length + 1), c.save_at(Length) = mid[Length];
+		if (mid[Length]) {
+			c.resize(Length + 1);
+			c.save_at(Length) = mid[Length];
+		}
 		else c.resize(Length);
-		uint32_t* it = c.begin();
+		const auto cl=c.begin();
 		for (size_t i = 0; i < Length; ++i)
-			it[i] = mid[i];
+			cl[i] = static_cast<uint32_t>(mid[i]);
 		test.deallocate(mid, n + m);
 	}
 

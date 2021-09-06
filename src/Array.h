@@ -79,11 +79,6 @@ namespace Math {
 		int operator[](const size_t& index)const;
 		reference operator[](const size_t& index);
 		void swap(Array& other) noexcept;
-#ifdef USE_ALLOCATOR
-		Allocator<int>& Getal();
-#else
-		std::allocator<int>&Getal();
-#endif
 	private:
 	#ifdef USE_ALLOCATOR
 		std::vector<int, Allocator<int>>vec;
@@ -131,7 +126,6 @@ namespace Math {
 	/*---使用vector---*/
 	class reference2;
 	class Array2_func;
-	//ungisned int 
 	//每一个存储2^32进制数，即32个二进制数
 	class alignas(8) Array2 {
 		friend reference2;
@@ -149,30 +143,30 @@ namespace Math {
 		uint32_t* end();
 		bool iszero()const;
 		size_t size() const;
+		size_t capacity() const;
 		size_t length()const;
 		void resize(const size_t& index);
 		void reserve(const size_t& index);
 		void clear();
+		void assign(const Array2&other,size_t L,size_t R);
 
-		uint32_t& save_at(const size_t& index);
-		uint32_t at(const size_t& index)const;
-		uint32_t& at(const size_t& index);
+		uint32_t& save_at(size_t index);
+		uint32_t at(size_t index)const;
+		uint32_t& at(size_t index);
 
-		bool operator[](const size_t& index)const;
-		reference2 operator[](const size_t& index);
+		bool operator[](size_t index)const;
+		reference2 operator[](size_t index);
 
-		void maintain();//用于弹出头部多余的1
-		void relength(const size_t& index);
+		void maintain();//用于弹出头部多余的0
+		void relength(size_t index);
 	private:
-	#ifndef USE_ALLOCATOR //DEBUG版本
+#ifdef USE_ALLOCATOR
+		std::vector<uint32_t,Allocator<uint32_t>>vec;
+#else
 		std::vector<uint32_t>vec;
-	#endif
-	#ifdef USE_ALLOCATOR
-		std::vector<uint32_t, Allocator<uint32_t>>vec;
-	#endif
-		size_t Size;
-		void setbool(const size_t& index, bool val);
-		bool atbool(const size_t& index)const;
+#endif
+		void setbool(size_t index, bool val);
+		bool atbool(size_t index)const;
 	};
 
 	class reference2 {

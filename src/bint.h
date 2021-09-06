@@ -102,22 +102,34 @@ namespace Math {
 	istream& operator>>(istream& in, bint2& x);
 
 	bool operator<(const bint2&, const bint2&);
+	bool operator<(const bint2&,uint32_t);
 	bool operator<(const bint2&, const int&);
+	bool operator<(uint32_t ,const bint2&);
 	bool operator<(const int&, const bint2&);
 	bool operator==(const bint2&, const bint2&);
+	bool operator==(const bint2&,uint32_t);
 	bool operator==(const bint2&, const int&);
+	bool operator==(uint32_t,const bint2&);
 	bool operator==(const int&, const bint2&);
 	bool operator<=(const bint2&, const bint2&);
+	bool operator<=(const bint2&,uint32_t);
 	bool operator<=(const bint2&, const int&);
+	bool operator<=(uint32_t,const bint2&);
 	bool operator<=(const int&, const bint2&);
 	bool operator>(const bint2&, const bint2&);
+	bool operator>(const bint2&,uint32_t);
 	bool operator>(const bint2&, const int&);
+	bool operator>(uint32_t,const bint2&);
 	bool operator>(const int&, const bint2&);
 	bool operator>=(const bint2&, const bint2&);
+	bool operator>=(const bint2&,uint32_t);
 	bool operator>=(const bint2&, const int&);
+	bool operator>=(uint32_t,const bint2&);
 	bool operator>=(const int&, const bint2&);
 	bool operator!=(const bint2&, const bint2&);
+	bool operator!=(const bint2&,uint32_t);
 	bool operator!=(const bint2&, const int&);
+	bool operator!=(uint32_t,const bint2&);
 	bool operator!=(const int&, const bint2&);
 
 	bint2 operator+(bint2);
@@ -129,26 +141,36 @@ namespace Math {
 	bint2 operator+(bint2&&, const bint2&);
 	bint2 operator+(const bint2&, bint2&&);
 	bint2 operator+(bint2&&, bint2&&);
+	bint2 operator+(bint2,uint32_t);
 	bint2 operator+(bint2, const int&);
+	bint2 operator+(uint32_t,bint2);
 	bint2 operator+(const int&, bint2);
 	bint2 operator-(const bint2&, const bint2&);
 	bint2 operator-(bint2&&, const bint2&);
 	bint2 operator-(const bint2&, bint2&&);
 	bint2 operator-(bint2&&, bint2&&);
+	bint2 operator-(bint2,uint32_t);
 	bint2 operator-(bint2, const int&);
+	bint2 operator-(uint32_t,bint2);
 	bint2 operator-(const int&, bint2);
 
 	bint2 operator*(const bint2&, const bint2&);
 	bint2 operator*(bint2&&, const bint2&);
 	bint2 operator*(const bint2&, bint2&&);
 	bint2 operator*(bint2&&, bint2&&);
+	bint2 operator*(bint2 ,uint32_t);
 	bint2 operator*(bint2, const int&);
+	bint2 operator*(uint32_t,bint2);
 	bint2 operator*(const int&, bint2);
 	bint2 operator/(const bint2&, const bint2&);
+	bint2 operator/(const bint2&,uint32_t);
 	bint2 operator/(const bint2&, const int&);
+	bint2 operator/(uint32_t,const bint2&);
 	bint2 operator/(const int&, const bint2&);
 	bint2 operator%(const bint2&, const bint2&);
+	bint2 operator%(const bint2&,uint32_t);
 	bint2 operator%(const bint2&, const int&);
+	bint2 operator%(uint32_t,const bint2&);
 	bint2 operator%(const int&, const bint2&);
 
 	bint2 operator<<(const bint2&, int);
@@ -161,6 +183,9 @@ namespace Math {
 
 	bint2 abs(bint2);
 	bint2 randbint2(size_t);
+	bint2 gcd(bint2 a,bint2 b);
+	bint2 modpow(bint2, bint2, const bint2&);
+	bint2 modpow(bint2, bint2, const bint2&, const bint2&);
 
 	bool operator==(const bint&, const bint2&);
 	bool operator==(const bint2&, const bint&);
@@ -173,6 +198,9 @@ namespace Math {
 	bool is_prime(const bint&); //大数判别质数
 	std::vector<bint> pollard_rho(bint);
 	bint max_prime(const bint& x);
+	bool is_prime(const bint2&);
+	std::vector<bint2> pollard_rho(bint2);
+	bint2 max_prime(const bint2&);
 
 	//------------------------------------------------------------------//
 
@@ -220,7 +248,6 @@ namespace Math {
 		bint2 get2bit() const;
 		void clear();
 		void reserve(const size_t&);
-		void pop_back();
 		bint(const size_t&, int);
 	public:
 		/*---初始化为other的[L,R]元素---*/
@@ -267,6 +294,7 @@ namespace Math {
 		int* begin();
 		int* end();
 
+		void maintain();
 		void rand(const bint& other);
 
 		friend ostream& operator<<(ostream&, const bint&);
@@ -334,80 +362,6 @@ namespace Math {
 		bint2 to2bit() const; //转为2进制bint
 		friend bint modpow(bint, bint, const bint&);
 		friend bint modpow(bint, bint, const bint&, const bint&);
-		
-		//用于测试三种乘法
-#ifdef TEST
-		friend bint test1(const bint& a, const bint& b) {
-			if (a.is_zero() || b.is_zero()) {
-				return bint();
-			}
-			bint c;
-			Array_func::SlowMul(a.vec, b.vec, c.vec);
-
-			c.positive = !(a.positive ^ b.positive);
-			if (c.is_zero())c.positive = true;
-			return c;
-		}
-
-		friend bint test2(const bint& a, const bint& b) {
-			if (a.is_zero() || b.is_zero()) {
-				return bint();
-			}
-			bint c;
-			Karatsuba(a, b, c);
-			c.positive = !(a.positive ^ b.positive);
-			if (c.is_zero())c.positive = true;
-			return c;
-
-		}
-
-		friend bint test3(const bint& a, const bint& b) {
-			bint c;
-			if (a.is_zero() || b.is_zero()) {
-				c = 0;
-				c.positive = true;
-				return c;
-			}
-
-			FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
-			c.positive = !(a.positive ^ b.positive);
-			if (c.is_zero())c.positive = true;
-			return c;
-		}
-
-		friend bint test4(const bint& a, const bint& b) {
-			bint c;
-			if (a.is_zero() || b.is_zero()) {
-				c = 0;
-				c.positive = true;
-				return c;
-			}
-			const size_t n = a.size(), m = b.size(), _min = std::min(n, m), _max = std::max(n, m);
-
-			if (_min <= 32 || (((1ull << std::min(static_cast<size_t>(30), 
-				std::max(static_cast<size_t>(0), (_min - 32) >> 1))) <=
-				_max)))
-				Array_func::SlowMul(a.vec, b.vec, c.vec);
-			else FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
-
-
-			if (_min <= 32 || (((1ull << std::min(static_cast<size_t>(30), 
-				std::max(static_cast<size_t>(0), (_min - 32) >> 1))) <=
-				_max)))
-				mode = 1;
-			else mode = 3;
-
-			c.positive = !(a.positive ^ b.positive);
-			if (c.is_zero())c.positive = true;
-			return c;
-		}
-
-		friend bint testTOOM(const bint& a, const bint& b) {
-			bint c;
-			TOOM_COOK_3(a, b, c);
-			return c;
-		}
-#endif
 	};
 
 	/* bigintger类(2bit)
@@ -426,6 +380,7 @@ namespace Math {
 		bool positive; //positive为true表示为正数，否则为负数
 
 		void assign(int);
+		void assign(uint32_t);
 		void assign(long long);
 		void assign(const char*);
 		void assign(const std::string&);
@@ -434,29 +389,30 @@ namespace Math {
 		void saveadd(size_t);
 		void savedel(size_t);
 
-		static void quickadd(bint2&, const bint2&, bool);
-		static void addint(bint2&, unsigned int, bool);
+		static void quickadd(bint2&, const bint2&);
+		static void addint(bint2&, uint32_t);
 
-		static bint2 largedivide(const bint2&, const bint2&);
-		static bint2 smalldivide(const bint2&, const bint2&);
-		static bint2 knuthdivide(const bint2&, const bint2&);
-		static bint2 quickdivide(const bint2&, const bint2&);
+		static void largedivide(bint2&, bint2&);
+		static void smalldivide(bint2&, bint2&);
+		static void knuthdivide(bint2&, bint2&);
+		static void quickdivide(bint2&, bint2&);
 
-		static bint2 del(const bint2&, const bint2&, bool);
-		static void quickdel(bint2&, const bint2&, bool);
+		static void quickdel(bint2&, const bint2&);
 
-		static void delint(bint2& a, unsigned int b, bool _positive);
+		static void delint(bint2& a, uint32_t b);
 		static void quickmul(bint2& a, const bint2&);
-		static void mulint(const bint2& a, int b, bint2& c);
+		static void mulint(const bint2& a, uint32_t b, bint2& c);
+		static bint2 divideint(const bint2&a,uint32_t b);
 		bint get10bit() const;
 		void clear();
 	public:
 		void assign(const bint2& other, size_t L, size_t R);
-		bool ispositive() const;
-		bool iszero() const;
+		bool is_positive() const;
+		bool is_zero() const;
 		bint2() noexcept;
 		~bint2();
 		explicit bint2(const int& val) noexcept;
+		explicit bint2(uint32_t val)noexcept;
 		explicit bint2(const long long& val) noexcept;
 		explicit bint2(const char* s) noexcept;
 		explicit bint2(const std::string& s) noexcept;
@@ -465,14 +421,25 @@ namespace Math {
 		bint2(bint2&& other) noexcept;
 		bint2(const bint2& other, const bool& _positive) noexcept;
 		bint2(bint2&& other, bool _positive) noexcept;
+
+		bint2(const bint2& other, size_t L, size_t R) noexcept;
 		bint2(Array2 vec, bool positive) noexcept;
+		
 		bint2& operator=(const int& val) noexcept;
+		bint2& operator=(uint32_t val)noexcept;
 		bint2& operator=(const long long& val) noexcept;
 		bint2& operator=(const bint2& other) noexcept;
 		bint2& operator=(bint2&& other) noexcept;
 		bint2& operator=(const char* s) noexcept;
 		bint2& operator=(const std::string& s) noexcept;
 		bint2& operator=(const bint& other) noexcept;
+
+		size_t length() const;
+		void relength(size_t);
+
+		size_t size() const;
+		void resize(size_t);
+		void reserve(const uint32_t&);
 
 		uint32_t at(size_t) const;
 		uint32_t& at(size_t);
@@ -487,39 +454,56 @@ namespace Math {
 		uint32_t* end();
 
 		void maintain();
-		void randdata(const bint2&);
+		void rand(const bint2&);
 
 		friend ostream& operator<<(ostream& out, const bint2& x);
 		friend istream& operator>>(istream& in, bint2& x);
 
 		friend bool operator<(const bint2&, const bint2&);
+		friend bool operator<(const bint2&, uint32_t);
 		friend bool operator<(const bint2&, const int&);
+		friend bool operator<(uint32_t, const bint2&);
 		friend bool operator<(const int&, const bint2&);
 		friend bool operator==(const bint2&, const bint2&);
+		friend bool operator==(const bint2&, uint32_t);
 		friend bool operator==(const bint2&, const int&);
+		friend bool operator==(uint32_t, const bint2&);
 		friend bool operator==(const int&, const bint2&);
 		friend bool operator<=(const bint2&, const bint2&);
+		friend bool operator<=(const bint2&, uint32_t);
 		friend bool operator<=(const bint2&, const int&);
+		friend bool operator<=(uint32_t, const bint2&);
 		friend bool operator<=(const int&, const bint2&);
 		friend bool operator>(const bint2&, const bint2&);
+		friend bool operator>(const bint2&, uint32_t);
 		friend bool operator>(const bint2&, const int&);
+		friend bool operator>(uint32_t, const bint2&);
 		friend bool operator>(const int&, const bint2&);
 		friend bool operator>=(const bint2&, const bint2&);
+		friend bool operator>=(const bint2&, uint32_t);
 		friend bool operator>=(const bint2&, const int&);
+		friend bool operator>=(uint32_t, const bint2&);
 		friend bool operator>=(const int&, const bint2&);
 		friend bool operator!=(const bint2&, const bint2&);
+		friend bool operator!=(const bint2&, uint32_t);
 		friend bool operator!=(const bint2&, const int&);
+		friend bool operator!=(uint32_t, const bint2&);
 		friend bool operator!=(const int&, const bint2&);
 
 		bint2& operator+=(const bint2&);
+		bint2& operator+=(uint32_t);
 		bint2& operator+=(const int&);
 		bint2& operator-=(const bint2&);
+		bint2& operator-=(uint32_t);
 		bint2& operator-=(const int&);
 		bint2& operator*=(const bint2&);
+		bint2& operator*=(uint32_t);
 		bint2& operator*=(int);
 		bint2& operator/=(const bint2&);
+		bint2& operator/=(uint32_t);
 		bint2& operator/=(int);
 		bint2& operator%=(const bint2&);
+		bint2& operator%=(uint32_t);
 		bint2& operator%=(int);
 
 		bint2& operator++();
@@ -536,26 +520,36 @@ namespace Math {
 		friend bint2 operator+(bint2&&, const bint2&);
 		friend bint2 operator+(const bint2&, bint2&&);
 		friend bint2 operator+(bint2&&, bint2&&);
+		friend bint2 operator+(bint2,uint32_t);
 		friend bint2 operator+(bint2, const int&);
+		friend bint2 operator+(uint32_t,bint2);
 		friend bint2 operator+(const int&, bint2);
 		friend bint2 operator-(const bint2&, const bint2&);
 		friend bint2 operator-(bint2&&, const bint2&);
 		friend bint2 operator-(const bint2&, bint2&&);
 		friend bint2 operator-(bint2&&, bint2&&);
+		friend bint2 operator-(bint2,uint32_t);
 		friend bint2 operator-(bint2, const int&);
+		friend bint2 operator-(uint32_t,bint2);
 		friend bint2 operator-(const int&, bint2);
 
 		friend bint2 operator*(const bint2&, const bint2&);
 		friend bint2 operator*(bint2&&, const bint2&);
 		friend bint2 operator*(const bint2&, bint2&&);
 		friend bint2 operator*(bint2&&, bint2&&);
+		friend bint2 operator*(bint2,uint32_t);
 		friend bint2 operator*(bint2, const int&);
+		friend bint2 operator*(uint32_t,bint2);
 		friend bint2 operator*(const int&, bint2);
 		friend bint2 operator/(const bint2&, const bint2&);
+		friend bint2 operator/(const bint2&,uint32_t);
 		friend bint2 operator/(const bint2&, const int&);
+		friend bint2 operator/(uint32_t,const bint2&);
 		friend bint2 operator/(const int&, const bint2&);
 		friend bint2 operator%(const bint2&, const bint2&);
+		friend bint2 operator%(const bint2&,uint32_t);
 		friend bint2 operator%(const bint2&, const int&);
+		friend bint2 operator%(uint32_t,const bint2&);
 		friend bint2 operator%(const int&, const bint2&);
 
 		friend bint2 operator<<(const bint2&, int);
@@ -572,12 +566,6 @@ namespace Math {
 
 		size_t count();
 
-		void resize(size_t);
-		size_t size() const;
-		size_t length() const;
-		void reserve(const uint32_t&);
-		void relength(size_t);
-
 		void quick_mul_2(); //O(n)乘10，但省去了部分运算
 		bint2& quick_mul_2k(size_t = 1); //O(n)乘10^k
 		bint2& quick_divide_2k(size_t = 1);
@@ -585,6 +573,8 @@ namespace Math {
 		friend bint2 abs(bint2);
 		void oppsite();
 
+		uint32_t to_uint()const;
+		uint64_t to_ull()const;
 		std::string tostr() const;
 		bint to10bit() const;
 	};
