@@ -15,6 +15,12 @@ namespace Math {
 
 	}
 
+	Array::Array(const Array& other, const size_t L, const size_t R)
+		:vec(other.begin()+L<other.end()?other.begin()+L:other.end(),other.begin()+R<other.end()?other.begin()+R:other.end()){
+		
+	}
+
+
 	Array& Array::operator=(const Array& other)= default;
 
 	Array& Array::operator=(Array&& other)noexcept {
@@ -91,8 +97,41 @@ namespace Math {
 	void Array::set_val(const size_t& index, const int& val) {
 		if (val < 0 || val >= 10)return;
 		const size_t pos = index >> 3;
-		const int x = _10k[index & 7];
-		at(pos) += (val - (at(pos) / x) % 10) * x;
+		switch(index&7) {
+		case 0: {
+			at(pos) += (val - (at(pos)) % 10);
+			break;
+		}
+		case 1: {
+			at(pos) += (val - (at(pos) / 10) % 10) * 10;
+			break;
+		}
+		case 2: {
+			at(pos) += (val - (at(pos) / 100) % 10) * 100;
+			break;
+		}
+		case 3: {
+			at(pos) += (val - (at(pos) / 1000) % 10) * 1000;
+			break;
+		}
+		case 4: {
+			at(pos) += (val - (at(pos) / 10000) % 10) * 10000;
+			break;
+		}
+		case 5: {
+			at(pos) += (val - (at(pos) / 100000) % 10) * 100000;
+			break;
+		}
+		case 6: {
+			at(pos) += (val - (at(pos) / 1000000) % 10) * 1000000;
+			break;
+		}
+		case 7: {
+			at(pos) += (val - (at(pos) / 10000000) % 10) * 10000000;
+			break;
+		}
+		default: ;
+		}
 	}
 
 	int Array::atv(const size_t& index)const {
@@ -471,12 +510,22 @@ namespace Math {
 	}
 
 	void FFT_Array_func::FFTQuickMul(const Array& A, const Array& B, Array& c) {
-		//保证 k*k*n <= 1e11 k 为 每个元素的最大大小
+		//保证 k*k*n <= 1e14 k 为 每个元素的最大大小
 		const size_t size = A.size() + B.size();
-		if (size <= 100000)FFTQuickMul4(A, B, c);
+		if (size <= 1000000)FFTQuickMul4(A, B, c);
 		else if (size <= 1000000000)FFTQuickMul2(A, B, c);
 		else FFTQuickMul1(A, B, c);
 	}
+
+	void FFT_Array_func::IntelligentFFT(const Array&A, const Array&B, Array&C) {
+		const size_t n = A.size() , m = B.size();
+		const size_t len = n + m - 1;
+		const uint32_t bit = qlog2(len-1) + 1;
+		const size_t s = 1ull << bit;
+		const auto a = new double [s<<1];
+		
+	}
+
 
 	Array2::Array2(const size_t& index)noexcept :vec(index) {
 		resize(1);

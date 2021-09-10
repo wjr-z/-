@@ -388,7 +388,7 @@ namespace Math {
 				memcpy(copyB.begin(), A.begin(), sizeof(int) * mid);
 			}
 		}
-		copyB-=bint(B,0,mid)*copyA;
+		copyB-=bint(B,0,mid) * copyA;
 		if (!copyB.positive) {
 			--copyA;
 			copyB += B;
@@ -398,8 +398,9 @@ namespace Math {
 	}
 
 	void bint::smalldivide(bint& A, bint& B) {
-		const size_t n = A.size(), m = B.size(), mid = (n - m) >> 1;
-		bint copyA(A,mid,n);
+		const size_t mid = (A.size() - B.size()) >> 1;
+		
+		bint copyA(A,mid,A.size());
 		bint mo(B);
 		quickdivide(copyA,mo);
 		copyA.quick_mul_10k(mid<<3);
@@ -410,13 +411,11 @@ namespace Math {
 		memcpy(A.begin(),mo.begin(),sizeof(int)*mo.size());
 	}
 	
-
 	void bint::knuthdivide(bint& A, bint& B) {
 		bint copyA(std::move(A)), copyB(std::move(B));
 		bint ans;
-
+		
 		const int bw = bintjw;
-
 		const int a = bw >> 1, b = copyB.at(copyB.size() - 1);
 		const int k = (a + b - 1) / b;
 
@@ -464,7 +463,8 @@ namespace Math {
 		ans.resize(size);
 		
 		A=std::move(ans);
-		B=r/k;
+		B=std::move(r);
+		if(k!=1)B/=k;
 	}
 
 	void bint::quickdivide(bint& A, bint& B) {
@@ -480,8 +480,12 @@ namespace Math {
 			A=ans;
 			return ;
 		}
-		if (m <= ((static_cast<uint64_t>(qlog2(n)) + 4)<<1)) return knuthdivide(A, B); //m比较小直接用O(m*(n-m))算法
-		if(m*5>=n*3)return largedivide(A,B);
+		if (m <= ((static_cast<uint64_t>(qlog2(n)) + 4) << 1)) {
+			return knuthdivide(A, B); //m比较小直接用O(m*(n-m))算法
+		}
+		if (m * 5 >= n * 3) {
+			return largedivide(A, B);
+		}
 		return smalldivide(A, B);
 	}
 
@@ -879,17 +883,21 @@ namespace Math {
 	}
 
 	bint::bint(const bint& other, const size_t& L, const size_t& R) noexcept
-		: vec(R>L?R-L:1),positive(true) {
+		: vec(other.vec,L,R),positive(true) {
 #ifdef BINTDEBUG
 		cout << "bint拷贝构造函数\n";
 #endif
-		assign(other, L, R);
+		maintain();
 	}
 
 	bint::bint(Array vec, bool positive) noexcept : vec(std::move(vec)), positive(positive) {
 #ifdef BINTDEBUG
 		cout << "bint拷贝构造函数\n";
 #endif
+	}
+
+	bint::bint(const bint2&other) noexcept{
+		(*this) = other.to10bit();
 	}
 
 	bint& bint::operator=(const int& val) noexcept {
@@ -957,8 +965,8 @@ namespace Math {
 		if (Length == 0)Length = length();
 		for (size_t i = 0; (i << 1) < Length; ++i) {
 			int u = vec[i], v = vec[Length - 1 - i];
-			vec[u] = v;
-			vec[v] = u;
+			vec[i] = v;
+			vec[Length-1-i] = u;
 		}
 	}
 
@@ -2076,6 +2084,10 @@ namespace Math {
 
 	bint2::bint2(const bint2& other, size_t L, size_t R) noexcept:vec(R>L?R-L:1),positive(true) {
 		assign(other,L,R);
+	}
+
+	bint2::bint2(const bint&other) noexcept {
+		(*this)=other.to2bit();
 	}
 
 	bint2& bint2::operator=(const int& val) noexcept {

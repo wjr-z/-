@@ -36,7 +36,7 @@ namespace Math {
 	uint32_t qlog10(uint64_t x);
 	uint32_t qlog10(long long x);
 
-	int findNumber(unsigned int n);
+	int findNumber(uint32_t n);
 
 	template<typename Ty>
 	constexpr Ty lowbit(const Ty&x){return (x&-x);}

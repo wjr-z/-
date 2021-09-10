@@ -55,6 +55,7 @@ namespace Math {
 		Array(const size_t& index = 1)noexcept;
 		Array(const Array& other)noexcept;
 		Array(Array&& other)noexcept;
+		Array(const Array&other,const size_t L,const size_t R);
 		Array& operator=(const Array& other);
 		Array& operator=(Array&& other)noexcept;
 		~Array()noexcept;
@@ -118,7 +119,7 @@ namespace Math {
 		static void FFTQuickMul2(const Array&, const Array&, Array&);
 		static void FFTQuickMul4(const Array&, const Array&, Array&);
 		static void FFTQuickMul(const Array&, const Array&, Array&);
-
+		static void IntelligentFFT(const Array&,const Array&,Array&);
 	};
 
 	/*---Array2---*/

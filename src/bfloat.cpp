@@ -7,7 +7,7 @@ namespace Math {
 
 	/*---全局---*/
 
-	int bfloat::floatlim = 32;
+	int bfloat::floatlim = 256;
 
 	void setfloatlim(const int& index) {//仅最初使用，以确保线程安全以及所有的精度相同
 		bfloat::floatlim = index;
@@ -18,7 +18,7 @@ namespace Math {
 	/*---private---*/
 
 
-	void bfloat::assign(const double& x) {//对于指数形式的现在还没搞
+	void bfloat::assign(const double& x) {
 		assign(std::to_string(x));
 	}
 	void bfloat::assign(const char* s) {
@@ -59,7 +59,7 @@ namespace Math {
 
 		if (s[0] == '-')base *= -1;
 		maintain();
-		if (base.is_zero())exp = 0;
+		if (!base)exp = 0;
 	}
 	void bfloat::assign(const std::string& s) {
 		assign(s.c_str());
@@ -76,9 +76,9 @@ namespace Math {
 		while (!base.at(tail) && tail < Size - 1)
 			++tail;
 		tail <<= 3;
-		while (!base[tail-1] && tail < Length - 1)
+		while (tail&&!base[tail-1] && tail < Length - 1)
 			++tail;
-		if (Length < bfloat::floatlim) {
+		if (Length < floatlim) {
 			base.quick_divide_10k(tail);
 			exp += tail;
 			if (base.is_zero())exp = 0;

@@ -256,17 +256,20 @@ namespace Math {
 		bool is_positive() const;
 		bint() noexcept;
 		~bint() noexcept;
+		
 		explicit bint(const int& val) noexcept;
 		explicit bint(const long long& val) noexcept;
 		explicit bint(const char* s) noexcept;
 		explicit bint(const std::string& s) noexcept;
+		
 		bint(const bint& other) noexcept;
 		bint(bint&& other) noexcept;
 		bint(const bint& other, const bool& _positive) noexcept;
 		bint(bint&& other, const bool& _positive) noexcept;
-
 		bint(const bint& other, const size_t& L, const size_t& R) noexcept;
 		bint(Array vec, bool positive) noexcept;
+		bint(const bint2&other) noexcept;
+		
 		bint& operator=(const int& val) noexcept;
 		bint& operator=(const long long& val) noexcept;
 		bint& operator=(const char* s) noexcept;
@@ -362,6 +365,11 @@ namespace Math {
 		bint2 to2bit() const; //转为2进制bint
 		friend bint modpow(bint, bint, const bint&);
 		friend bint modpow(bint, bint, const bint&, const bint&);
+		static bint test(const bint&a,const bint&b) {
+			bint c;
+			Karatsuba(a,b,c);
+			return c;
+		}
 	};
 
 	/* bigintger类(2bit)
@@ -421,9 +429,9 @@ namespace Math {
 		bint2(bint2&& other) noexcept;
 		bint2(const bint2& other, const bool& _positive) noexcept;
 		bint2(bint2&& other, bool _positive) noexcept;
-
 		bint2(const bint2& other, size_t L, size_t R) noexcept;
 		bint2(Array2 vec, bool positive) noexcept;
+		bint2(const bint&other)noexcept;
 		
 		bint2& operator=(const int& val) noexcept;
 		bint2& operator=(uint32_t val)noexcept;
@@ -566,9 +574,10 @@ namespace Math {
 
 		size_t count();
 
-		void quick_mul_2(); //O(n)乘10，但省去了部分运算
-		bint2& quick_mul_2k(size_t = 1); //O(n)乘10^k
+		void quick_mul_2();
+		bint2& quick_mul_2k(size_t = 1);
 		bint2& quick_divide_2k(size_t = 1);
+		
 		void abs();
 		friend bint2 abs(bint2);
 		void oppsite();
