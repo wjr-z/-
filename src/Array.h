@@ -72,6 +72,10 @@ namespace Math {
 		void clear();
 		void relength(const size_t& index);
 		void assign(const Array& other, const size_t& L, const size_t& R);
+		template<typename iter>
+		void assign(iter _First,iter _Last) {
+			vec.assign(_First,_Last);
+		}
 
 		int& save_at(const size_t& index);
 		int at(const size_t& index)const;

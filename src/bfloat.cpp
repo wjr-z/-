@@ -1,4 +1,5 @@
 #include "bfloat.h"
+#include <assert.h>
 #include <cstring>
 #include <string>
 namespace Math {
@@ -23,7 +24,8 @@ namespace Math {
 	}
 	void bfloat::assign(const char* s) {
 		const int Length = strlen(s);
-		if (!isrightdouble(s))return;
+		assert(isrightdouble(s));
+		//if (!isrightdouble(s))return;
 		clear();
 		reserve(Length >> 3);
 		int head = 0;
@@ -168,6 +170,12 @@ namespace Math {
 		base = other.base;
 		exp = other.exp;
 		return*this;
+	}
+
+	bfloat& bfloat::operator=(const bint&other) {
+		base = other;
+		exp = 0;
+		return *this;
 	}
 	
 	size_t bfloat::length() const {
@@ -655,9 +663,10 @@ namespace Math {
 		}
 		if (x < 0)return bfloat(1.0) / exp(-x);
 		const bint _Floor = floor(x);
+		const bfloat _floor (_Floor);
 		const bfloat sqrtEXP = exp(bfloat(0.5)), EXP = sqrtEXP * sqrtEXP;
-		if (x - _Floor < 0.5)return qpow(EXP, _Floor) * exp(x - _Floor);
-		return qpow(EXP, _Floor) * sqrtEXP * exp(x - _Floor - 0.5);
+		if (x - _floor < 0.5)return qpow(EXP, _Floor) * exp(x - _floor);
+		return qpow(EXP, _Floor) * sqrtEXP * exp(x - _floor - 0.5);
 	}
 
 #ifdef TEST

@@ -88,6 +88,7 @@ namespace Math {
 		return ans;
 	}
 	static void max_pollard_rho(int x, int& Max) {
+	
 		if (x < 2 || x <= Max)return;
 		if (is_prime(x)) {
 			Max = Max >= x ? Max : x;
@@ -131,7 +132,7 @@ namespace Math {
 			if (seed == n - 1)return true;
 			seed = LLMul(seed, seed, n);
 			if (seed == 1)return false;
-		}return false;
+		}return false; 
 	}
 
 	static bool MillerRobin(long long n, const int k = 5) {

@@ -1,5 +1,6 @@
 #include "bint.h"
 
+#include <assert.h>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -65,7 +66,7 @@ namespace Math {
 
 	void bint::assign(const char* s) {
 		const size_t Length = strlen(s);
-		if (!isrightint(s))return; //不合法
+		assert(isrightint(s));
 		clear(); //清空
 		size_t i = Length - 1, head = 0, j, fir = 0;
 		if (s[fir] == '-') {
@@ -468,6 +469,7 @@ namespace Math {
 	}
 
 	void bint::quickdivide(bint& A, bint& B) {
+		assert(!B.is_zero());
 		if (A.vec < B.vec) {
 			B=std::move(A);
 			A=bint();
@@ -490,7 +492,7 @@ namespace Math {
 	}
 
 	bint bint::divideint(const bint& A, int B) {
-		if(!B)return A;
+		assert(B!=0);
 		bint ans;
 		size_t Size = A.size();
 		const bool tmp = !(A.positive ^ (B >= 0));
@@ -1675,18 +1677,19 @@ namespace Math {
 
 	bint2 bint::get2bit() const {
 		const size_t Size = size();
-		if (Size <= 16) {
-			bint2 x(vec.at(Size-1));
-			for (size_t i = Size - 2; ~i; --i)
-				x = x * bintjw + vec.at(i);
-			return x;
+		if (Size <= 2) {
+			long long G=0;
+			for (size_t i = Size - 1; ~i; --i)
+				G=G*bintjw + vec.at(i);
+			return bint2(G);
 		}
 		const size_t mid = Size >> 1;
 		bint l(*this,mid,Size), r(*this,0,mid);
-		return l.to2bit() * get_2_bit_cache(mid) + r.to2bit();
+		return l.get2bit() * get_2_bit_cache(mid) + r.get2bit();
 	}
 
 	bint2 bint::to2bit() const {
+		to_2_bit_cache.clear();
 		return bint2(get2bit(), positive);
 	}
 
@@ -1934,7 +1937,7 @@ namespace Math {
 		a.maintain();
 	}
 
-	void bint2::delint(bint2& a, unsigned int b) {
+	void bint2::delint(bint2& a, uint32_t b) {
 		if(a.save_at(0)<b)
 			a.savedel(1);
 		a.save_at(0)-=b;
@@ -2088,6 +2091,11 @@ namespace Math {
 
 	bint2::bint2(const bint&other) noexcept {
 		(*this)=other.to2bit();
+	}
+
+	bint2::bint2(size_t n, int) noexcept
+		:vec(((n - 1) >> 5) + 1) {
+
 	}
 
 	bint2& bint2::operator=(const int& val) noexcept {
@@ -2927,22 +2935,16 @@ namespace Math {
 	}
 	bint bint2::get10bit() const {
 		const size_t Size = size();
-		if (Size <= 16) {
-			bint x = bint(static_cast<long long>(vec.at(Size - 1)));
-			const bint bit_32(1ll<<32);
-			for (size_t i = Size - 2; ~i; --i) {
-				x *= bit_32;
-				x += bint(static_cast<long long>(vec.at(i)));
-			}
-
-			return x;
+		if (Size == 1) {
+			return bint((long long)vec.at(0));
 		}
 		const size_t mid = (Size + 1) >> 1;
 		const bint2 l(*this,mid,Size), r(*this,0,mid);
-		return l.to10bit() * get_10_bit_cache(mid) + r.to10bit();
+		return l.get10bit() * get_10_bit_cache(mid) + r.get10bit();
 	}
 
 	bint bint2::to10bit() const {
+		to_10_bit_cache.clear();
 		return bint(get10bit(), positive);
 	}
 

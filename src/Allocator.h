@@ -267,10 +267,7 @@ namespace Math {
 	template <typename Ty>
 	class Allocator {
 	private:
-		static const size_t& getSize() {
-			static const size_t TySize = sizeof(Ty);
-			return TySize;
-		}
+		static constexpr size_t _Size = sizeof(Ty);
 	public:
 		
 		using value_type      = Ty;
@@ -283,22 +280,22 @@ namespace Math {
 
 		[[nodiscard]]
 			Ty* allocate() {
-			return static_cast<Ty*>(alloc::allocate(getSize()));
+			return static_cast<Ty*>(alloc::allocate(_Size));
 		}
 
 		[[nodiscard]]
 			Ty* allocate(const size_t& n){
 			if (n == 0) return nullptr;
-			return static_cast<Ty*>(alloc::allocate(getSize() * n));
+			return static_cast<Ty*>(alloc::allocate(_Size * n));
 		}
 
 		void deallocate(Ty* ptr){
-			alloc::deallocate(static_cast<void*>(ptr), getSize());
+			alloc::deallocate(static_cast<void*>(ptr), _Size);
 		}
 
 		void deallocate(Ty* ptr, const size_t& n){
 			if (n == 0) return;
-			alloc::deallocate(static_cast<void*>(ptr), getSize() * n);
+			alloc::deallocate(static_cast<void*>(ptr), _Size * n);
 		}
 
 		void construct(Ty* ptr) {

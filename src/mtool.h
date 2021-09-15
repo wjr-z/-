@@ -11,15 +11,48 @@
 #include <map>
 #include <string>
 #include <thread>
-
-#include "bint.h"
+#include <bitset>
+#include <vector>
 
 namespace Math {
+
+	template<typename _Type1, typename _Type2>
+	struct type_check {
+		static constexpr bool value = false;
+	};
+	template<typename _Type>
+	struct type_check<_Type, _Type> {
+		static constexpr bool value = true;
+	};
+
+	template<typename... _Type>
+	class in_type;
+
+	template<typename _Type1, typename _Type2>
+	class in_type<_Type1, _Type2> {
+	public:
+		static constexpr bool value = type_check<_Type1, _Type2>::value;
+	};
+
+	template<typename _To_Be_Checked, typename _Val, typename..._Res>
+	class in_type<_To_Be_Checked, _Val, _Res...> {
+	public:
+		using _Base = in_type<_To_Be_Checked, _Res...>;
+		static constexpr bool value = type_check<_To_Be_Checked, _Val>::value || _Base::value;
+	};
+
+
+	template<typename _Type1, typename _Type2, typename... _Res>
+	class out_type {
+	public:
+		static constexpr bool value = !in_type<_Type1, _Type2, _Res...>::value;
+	};
 
 	class time_ref;
 
 	time_ref GetTime();
 	double operator-(const time_ref& lhs, const time_ref& rhs);
+
 	class time_ref {
 	private:
 		typedef std::chrono::high_resolution_clock m_clock;
@@ -31,7 +64,7 @@ namespace Math {
 		static m_clock::time_point NowTime();
 		static double testTime(const m_clock::time_point& start, const m_clock::time_point& end);
 	public:
-		time_ref(m_clock::time_point TimePoint);
+		time_ref(const m_clock::time_point&TimePoint);
 		friend double operator-(const time_ref& lhs, const time_ref& rhs);
 	};
 
@@ -81,31 +114,6 @@ namespace Math {
 		return GetTime()-start;
 	}
 
-	template<typename Fn>
-	class con {
-	public:
-		static std::map<Fn, std::vector<Fn>>head;
-		static void connect(Fn fx1, Fn fx2) {
-			head[fx1].push_back(fx2);
-		}
-	};
-
-	template<typename Fn>
-	std::map<Fn, std::vector<Fn>> con<Fn>::head;
-
-	template<typename Fn>
-	void connect(Fn fx1, Fn fx2) {
-		con<Fn>::connect(fx1, fx2);
-	}
-
-	//函数调用树
-	template<typename Fn, typename... Args>
-	void crun(Fn fx, Args&&... List) {
-		fx(std::forward<Args>(List)...);
-		for (auto i : con<Fn>::head[fx])
-			crun(i, std::forward<Args>(List)...);
-	}
-
 	//判断两个数组是否相同
 	template<typename Ty>
 	bool check(Ty* arr1,Ty*arr2,int n) {
@@ -119,12 +127,14 @@ namespace Math {
 
 	template<typename iter1,typename iter2>
 	bool check(iter1 left_begin,iter1 left_end,iter2 right_begin,iter2 right_end) {
+		size_t n = std::distance(left_begin,left_end);
+		size_t m = std::distance(right_begin,right_end);
+		if(n!=m)return false;
 		while(left_begin!=left_end&&right_begin!=right_end) {
 			if(*left_begin!=*right_begin)return false;
 			++left_begin;
 			++right_begin;
 		}
-		if(left_begin!=left_end||right_begin!=right_end)return false;
 		return true;
 	}
 
@@ -187,8 +197,8 @@ namespace Math {
 	void qswap(Ty* Start, Ty* End, int* rev) {
 		int n = End - Start;
 
-		bint2 vis;
-		vis.relength(n);
+		std::bitset<n> vis;
+		//vis.relength(n);
 
 		Ty* arr = Start;
 		for (int i = 0; i < n; ++i) {

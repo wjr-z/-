@@ -261,8 +261,7 @@ namespace lz77 {
 
 		if(Length>=3&&arr.substr(0,3)=="wjr")return arr;
 
-		std::string str;
-		str.append("wjr");
+		std::string str("wjr");
 
 		const uint8_t* ql = (uint8_t*)arr.c_str();
 

@@ -1,4 +1,5 @@
 #include "Array.h"
+#include <assert.h>
 namespace Math {
 
 	Array::Array(const size_t& index)noexcept
@@ -17,7 +18,8 @@ namespace Math {
 
 	Array::Array(const Array& other, const size_t L, const size_t R)
 		:vec(other.begin()+L<other.end()?other.begin()+L:other.end(),other.begin()+R<other.end()?other.begin()+R:other.end()){
-		
+		if(vec.empty())
+			resize(1);
 	}
 
 
@@ -47,6 +49,7 @@ namespace Math {
 	}
 
 	bool Array::is_zero()const {
+		assert(size()!=0);
 		return (size() == 1 && at(0) == 0) ? true : false;
 	}
 
@@ -95,46 +98,14 @@ namespace Math {
 	}
 
 	void Array::set_val(const size_t& index, const int& val) {
-		if (val < 0 || val >= 10)return;
+		assert(val>=0&&val<=9);
 		const size_t pos = index >> 3;
-		switch(index&7) {
-		case 0: {
-			at(pos) += (val - (at(pos)) % 10);
-			break;
-		}
-		case 1: {
-			at(pos) += (val - (at(pos) / 10) % 10) * 10;
-			break;
-		}
-		case 2: {
-			at(pos) += (val - (at(pos) / 100) % 10) * 100;
-			break;
-		}
-		case 3: {
-			at(pos) += (val - (at(pos) / 1000) % 10) * 1000;
-			break;
-		}
-		case 4: {
-			at(pos) += (val - (at(pos) / 10000) % 10) * 10000;
-			break;
-		}
-		case 5: {
-			at(pos) += (val - (at(pos) / 100000) % 10) * 100000;
-			break;
-		}
-		case 6: {
-			at(pos) += (val - (at(pos) / 1000000) % 10) * 1000000;
-			break;
-		}
-		case 7: {
-			at(pos) += (val - (at(pos) / 10000000) % 10) * 10000000;
-			break;
-		}
-		default: ;
-		}
+		const size_t _k = _10k[index&7];
+		at(pos) += (val - (at(pos)/_k)%10)*_k;
 	}
 
 	int Array::atv(const size_t& index)const {
+		assert((index>>3)<size());
 		return (at(index >> 3) / _10k[index & 7]) % 10;
 	}
 
@@ -273,9 +244,9 @@ namespace Math {
 
 		const int* test1 = A.begin(), * test2 = B.begin();
 		const auto division=static_cast<uint64_t>(bintjw);
-		for (size_t i = 0, j; i < n; ++i) {
+		for (size_t i = 0; i < n; ++i) {
 			const auto AA = static_cast<uint64_t>(test1[i]);
-			for (j = 0; j < m; ++j) {
+			for (size_t j = 0; j < m; ++j) {
 				const uint64_t val = mid[i + j] + AA * test2[j];
 
 				mid[i + j + 1] += static_cast<uint32_t>(val / division);
@@ -619,6 +590,7 @@ namespace Math {
 	}
 
 	bool Array2::atbool(size_t index)const {
+		assert((index>>5)<size());
 		return (at(index >> 5) >> (index & 31) & 1);
 	}
 

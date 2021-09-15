@@ -261,6 +261,7 @@ namespace Math {
 		explicit bint(const long long& val) noexcept;
 		explicit bint(const char* s) noexcept;
 		explicit bint(const std::string& s) noexcept;
+		explicit bint(const bint2& other) noexcept;
 		
 		bint(const bint& other) noexcept;
 		bint(bint&& other) noexcept;
@@ -268,7 +269,6 @@ namespace Math {
 		bint(bint&& other, const bool& _positive) noexcept;
 		bint(const bint& other, const size_t& L, const size_t& R) noexcept;
 		bint(Array vec, bool positive) noexcept;
-		bint(const bint2&other) noexcept;
 		
 		bint& operator=(const int& val) noexcept;
 		bint& operator=(const long long& val) noexcept;
@@ -365,11 +365,76 @@ namespace Math {
 		bint2 to2bit() const; //转为2进制bint
 		friend bint modpow(bint, bint, const bint&);
 		friend bint modpow(bint, bint, const bint&, const bint&);
-		static bint test(const bint&a,const bint&b) {
+		#ifdef TEST
+		friend bint test1(const bint& a, const bint& b) {
+			if (a.is_zero() || b.is_zero()) {
+				return bint();
+			}
 			bint c;
-			Karatsuba(a,b,c);
+			Array_func::SlowMul(a.vec, b.vec, c.vec);
+
+			c.positive = !(a.positive ^ b.positive);
+			if (c.is_zero())c.positive = true;
 			return c;
 		}
+
+		friend bint test2(const bint& a, const bint& b) {
+			if (a.is_zero() || b.is_zero()) {
+				return bint();
+			}
+			bint c;
+			Karatsuba(a, b, c);
+			c.positive = !(a.positive ^ b.positive);
+			if (c.is_zero())c.positive = true;
+			return c;
+
+		}
+
+		friend bint test3(const bint& a, const bint& b) {
+			bint c;
+			if (a.is_zero() || b.is_zero()) {
+				c = 0;
+				c.positive = true;
+				return c;
+			}
+
+			FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
+			c.positive = !(a.positive ^ b.positive);
+			if (c.is_zero())c.positive = true;
+			return c;
+		}
+
+		friend bint test4(const bint& a, const bint& b) {
+			bint c;
+			if (a.is_zero() || b.is_zero()) {
+				c = 0;
+				c.positive = true;
+				return c;
+			}
+			const size_t n = a.size(), m = b.size(), _min = std::min(n, m), _max = std::max(n, m);
+
+			if (_min <= 32 || (((1ull << std::min(static_cast<size_t>(30), std::max(static_cast<size_t>(0), (_min - 32) >> 1))) <=
+				_max)))
+				Array_func::SlowMul(a.vec, b.vec, c.vec);
+			else FFT_Array_func::FFTQuickMul(a.vec, b.vec, c.vec);
+
+
+			if (_min <= 32 || (((1ull << std::min(static_cast<size_t>(30), std::max(static_cast<size_t>(0), (_min - 32) >> 1))) <=
+				_max)))
+				mode = 1;
+			else mode = 3;
+
+			c.positive = !(a.positive ^ b.positive);
+			if (c.is_zero())c.positive = true;
+			return c;
+		}
+
+		friend bint testTOOM(const bint& a, const bint& b) {
+			bint c;
+			TOOM_COOK_3(a, b, c);
+			return c;
+		}
+#endif
 	};
 
 	/* bigintger类(2bit)
@@ -413,6 +478,7 @@ namespace Math {
 		static bint2 divideint(const bint2&a,uint32_t b);
 		bint get10bit() const;
 		void clear();
+		explicit bint2(size_t n, int) noexcept;
 	public:
 		void assign(const bint2& other, size_t L, size_t R);
 		bool is_positive() const;
@@ -424,6 +490,7 @@ namespace Math {
 		explicit bint2(const long long& val) noexcept;
 		explicit bint2(const char* s) noexcept;
 		explicit bint2(const std::string& s) noexcept;
+		explicit bint2(const bint& other)noexcept;
 
 		bint2(const bint2& other) noexcept;
 		bint2(bint2&& other) noexcept;
@@ -431,7 +498,6 @@ namespace Math {
 		bint2(bint2&& other, bool _positive) noexcept;
 		bint2(const bint2& other, size_t L, size_t R) noexcept;
 		bint2(Array2 vec, bool positive) noexcept;
-		bint2(const bint&other)noexcept;
 		
 		bint2& operator=(const int& val) noexcept;
 		bint2& operator=(uint32_t val)noexcept;
@@ -587,5 +653,7 @@ namespace Math {
 		std::string tostr() const;
 		bint to10bit() const;
 	};
+
 }
+
 #endif

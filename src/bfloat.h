@@ -97,12 +97,13 @@ namespace Math {
 		explicit bfloat(const char* s);
 		explicit bfloat(const std::string& s);
 		bfloat(const bfloat& other);
-		bfloat(const bint& a, const int& index = 0);
+		explicit bfloat(const bint& a, const int& index = 0);
 		bfloat& operator=(const int& Val);
 		bfloat& operator=(const double& val);
 		bfloat& operator=(const char* s) ;
 		bfloat& operator=(const std::string& s);
 		bfloat& operator=(const bfloat& other);
+		bfloat& operator=(const bint&other);
 
 		size_t length() const;
 		void relength(const int&);
