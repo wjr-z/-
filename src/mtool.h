@@ -16,29 +16,20 @@
 
 namespace Math {
 
-	template<typename _Type1, typename _Type2>
-	struct type_check {
-		static constexpr bool value = false;
-	};
-	template<typename _Type>
-	struct type_check<_Type, _Type> {
-		static constexpr bool value = true;
-	};
-
 	template<typename... _Type>
 	class in_type;
 
 	template<typename _Type1, typename _Type2>
 	class in_type<_Type1, _Type2> {
 	public:
-		static constexpr bool value = type_check<_Type1, _Type2>::value;
+		static constexpr bool value = std::is_same<_Type1, _Type2>::value;
 	};
 
 	template<typename _To_Be_Checked, typename _Val, typename..._Res>
 	class in_type<_To_Be_Checked, _Val, _Res...> {
 	public:
 		using _Base = in_type<_To_Be_Checked, _Res...>;
-		static constexpr bool value = type_check<_To_Be_Checked, _Val>::value || _Base::value;
+		static constexpr bool value = std::is_same<_To_Be_Checked, _Val>::value || _Base::value;
 	};
 
 

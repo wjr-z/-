@@ -115,10 +115,40 @@ void test() {
 	}
 }
 
+#include "src/String.h"
+
+constexpr size_t mlen(const char* str) {
+	const char*ptr = str;
+	while(*ptr!='\0')++ptr;
+	return ptr-str;
+	//return *str=='\0'?0:mlen(str+1)+1;
+}
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
 
+	string str;
+
+	auto s=GetTime(),t=GetTime(),h=GetTime();
+	size_t ans1 = 0,ans2=0;
+	int n=1e7;
+	
+	s=GetTime();
+	for (int i = 0; i < n; ++i) {
+		string s("wjrtql");
+		s.append(s);
+		s.append(s); 
+	}
+	t=GetTime();
+	for (int i = 0; i < n; ++i) {
+		String s("wjrtql");
+		s.append(s);
+		s.append(s);
+	}
+	h=GetTime();
+	cout<<t-s<<'\n'<<h-t<<'\n';
+	cout<<ans1<<'\n'<<ans2;
 	return 0;
 }
