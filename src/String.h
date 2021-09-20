@@ -28,9 +28,12 @@ namespace Math {
 		}
 
 		String_Core(const Char* _Data, const size_t s) {
-			if(s<=maxSmallSize)
-				initSmall(_Data,s);
-			else initMedium(_Data,s);
+			if (s <= maxSmallSize) {
+				initSmall(_Data, s);
+			}
+			else {
+				initMedium(_Data, s);
+			}
 		}
 
 		String_Core& operator=(const String_Core&) = delete;
@@ -143,7 +146,7 @@ namespace Math {
 		void reset(){setSmallSize(0);}
 
 		void setSmallSize(const size_t s) {
-			_Small[maxSmallSize]=static_cast<uint8_t>(maxSmallSize-s);
+			_Small[maxSmallSize]=Char(maxSmallSize-s);
 			_Small[s]='\0';
 		}
 
@@ -161,29 +164,13 @@ namespace Math {
 		}
 
 		void initSmall(const Char* _Data, const size_t s) {
-			if ((reinterpret_cast<size_t>(_Data) & (sizeof(size_t) - 1)) == 0) {
-				const size_t byteSize = s * sizeof(Char);
-				constexpr size_t wordWidth = sizeof(size_t);
-				switch ((byteSize + wordWidth - 1) / wordWidth) {
-				case 3:
-					_Ml._Capacity = reinterpret_cast<const size_t*>(_Data)[2];
-				case 2:
-					_Ml._Size = reinterpret_cast<const size_t*>(_Data)[1];
-				case 1:
-					_Ml._Data = *reinterpret_cast<Char**>(const_cast<Char*>(_Data));
-				case 0:
-					break;
-				}
-			}
-			else {
-				std::memcpy(_Small, _Data, sizeof(Char) * s);
-			}
+			std::memmove(_Small, _Data, sizeof(Char) * s);
 			setSmallSize(s);
 		}
 
 		void initMedium(const Char*_Data,const size_t s) {
 			_Ml._Data = getAl().allocate(s+1);
-			std::memcpy(_Ml._Data,_Data,sizeof(Char)*s);
+			std::memmove(_Ml._Data,_Data,sizeof(Char)*s);
 			setMediumSize(s);
 			setCapacity(s);
 		}
@@ -210,13 +197,12 @@ namespace Math {
 
 		void reserveSmall(const size_t s) {
 			if(s<=maxSmallSize)return ;
-			const size_t _New_Capacity = s + 1;
-			const auto _New_Data = getAl().allocate(_New_Capacity);
+			const auto _New_Data = getAl().allocate(s + 1);
 			const auto _Old_Size = SmallSize();
 			std::memcpy(_New_Data,_Small,sizeof(Char)*_Old_Size);
 			_Ml._Data=_New_Data;
 			setMediumSize(_Old_Size);
-			setCapacity(_New_Capacity);
+			setCapacity(s);
 		}
 
 		void reserveMedium(const size_t s) {
@@ -379,11 +365,11 @@ namespace Math {
 		
 		bool empty(){return size()==0; }
 
-		Char& operator[](const size_t index){
+		reference operator[](const size_t index){
 			return *(begin()+index); 
 		}
 
-		const Char& operator[](const size_t index)const {
+		const_reference operator[](const size_t index)const {
 			return *(begin()+index);
 		}
 
@@ -403,8 +389,8 @@ namespace Math {
 		}
 
 		basic_String& append(const Char* s, size_t n) {
-			const auto oldSize = size();
 			const auto oldData = data();
+			const auto oldSize = size();
 			const auto pData = _core.expandNoinit(n,true);
 			if (oldData <= s && s < oldData + oldSize) {
 				s = (pData - oldSize) + (s - oldData);
@@ -455,7 +441,7 @@ namespace Math {
 			}
 			else {
 				resize(0);
-				std::memcpy(_core.expandNoinit(n),s,sizeof(Char)*n);
+				std::memmove(_core.expandNoinit(n),s,sizeof(Char)*n);
 			}
 			return *this;
 		}
@@ -468,6 +454,59 @@ namespace Math {
 		basic_String& assign(const Char* _Begin, const Char* _End) {
 			assign(_Begin,_End-_Begin);
 			return *this;
+		}
+
+		basic_String& insert(const size_t pos,const basic_String&str) {
+			return insert(pos,str.data(),str.size());
+		}
+
+		basic_String& insert(const size_t pos, const Char* str, const size_t n) {
+			const auto pData = data();
+			const auto _Data_End = _core.expandNoinit(n);
+			const auto _Data = data();
+			const auto _Begin = _Data + pos;
+			const auto _End = _Begin + n;
+
+			str += (_Data - pData);
+			std::memmove(_End, _Begin, sizeof(Char) * (_Data_End - _Begin));
+			if (str+n<_Begin || str >= _Data_End) {
+				std::memcpy(_Begin,str,sizeof(Char)*n);
+			}
+			else {
+				if (str >= _Begin) {
+					std::memcpy(_Begin,str+n,sizeof(Char)*n);
+				}
+				else {
+					const auto _Pre = pos - (str-_Data);
+					std::memcpy(_Begin,str,sizeof(Char)*_Pre);
+					std::memcpy(_Begin+_Pre,str+n+_Pre,sizeof(Char)*(n-_Pre));
+				}
+			}
+			
+			return *this;
+		}
+
+		basic_String& insert(const size_t pos, const Char* str) {
+			return insert(pos,str,std::strlen(str));
+		}
+
+		basic_String& insert(const size_t pos, const Char c) {
+			return insert(pos,&c,1);
+		}
+
+		basic_String& erase(const size_t pos, const size_t n) {
+			const auto _Data = data();
+			std::memcpy(_Data+pos,_Data+pos+n,sizeof(Char)*(size()-pos-n));
+			_core.shrink(n);
+			return *this;
+		}
+
+		iterator erase(iterator position) {
+			return erase(position-begin(),1);
+		}
+
+		iterator erase(iterator _Begin, iterator _End) {
+			return erase(_Begin-begin(),_End-_Begin);
 		}
 
 		void swap(basic_String&other){_core.swap(other._core); }
