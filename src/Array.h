@@ -12,11 +12,12 @@
 
 #define USE_ALLOCATOR
 
-#if defined(_ITERATOR_DEBUG_LEVEL) && _ITERATOR_DEBUG_LEVEL!=0
+#ifdef _DEBUG
 #undef USE_ALLOCATOR
 #endif
 
 namespace Math {
+	
 
 	/*---ÓÑÔªº¯ÊýÉùÃ÷---*/
 

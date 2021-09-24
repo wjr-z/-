@@ -190,9 +190,8 @@ namespace Math {
 	bool operator==(const bint&, const bint2&);
 	bool operator==(const bint2&, const bint&);
 
-	std::string bit10_to_bit2(const std::string&); //10进制字符串转化为2进制字符串
-	std::string bit2_to_bit10(const std::string&); //2进制字符串转化为10进制字符串
-
+	//std::string bit10tobit2(const std::string&);
+	//std::string bit2tobit10(const std::string&);
 	bint sqrt(const bint&);
 	bint2 sqrt(const bint2&);
 	bool is_prime(const bint&); //大数判别质数
@@ -481,6 +480,8 @@ namespace Math {
 		explicit bint2(size_t n, int) noexcept;
 	public:
 		void assign(const bint2& other, size_t L, size_t R);
+		void assign2bit(const char* s);
+		void assign2bit(const std::string& str);
 		bool is_positive() const;
 		bool is_zero() const;
 		bint2() noexcept;

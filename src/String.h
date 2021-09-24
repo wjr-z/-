@@ -129,6 +129,10 @@ namespace Math {
 		constexpr static size_t capacityExtractMask = ~((size_t)categoryExtractMask<<kShift);
 		constexpr static size_t capacityOr = ~capacityExtractMask;
 
+		static_assert(
+			!(sizeof(_Medium) % sizeof(Char)),
+			"Corrupt memory layout for String.");
+
 		union {
 			uint8_t _Byte[sizeof(_Medium)];
 			Char _Small[sizeof(_Medium)/sizeof(Char)];
@@ -284,8 +288,12 @@ namespace Math {
 		}
 
 		basic_String& operator=(basic_String&& other){
+			if(this==&other)
+				return *this;
+
 			_core.swap(other._core);
-			other._core.reset();
+			other.~basic_String();
+
 			return *this;
 		}
 
@@ -502,11 +510,17 @@ namespace Math {
 		}
 
 		iterator erase(iterator position) {
-			return erase(position-begin(),1);
+			const auto _Data = begin();
+			const size_t pos(position - _Data);
+			erase(pos, 1);
+			return _Data + pos;
 		}
 
 		iterator erase(iterator _Begin, iterator _End) {
-			return erase(_Begin-begin(),_End-_Begin);
+			const auto _Data = begin();
+			const size_t pos(_Begin - _Data);
+			erase(pos, _End - _Begin);
+			return _Data + pos;
 		}
 
 		void swap(basic_String&other){_core.swap(other._core); }

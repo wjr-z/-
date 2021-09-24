@@ -65,7 +65,9 @@ namespace Math {
 	}
 
 	void bint::assign(const char* s) {
+
 		const size_t Length = strlen(s);
+
 		assert(isrightint(s));
 		clear(); //Çå¿Õ
 		size_t i = Length - 1, head = 0, j, fir = 0;
@@ -492,6 +494,7 @@ namespace Math {
 	}
 
 	bint bint::divideint(const bint& A, int B) {
+		if(B==1)return A;
 		assert(B!=0);
 		bint ans;
 		size_t Size = A.size();
@@ -671,18 +674,18 @@ namespace Math {
 			a.positive = !(a.positive ^ b.positive);
 		}
 		else {
-			if (n == 1)mulint(b, a.positive ? a.at(0) : -a.at(0), a);
+			if (n == 1)mulint(b, a.positive ? a.save_at(0) : -a.save_at(0), a);
 			else mulint(a, b.positive ? b.at(0) : -b.at(0), a);
 		}
 	}
 
 	void bint::mulint(const bint& a, const int& b, bint& c) {
-
+		
 		if (!a || !b) {
 			c.clear();
 			return;
 		}
-		
+
 		const size_t n = a.size();
 		bool tmp = a.positive;
 		uint64_t copyb;
@@ -698,7 +701,6 @@ namespace Math {
 			mp = _minx(static_cast<uint32_t>(copyb));
 
 		uint64_t Val = 0;
-
 		c.reserve(n+2);
 		c.resize(n);
 		const auto al = a.begin();
@@ -1015,15 +1017,81 @@ namespace Math {
 	ostream& operator<<(ostream& out, const bint& x) {
 		if (!x.positive)out << "-";
 		out << x.at(x.size() - 1);
-		for (size_t i = x.size() - 2; ~i; --i)
+		for (size_t i = x.size() - 2; ~i; --i) {
 			out << std::setw(8) << std::setfill('0') << x.at(i);
+		}
 		return out;
 	}
 
+
+	istream& read(char*&str,istream&in) {
+
+		using _Ctype = istream::_Ctype;
+		using _Traits = std::char_traits<char>;
+
+		size_t Length = 2,ReadLength = 0;
+
+		typename istream::iostate _State = istream::goodbit;
+		bool _Changed = false;
+		const typename istream::sentry _Ok(in);
+
+		if (_Ok) {
+			str = new char[Length + 1];
+
+			const _Ctype& _Ctype_fac = _STD use_facet<_Ctype>(in.getloc());
+			typename _Traits::int_type _Meta = in.rdbuf()->sgetc();
+
+			while (true) {
+				if (_Traits::eq_int_type(_Traits::eof(), _Meta)) {
+					_State |= istream::eofbit;
+					break;
+				}
+				char _ch = _Traits::to_char_type(_Meta);
+				if(_ch>='0'&&_ch<='9')break;
+				_Meta = in.rdbuf()->snextc();
+			}
+
+			for (; ; _Meta = in.rdbuf()->snextc()) {
+				if (_Traits::eq_int_type(_Traits::eof(), _Meta)) {
+					_State |= istream::eofbit;
+					break;
+				}
+				else {
+					char _ch = _Traits::to_char_type(_Meta);
+					if (_ch<'0'||_ch>'9') {
+						break;
+					}
+					
+					if (ReadLength == Length) {
+						Length += Length / 2;
+						char* newstr = new char[Length + 1];
+						std::memcpy(newstr, str, sizeof(char) * ReadLength);
+						delete[]str;
+						str = newstr;
+					}
+					*(str + ReadLength) = _ch;
+					++ReadLength;
+					_Changed = true;
+				}
+			}
+
+			str[ReadLength]='\0';
+		}
+
+
+		if (!_Changed) {
+			_State |= istream::failbit;
+		}
+
+		in.setstate(_State);
+		return in;
+	}
+
 	istream& operator>>(istream& in, bint& x) {
-		std::string s;
-		in >> s;
-		x = s;
+		char *str=nullptr;
+		read(str,in);
+		x = str;
+		delete[]str;
 		return in;
 	}
 
@@ -1523,8 +1591,12 @@ namespace Math {
 			}else if(is_b) {
 				b/=2;
 			}else {
-				if(a>=b)a-=b;
-				else b-=a;
+				if (a >= b) {
+					a-=b;
+				}
+				else {
+					b-=a;
+				}
 			}
 		}
 	}
@@ -2196,6 +2268,33 @@ namespace Math {
 		maintain();
 	}
 
+	void bint2::assign2bit(const char* s) {
+		clear();
+		int Length = strlen(s);
+		int i = Length - 1, head = 0, j = 0;
+		int fir = 0;
+		if(s[fir]=='-')
+			positive=false,++fir;
+
+		while (s[fir] == '0' && fir < Length - 1)
+			++fir;
+		resize(((Length-fir-1)>>5)+1);
+		const auto Vec = vec.begin();
+		while (i >= 31 + fir) {
+			for (j = i - 31; j <= i; ++j)
+				Vec[head] = (Vec[head] << 1) + (s[j] - '0');
+			++head;
+			i -= 32;
+		}
+		for (j = fir; j <= i; ++j)
+			Vec[head] = (Vec[head] << 1) + (s[j] - '0');
+		if (is_zero())positive = true;
+	}
+
+	void bint2::assign2bit(const std::string& str) {
+		assign2bit(str.c_str());
+	}
+
 	void bint2::rand(const bint2& other) {
 		size_t Size = other.size();
 		resize(Size);
@@ -2361,9 +2460,9 @@ namespace Math {
 	}
 
 	istream& operator>>(istream& in, bint2& x) {
-		std::string str;
-		std::cin >> str;
-		x = bint(str);
+		bint G;
+		in>>G;
+		x = G.to2bit();
 		return in;
 	}
 
@@ -2954,14 +3053,6 @@ namespace Math {
 
 	bool operator==(const bint2& lhs, const bint& rhs) {
 		return lhs.to10bit() == rhs;
-	}
-
-	std::string bit10_to_bit2(const std::string& str) {
-		return bint(str).to2bit().tostr();
-	}
-
-	std::string bit2_to_bit10(const std::string& str) {
-		return bint2(str).to10bit().tostr();
 	}
 
 	bint sqrt(const bint& A) {
